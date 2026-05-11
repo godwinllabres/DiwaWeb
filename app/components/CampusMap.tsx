@@ -1,0 +1,464 @@
+import { useMemo, useState } from "react";
+import { MapPin, Navigation, ArrowRight } from "lucide-react";
+import {
+  BUILDINGS,
+  CAMPUS_H,
+  CAMPUS_OUTLINE,
+  CAMPUS_RIVER,
+  CAMPUS_W,
+  ROADS,
+  STREET_LABELS,
+  findBuilding,
+  pointsToPath,
+  routeBetween,
+} from "@/lib/campusMap";
+import type { MapData } from "@/lib/types";
+
+const HIGHLIGHT_RADIUS = 100;    // outer pulsing ring on the target
+const TARGET_BADGE_R = 44;       // green badge over the target's number
+const MARKER_BADGE_R = 22;       // yellow marker for every other building
+const SOURCE_BADGE_R = 38;       // red badge over the source ("from") number
+
+function outlineToPath(): string {
+  if (CAMPUS_OUTLINE.length === 0) return "";
+  const [first, ...rest] = CAMPUS_OUTLINE;
+  return `M ${first.x} ${first.y} ` + rest.map((p) => `L ${p.x} ${p.y}`).join(" ") + " Z";
+}
+
+export function CampusMap({ place_id, label }: Readonly<MapData>) {
+  const target = findBuilding(place_id);
+  const isFullCampus = place_id === "main" || !target;
+
+  // From-picker — defaults to Gate 1 (Main Gate). User can switch to any place.
+  const [fromId, setFromId] = useState<string>("gate_1");
+  const from = useMemo(() => findBuilding(fromId) ?? findBuilding("gate_1")!, [fromId]);
+
+  const route = useMemo(() => {
+    if (!target || target.id === from.id) return [];
+    return routeBetween(from, target);
+  }, [from, target]);
+
+  const routePath = useMemo(() => pointsToPath(route), [route]);
+
+  const campusOutline = useMemo(outlineToPath, []);
+
+  return (
+    <div className="mt-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+      <div className="flex items-start gap-1.5 px-3 py-2 bg-gray-50 border-b border-gray-200 sm:items-center">
+        <MapPin className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5 sm:mt-0" />
+        <span className="text-xs font-medium text-gray-700 leading-snug sm:truncate">
+          {target ? `${target.num}. ${target.name}` : label}
+        </span>
+      </div>
+
+      {/* From-picker — touch-friendly on mobile (44px+ tap target) */}
+      {target && (
+        <div className="px-3 py-2.5 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+          <span className="text-gray-600 font-medium">From</span>
+          <select
+            value={fromId}
+            onChange={(e) => setFromId(e.target.value)}
+            // text-base on mobile prevents iOS auto-zoom; min-h-9 gives a 36px+ tap target.
+            className="min-h-9 flex-1 min-w-[140px] px-2.5 py-1.5 rounded-md border border-gray-300 bg-white text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+            aria-label="Starting location"
+          >
+            {BUILDINGS.map((b) => (
+              <option key={b.id} value={b.id}>{b.num}. {b.abbr}</option>
+            ))}
+          </select>
+          <ArrowRight className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+          <span className="text-gray-800 font-semibold truncate" title={target.name}>
+            {target.num}. {target.abbr}
+          </span>
+        </div>
+      )}
+
+      {/* Illustrated campus map */}
+      <div className="overflow-x-auto bg-[#1f3d1f]">
+        <svg
+          viewBox={`0 0 ${CAMPUS_W} ${CAMPUS_H}`}
+          className="block w-full"
+          style={{ maxHeight: 640 }}
+          aria-label={`CvSU Indang campus map highlighting ${target ? target.name : "the full campus"}`}
+          role="img"
+        >
+          <defs>
+            <filter id="cm-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="14" />
+              <feComponentTransfer>
+                <feFuncA type="linear" slope="2" />
+              </feComponentTransfer>
+              <feComposite in2="SourceGraphic" operator="in" />
+            </filter>
+            <linearGradient id="cm-ground" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3d6e3d" />
+              <stop offset="100%" stopColor="#2d5a2d" />
+            </linearGradient>
+          </defs>
+
+          {/* Dark green bezel */}
+          <rect x="0" y="0" width={CAMPUS_W} height={CAMPUS_H} fill="#1a3d1a" />
+
+          {/* Campus ground (the irregular shape of the Indang campus) */}
+          <path d={campusOutline} fill="url(#cm-ground)" stroke="#0f2e0f" strokeWidth="6" />
+
+          {/* River — drawn before roads so road overpasses paint on top.
+              Wide blue stroke with a lighter inner core for depth. */}
+          <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+            <polyline
+              points={CAMPUS_RIVER.map((p) => `${p.x},${p.y}`).join(" ")}
+              stroke="#1e3a8a"
+              strokeWidth="42"
+              opacity="0.55"
+            />
+            <polyline
+              points={CAMPUS_RIVER.map((p) => `${p.x},${p.y}`).join(" ")}
+              stroke="#60a5fa"
+              strokeWidth="22"
+              opacity="0.95"
+            />
+            <polyline
+              points={CAMPUS_RIVER.map((p) => `${p.x},${p.y}`).join(" ")}
+              stroke="#bfdbfe"
+              strokeWidth="6"
+              opacity="0.8"
+            />
+          </g>
+
+          {/* Major roads drawn as wide light-green strokes */}
+          <g stroke="#a4c5a4" strokeWidth="38" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.92">
+            {ROADS.map((road, i) => (
+              <polyline
+                key={i}
+                points={road.points.map((p) => `${p.x},${p.y}`).join(" ")}
+              />
+            ))}
+          </g>
+          {/* Road centerlines for a subtle paved look */}
+          <g stroke="#cde0cd" strokeWidth="2" strokeDasharray="14 14" fill="none" opacity="0.6">
+            {ROADS.map((road, i) => (
+              <polyline
+                key={i}
+                points={road.points.map((p) => `${p.x},${p.y}`).join(" ")}
+              />
+            ))}
+          </g>
+
+          {/* Major street labels overlaid on the campus */}
+          <g fontFamily="system-ui, -apple-system, sans-serif" fontWeight="600" fill="#1a3d1a" opacity="0.85">
+            {STREET_LABELS.map((s, i) => (
+              <text
+                key={i}
+                x={s.x}
+                y={s.y}
+                textAnchor="middle"
+                fontSize="20"
+                transform={s.rotation ? `rotate(${s.rotation} ${s.x} ${s.y})` : undefined}
+                style={{ paintOrder: "stroke", stroke: "#dcfce7", strokeWidth: 6, strokeLinejoin: "round" }}
+              >
+                {s.text}
+              </text>
+            ))}
+          </g>
+
+          {/* Compass rose */}
+          <g transform="translate(140, 280)" opacity="0.92">
+            <circle r="64" fill="#0f2e0f" stroke="#a4c5a4" strokeWidth="3" />
+            <text x="0" y="-30" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">N</text>
+            <text x="0" y="42" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">S</text>
+            <text x="-42" y="8" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">W</text>
+            <text x="42" y="8" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">E</text>
+            <polygon points="0,-22 -8,0 0,-6 8,0" fill="#dcfce7" />
+          </g>
+
+
+          {/* Animated route polyline (only when from ≠ to and we have a target) */}
+          {target && route.length > 1 && (
+            <g>
+              <path
+                d={routePath}
+                fill="none"
+                stroke="#000000"
+                strokeWidth="22"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity="0.25"
+              />
+              <path
+                d={routePath}
+                fill="none"
+                stroke="#ef4444"
+                strokeWidth="14"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray="28 18"
+              >
+                <animate
+                  attributeName="stroke-dashoffset"
+                  values="0;-92"
+                  dur="1.8s"
+                  repeatCount="indefinite"
+                />
+              </path>
+            </g>
+          )}
+
+          {/* Yellow numbered markers for every building.
+              Matches the official schematic style — bare numbered badges, no
+              per-marker text label. Source ("FROM") and target keep their
+              larger label badges further down. A <title> element surfaces the
+              full building name on hover. */}
+          <g>
+            {BUILDINGS.map((b) => {
+              const isTarget = target && b.id === target.id;
+              const isSource = target && b.id === from.id && b.id !== target.id;
+              if (isTarget || isSource) return null;
+              return (
+                <g key={`mk-${b.id}`}>
+                  <title>{b.num}. {b.name}</title>
+                  <rect
+                    x={b.x - MARKER_BADGE_R}
+                    y={b.y - MARKER_BADGE_R}
+                    width={MARKER_BADGE_R * 2}
+                    height={MARKER_BADGE_R * 2}
+                    rx="6"
+                    fill="#facc15"
+                    stroke="#1a3d1a"
+                    strokeWidth="1.5"
+                    opacity="0.95"
+                  />
+                  <text
+                    x={b.x}
+                    y={b.y + 9}
+                    textAnchor="middle"
+                    fontSize="26"
+                    fontWeight="800"
+                    fill="#1a3d1a"
+                    fontFamily="system-ui, -apple-system, sans-serif"
+                  >
+                    {b.num}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+
+          {/* Source pin (red ★ with number) — drawn after generic markers so it's on top */}
+          {target && from.id !== target.id && (
+            <g>
+              <circle cx={from.x} cy={from.y} r={SOURCE_BADGE_R + 8} fill="#ffffff" />
+              <circle
+                cx={from.x}
+                cy={from.y}
+                r={SOURCE_BADGE_R}
+                fill="#dc2626"
+                stroke="#ffffff"
+                strokeWidth="5"
+              />
+              <text
+                x={from.x}
+                y={from.y + 10}
+                textAnchor="middle"
+                fontSize="28"
+                fontWeight="900"
+                fill="#ffffff"
+                fontFamily="system-ui, -apple-system, sans-serif"
+              >
+                {from.num}
+              </text>
+              <g transform={`translate(${from.x}, ${from.y - SOURCE_BADGE_R - 38})`}>
+                <rect
+                  x={-90}
+                  y={-22}
+                  width={180}
+                  height={40}
+                  rx={20}
+                  fill="#dc2626"
+                  stroke="#ffffff"
+                  strokeWidth="3"
+                />
+                <text x="0" y="6" textAnchor="middle" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui, -apple-system, sans-serif">
+                  FROM
+                </text>
+              </g>
+            </g>
+          )}
+
+          {/* Target pin (pulsing green) — drawn last so it sits on top */}
+          {target && (
+            <g>
+              <circle
+                cx={target.x}
+                cy={target.y}
+                r={HIGHLIGHT_RADIUS}
+                fill="#facc15"
+                opacity="0.4"
+                filter="url(#cm-glow)"
+              >
+                <animate
+                  attributeName="r"
+                  values={`${HIGHLIGHT_RADIUS};${HIGHLIGHT_RADIUS + 50};${HIGHLIGHT_RADIUS}`}
+                  dur="2s"
+                  repeatCount="indefinite"
+                />
+                <animate
+                  attributeName="opacity"
+                  values="0.5;0.15;0.5"
+                  dur="2s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+              <circle cx={target.x} cy={target.y} r={TARGET_BADGE_R + 8} fill="#ffffff" />
+              <circle
+                cx={target.x}
+                cy={target.y}
+                r={TARGET_BADGE_R}
+                fill="#16a34a"
+                stroke="#ffffff"
+                strokeWidth="6"
+              />
+              <text
+                x={target.x}
+                y={target.y + 12}
+                textAnchor="middle"
+                fontSize="34"
+                fontWeight="900"
+                fill="#ffffff"
+                fontFamily="system-ui, -apple-system, sans-serif"
+              >
+                {target.num}
+              </text>
+
+              {/* TO label above the target pin */}
+              <g transform={`translate(${target.x}, ${target.y - TARGET_BADGE_R - 46})`}>
+                <rect
+                  x={-Math.max(110, target.abbr.length * 14)}
+                  y={-26}
+                  width={Math.max(220, target.abbr.length * 28)}
+                  height={48}
+                  rx={24}
+                  fill="#16a34a"
+                  stroke="#ffffff"
+                  strokeWidth="4"
+                />
+                <text x="0" y="7" textAnchor="middle" fontSize="24" fontWeight="700" fill="#ffffff" fontFamily="system-ui, -apple-system, sans-serif">
+                  {target.abbr}
+                </text>
+              </g>
+            </g>
+          )}
+
+          {/* Footer label inside the canvas */}
+          <text
+            x={CAMPUS_W / 2}
+            y={CAMPUS_H - 24}
+            textAnchor="middle"
+            fontSize="22"
+            fontWeight="700"
+            fill="#dcfce7"
+            opacity="0.85"
+            fontFamily="system-ui, -apple-system, sans-serif"
+          >
+            CvSU Don Severino delas Alas Campus — Indang, Cavite
+          </text>
+        </svg>
+      </div>
+
+      {/* Walking directions panel */}
+      {target && (
+        <div className="px-3 py-3 border-t border-gray-100 bg-white sm:px-3 sm:py-2.5">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-2 sm:text-[11px]">
+            <Navigation className="h-3.5 w-3.5 text-green-600 sm:h-3 sm:w-3" />
+            {from.id === target.id
+              ? "You are already there"
+              : `Easiest path: ${from.abbr} → ${target.abbr}`}
+          </p>
+          {from.id === target.id ? (
+            <p className="text-sm text-gray-700 sm:text-xs">{target.steps[0]}</p>
+          ) : (
+            <ol className="space-y-2 sm:space-y-1.5">
+              <li className="flex items-start gap-2 text-sm text-gray-700 leading-snug sm:text-xs">
+                <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold sm:w-4 sm:h-4 sm:text-[9px]">
+                  A
+                </span>
+                <span>Start at <strong>{from.num}. {from.name}</strong>.</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-gray-700 leading-snug sm:text-xs">
+                <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold sm:w-4 sm:h-4 sm:text-[9px]">
+                  →
+                </span>
+                <span>
+                  Follow the highlighted red path through {Math.max(1, route.length - 1)} road
+                  {route.length - 1 === 1 ? " segment" : " segments"}.
+                </span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-gray-700 leading-snug sm:text-xs">
+                <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-bold sm:w-4 sm:h-4 sm:text-[9px]">
+                  B
+                </span>
+                <span>Arrive at <strong>{target.num}. {target.name}</strong>.</span>
+              </li>
+              {target.steps[0] && (
+                <li className="flex items-start gap-2 text-sm text-gray-600 leading-snug italic pt-1 border-t border-gray-100 sm:text-xs">
+                  <span className="flex-shrink-0 mt-0.5 w-5 h-5 flex items-center justify-center text-[11px] sm:w-4 sm:h-4 sm:text-[10px]">
+                    💡
+                  </span>
+                  <span>{target.steps[0]}</span>
+                </li>
+              )}
+            </ol>
+          )}
+        </div>
+      )}
+
+      {isFullCampus && (
+        <div className="px-3 py-2.5 border-t border-gray-100 bg-white">
+          <p className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-600 mb-1">
+            <Navigation className="h-3 w-3 text-green-600" />
+            CvSU Don Severino delas Alas Campus — Indang, Cavite
+          </p>
+          <p className="text-xs text-gray-600 leading-snug">
+            The campus has {BUILDINGS.length} numbered locations — 3 gates,
+            10+ colleges, the Library, the Oval, OSAS/Registrar, the Chapel,
+            the Lagoon, and the CvSU Star Farm at the far north. Ask about a
+            specific place (e.g. &ldquo;Where is OSAS?&rdquo;, &ldquo;Where is
+            the lagoon?&rdquo;) for walking directions and a route from your
+            chosen starting point.
+          </p>
+        </div>
+      )}
+
+      {/* Legend — the map's numbered key, matching the side list on the
+          official campus schematic. FROM and TO rows get color highlights so
+          you can quickly find them in the list. */}
+      <details className="border-t border-gray-100 bg-white" open>
+        <summary className="px-3 py-2 text-[11px] font-semibold text-gray-600 cursor-pointer select-none flex items-center justify-between">
+          <span>Legend ({BUILDINGS.length} locations)</span>
+          <span className="text-gray-400 font-normal">tap to toggle</span>
+        </summary>
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 pb-3 sm:grid-cols-3">
+          {BUILDINGS.map((b) => {
+            const isFromRow = target && b.id === from.id && b.id !== target.id;
+            const isToRow = target && b.id === target.id;
+            const rowCls = isToRow
+              ? "bg-green-50 text-green-900 border-l-2 border-green-600 pl-1.5"
+              : isFromRow
+              ? "bg-red-50 text-red-900 border-l-2 border-red-600 pl-1.5"
+              : "text-gray-700";
+            return (
+              <li
+                key={b.id}
+                className={`flex items-baseline gap-1.5 py-0.5 text-[11px] leading-tight rounded-r ${rowCls}`}
+              >
+                <span className="inline-flex h-4 min-w-[18px] items-center justify-center rounded-sm bg-yellow-300 px-1 text-[10px] font-bold text-gray-900">
+                  {b.num}
+                </span>
+                <span className="truncate" title={b.name}>{b.abbr}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </details>
+    </div>
+  );
+}

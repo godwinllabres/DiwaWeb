@@ -1,0 +1,1093 @@
+[2m12:07:31 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+[2m12:07:31 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:07:31 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:07:32 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:07:33 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:08:46 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+[2m12:08:46 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:08:46 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:08:48 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:08:48 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:08:59 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+[2m12:08:59 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:08:59 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:09:00 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:09:00 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:09:36 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+[2m12:09:36 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:09:36 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:09:39 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:09:39 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:10:45 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+[2m12:10:45 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:10:45 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:10:46 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:10:46 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:01 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+[2m12:11:01 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:01 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:04 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:06 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:19 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:22 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:29 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:11:54 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:12:24 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:12:24 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:12:25 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:12:25 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:12:25 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:12:25 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:12:25 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:38:10: ERROR: Syntax error "p"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:38:10
+[33m  
+  [33mSyntax error "p"[33m
+  36 |    {
+  37 |      id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
+  38 |      x: 680plaza1860,
+     |            ^
+  39 |      steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
+  40 |    },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:23:14 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:552:13: ERROR: Unexpected "}"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:552:13
+[33m  
+  [33mUnexpected "}"[33m
+  550|    { x: 1160, y: 1370 }, { x: 1190, y: 1500 }, { x: 1240, y: 1640 },
+  551|    { x: 1290, y: 1780 }, { x: 1360, y: 1920 },
+  552|  ]; y: number }> = [
+     |               ^
+  553|    { x: 1430, y: 30 },   { x: 1370, y: 170 },  { x: 1300, y: 320 },
+  554|    { x: 1200, y: 470 },  { x: 1090, y: 620 },  { x: 1000, y: 770 },
+  [39m
+[2m12:23:14 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:552:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:552:13
+[33m  
+  [33mUnexpected "}"[33m
+  550|    { x: 1160, y: 1370 }, { x: 1190, y: 1500 }, { x: 1240, y: 1640 },
+  551|    { x: 1290, y: 1780 }, { x: 1360, y: 1920 },
+  552|  ]; y: number }> = [
+     |               ^
+  553|    { x: 1430, y: 30 },   { x: 1370, y: 170 },  { x: 1300, y: 320 },
+  554|    { x: 1200, y: 470 },  { x: 1090, y: 620 },  { x: 1000, y: 770 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:23:14 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:552:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:552:13
+[33m  
+  [33mUnexpected "}"[33m
+  550|    { x: 1160, y: 1370 }, { x: 1190, y: 1500 }, { x: 1240, y: 1640 },
+  551|    { x: 1290, y: 1780 }, { x: 1360, y: 1920 },
+  552|  ]; y: number }> = [
+     |               ^
+  553|    { x: 1430, y: 30 },   { x: 1370, y: 170 },  { x: 1300, y: 320 },
+  554|    { x: 1200, y: 470 },  { x: 1090, y: 620 },  { x: 1000, y: 770 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:23:15 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:552:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:552:13
+[33m  
+  [33mUnexpected "}"[33m
+  550|    { x: 1160, y: 1370 }, { x: 1190, y: 1500 }, { x: 1240, y: 1640 },
+  551|    { x: 1290, y: 1780 }, { x: 1360, y: 1920 },
+  552|  ]; y: number }> = [
+     |               ^
+  553|    { x: 1430, y: 30 },   { x: 1370, y: 170 },  { x: 1300, y: 320 },
+  554|    { x: 1200, y: 470 },  { x: 1090, y: 620 },  { x: 1000, y: 770 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:23:15 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:552:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:552:13
+[33m  
+  [33mUnexpected "}"[33m
+  550|    { x: 1160, y: 1370 }, { x: 1190, y: 1500 }, { x: 1240, y: 1640 },
+  551|    { x: 1290, y: 1780 }, { x: 1360, y: 1920 },
+  552|  ]; y: number }> = [
+     |               ^
+  553|    { x: 1430, y: 30 },   { x: 1370, y: 170 },  { x: 1300, y: 320 },
+  554|    { x: 1200, y: 470 },  { x: 1090, y: 620 },  { x: 1000, y: 770 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:24:11 PM[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:589:13: ERROR: Unexpected "}"
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:589:13
+[33m  
+  [33mUnexpected "}"[33m
+  587|    { x: 180, y: 1420 }, { x: 200, y: 1500 }, { x: 220, y: 1620 },
+  588|    { x: 230, y: 1740 }, { x: 270, y: 1840 },
+  589|  ]; y: number }> = [
+     |               ^
+  590|    { x: 180, y: 1880 }, { x: 1320, y: 1880 }, { x: 1330, y: 1830 },
+  591|    { x: 1300, y: 1700 }, { x: 1290, y: 1620 }, { x: 1230, y: 1560 },
+  [39m
+[2m12:24:12 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:589:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:589:13
+[33m  
+  [33mUnexpected "}"[33m
+  587|    { x: 180, y: 1420 }, { x: 200, y: 1500 }, { x: 220, y: 1620 },
+  588|    { x: 230, y: 1740 }, { x: 270, y: 1840 },
+  589|  ]; y: number }> = [
+     |               ^
+  590|    { x: 180, y: 1880 }, { x: 1320, y: 1880 }, { x: 1330, y: 1830 },
+  591|    { x: 1300, y: 1700 }, { x: 1290, y: 1620 }, { x: 1230, y: 1560 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:24:12 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:589:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:589:13
+[33m  
+  [33mUnexpected "}"[33m
+  587|    { x: 180, y: 1420 }, { x: 200, y: 1500 }, { x: 220, y: 1620 },
+  588|    { x: 230, y: 1740 }, { x: 270, y: 1840 },
+  589|  ]; y: number }> = [
+     |               ^
+  590|    { x: 180, y: 1880 }, { x: 1320, y: 1880 }, { x: 1330, y: 1830 },
+  591|    { x: 1300, y: 1700 }, { x: 1290, y: 1620 }, { x: 1230, y: 1560 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:24:12 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:589:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:589:13
+[33m  
+  [33mUnexpected "}"[33m
+  587|    { x: 180, y: 1420 }, { x: 200, y: 1500 }, { x: 220, y: 1620 },
+  588|    { x: 230, y: 1740 }, { x: 270, y: 1840 },
+  589|  ]; y: number }> = [
+     |               ^
+  590|    { x: 180, y: 1880 }, { x: 1320, y: 1880 }, { x: 1330, y: 1830 },
+  591|    { x: 1300, y: 1700 }, { x: 1290, y: 1620 }, { x: 1230, y: 1560 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[2m12:24:12 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+C:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts:589:13: ERROR: Unexpected "}"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mC:/Users/user/Documents/POC/SeviWeb/app/lib/campusMap.ts[39m:589:13
+[33m  
+  [33mUnexpected "}"[33m
+  587|    { x: 180, y: 1420 }, { x: 200, y: 1500 }, { x: 220, y: 1620 },
+  588|    { x: 230, y: 1740 }, { x: 270, y: 1840 },
+  589|  ]; y: number }> = [
+     |               ^
+  590|    { x: 180, y: 1880 }, { x: 1320, y: 1880 }, { x: 1330, y: 1830 },
+  591|    { x: 1300, y: 1700 }, { x: 1290, y: 1620 }, { x: 1230, y: 1560 },
+  [39m
+      at failureErrorWithLog (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:1467:15)
+      at C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:736:50
+      at responseCallbacks.<computed> (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:603:9)
+      at handleIncomingPacket (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:658:12)
+      at Socket.readFromStdout (C:\Users\user\Documents\POC\SeviWeb\node_modules\esbuild\lib\main.js:581:7)
+      at Socket.emit (node:events:509:28)
+      at addChunk (node:internal/streams/readable:563:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+      at Readable.push (node:internal/streams/readable:394:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)

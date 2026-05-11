@@ -1,10 +1,15 @@
 const API_BASE_URL =
-  (import.meta as any).env?.VITE_API_URL || "http://127.0.0.1:8002";
+  (import.meta as any).env?.VITE_API_URL || "http://127.0.0.1:8010";
 
 export interface ChatRequest {
   message: string;
   user_id?: string;
   session_id?: string;
+}
+
+export interface MapData {
+  place_id: string;
+  label: string;
 }
 
 export interface ChatResponse {
@@ -14,6 +19,7 @@ export interface ChatResponse {
   user_id?: string | null;
   session_id?: string | null;
   message_id?: number | null;
+  map_data?: MapData | null;
 }
 
 export interface FeedbackRequest {
