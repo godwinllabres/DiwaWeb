@@ -50,6 +50,37 @@ describe("api client", () => {
     expect(JSON.parse(init.body)).toMatchObject({ message_id: 5, helpful: true });
   });
 
+  it("submitFeedback() forwards structured reason + comment when provided", async () => {
+    mockJson({ ok: true });
+
+    await api.submitFeedback({
+      message_id: 9,
+      helpful: false,
+      rating: 2,
+      reason: "wrong_info",
+      comment: "phone number is outdated",
+    });
+
+    const [, init] = fetchMock.mock.calls[0];
+    const body = JSON.parse(init.body);
+    expect(body).toMatchObject({
+      message_id: 9,
+      helpful: false,
+      reason: "wrong_info",
+      comment: "phone number is outdated",
+    });
+  });
+
+  it("getFeedbackReasons() GETs /feedback/reasons", async () => {
+    mockJson({ positive: [], negative: [] });
+
+    await api.getFeedbackReasons();
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toMatch(/\/feedback\/reasons$/);
+    expect(init?.method ?? "GET").toBe("GET");
+  });
+
   it("getIntents() makes a GET request without a body", async () => {
     mockJson({ intents: [] });
 

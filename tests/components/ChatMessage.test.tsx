@@ -29,7 +29,7 @@ describe("ChatMessage", () => {
     expect(screen.queryByLabelText(/^helpful$/i)).not.toBeInTheDocument();
   });
 
-  it("invokes onFeedback when the helpful button is clicked", () => {
+  it("does not submit immediately on thumb click — opens reason panel instead", () => {
     const onFeedback = vi.fn();
     render(
       <ChatMessage
@@ -42,10 +42,16 @@ describe("ChatMessage", () => {
     );
 
     fireEvent.click(screen.getByLabelText(/^helpful$/i));
-    expect(onFeedback).toHaveBeenCalledWith(true);
+
+    // Reason panel opens; submission is deferred until the user picks
+    // (or explicitly skips).
+    expect(onFeedback).not.toHaveBeenCalled();
+    expect(screen.getByText(/what worked well/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /send feedback/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^skip$/i })).toBeInTheDocument();
   });
 
-  it("invokes onFeedback(false) on the not-helpful button", () => {
+  it("shows the negative-prompt panel on the not-helpful button", () => {
     const onFeedback = vi.fn();
     render(
       <ChatMessage
@@ -58,7 +64,78 @@ describe("ChatMessage", () => {
     );
 
     fireEvent.click(screen.getByLabelText(/not helpful/i));
-    expect(onFeedback).toHaveBeenCalledWith(false);
+    expect(onFeedback).not.toHaveBeenCalled();
+    expect(screen.getByText(/what went wrong/i)).toBeInTheDocument();
+    // Negative reason chips
+    expect(screen.getByRole("button", { name: /contains incorrect info/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /answered something else/i })).toBeInTheDocument();
+  });
+
+  it("submits with helpful=true and the picked reason + comment when Send is clicked", () => {
+    const onFeedback = vi.fn();
+    render(
+      <ChatMessage
+        message="hi"
+        isBot={true}
+        timestamp="12:00"
+        messageId={1}
+        onFeedback={onFeedback}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText(/^helpful$/i));
+    fireEvent.click(screen.getByRole("button", { name: /got my answer/i }));
+    fireEvent.change(screen.getByPlaceholderText(/anything else/i), {
+      target: { value: "thanks!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /send feedback/i }));
+
+    expect(onFeedback).toHaveBeenCalledWith({
+      helpful: true,
+      reason: "accurate",
+      comment: "thanks!",
+    });
+  });
+
+  it("submits with helpful=false and reason when Send is clicked on a negative thumb", () => {
+    const onFeedback = vi.fn();
+    render(
+      <ChatMessage
+        message="hi"
+        isBot={true}
+        timestamp="12:00"
+        messageId={1}
+        onFeedback={onFeedback}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText(/not helpful/i));
+    fireEvent.click(screen.getByRole("button", { name: /contains incorrect info/i }));
+    fireEvent.click(screen.getByRole("button", { name: /send feedback/i }));
+
+    expect(onFeedback).toHaveBeenCalledWith({
+      helpful: false,
+      reason: "wrong_info",
+      comment: undefined,
+    });
+  });
+
+  it("Skip sends only the bare thumb signal without reason/comment", () => {
+    const onFeedback = vi.fn();
+    render(
+      <ChatMessage
+        message="hi"
+        isBot={true}
+        timestamp="12:00"
+        messageId={1}
+        onFeedback={onFeedback}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText(/^helpful$/i));
+    fireEvent.click(screen.getByRole("button", { name: /^skip$/i }));
+
+    expect(onFeedback).toHaveBeenCalledWith({ helpful: true });
   });
 
   it("disables both feedback buttons after one is clicked", () => {
