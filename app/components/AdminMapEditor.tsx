@@ -13,10 +13,12 @@ import {
   Eye,
   Pencil,
   Move,
+  Plus,
+  Trash2,
   Waypoints as WaypointsIcon,
   MapPin,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, type CustomMarker } from "@/lib/api";
 import {
   BUILDINGS,
   CAMPUS_H,
@@ -78,6 +80,35 @@ function buildAdjacencyEdges(): AdjacencyEdge[] {
 
 const WP_EDGES = buildAdjacencyEdges();
 
+/** A custom waypoint that admin added at runtime. Lives alongside the
+ *  bundled WAYPOINTS but ships its own adjacency. */
+interface CustomWaypoint {
+  id: string;
+  x: number;
+  y: number;
+  neighbors: string[];
+}
+
+function nextCustomId(prefix: string, existing: Iterable<string>): string {
+  const taken = new Set<string>(existing);
+  let n = 1;
+  while (taken.has(`${prefix}${n}`)) n += 1;
+  return `${prefix}${n}`;
+}
+
+/** Two nearest neighbors among the supplied positions. */
+function findNearest(
+  point: Coord,
+  candidates: Array<{ id: string; x: number; y: number }>,
+  k: number = 2,
+): string[] {
+  return [...candidates]
+    .map((c) => ({ id: c.id, d: Math.hypot(c.x - point.x, c.y - point.y) }))
+    .sort((a, b) => a.d - b.d)
+    .slice(0, k)
+    .map((c) => c.id);
+}
+
 /**
  * Full-screen admin editor. Two modes:
  *   - Markers: drag building markers to the calibrated map position.
@@ -104,8 +135,17 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
   const [resetting, setResetting] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState(false);
+  // Edit mode is on by default — the old "Locked / View mode" landing made
+  // it look like the UI was read-only. Admin can still lock via the button.
+  const [editMode, setEditMode] = useState(true);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+
+  // Custom items (admin-added at runtime, persisted via the API).
+  const [customMarkers, setCustomMarkers] = useState<Record<string, CustomMarker>>({});
+  const [customWaypoints, setCustomWaypoints] = useState<Record<string, CustomWaypoint>>({});
+  // When true, the next click on empty map area drops a new item of the
+  // current mode.
+  const [addMode, setAddMode] = useState(false);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dragRef = useRef<{ id: string; pointerId: number } | null>(null);
@@ -132,7 +172,9 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
     };
   }, []);
 
-  // Load waypoint overrides from /map/waypoints.
+  // Load waypoint overrides from /map/waypoints. Custom waypoints (entries
+  // with ids not in the bundled WAYPOINTS) flow into customWaypoints state
+  // so we render them and persist their neighbors alongside their coords.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -140,13 +182,40 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
         const data = await api.getMapWaypoints();
         if (cancelled) return;
         const next = buildBaselineWaypointCoords();
+        const customs: Record<string, CustomWaypoint> = {};
         for (const [id, c] of Object.entries(data.overrides ?? {})) {
-          if (id in next) next[id] = { x: c.x, y: c.y };
+          if (id in next) {
+            next[id] = { x: c.x, y: c.y };
+            continue;
+          }
+          customs[id] = {
+            id,
+            x: c.x,
+            y: c.y,
+            neighbors: Array.isArray((c as any).neighbors) ? (c as any).neighbors : [],
+          };
         }
         setWpCoords(next);
         setWpServerCoords(next);
+        setCustomWaypoints(customs);
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? "Failed to load waypoints");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Load custom markers from /map/custom_markers.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await api.getCustomMarkers();
+        if (!cancelled) setCustomMarkers(data.markers ?? {});
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message ?? "Failed to load custom markers");
       }
     })();
     return () => {
@@ -206,6 +275,12 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
     [selectedWpId],
   );
 
+  // When a custom item is selected, the built-in lookups above return the
+  // wrong row — these flags + helpers let the sidebar / inputs read from
+  // the custom stores instead.
+  const selectedCustomMarker = customMarkers[selectedId];
+  const selectedCustomWaypoint = customWaypoints[selectedWpId];
+
   // Convert a pointer event's clientX/Y into viewBox coords.
   const screenToSvg = (clientX: number, clientY: number): Coord | null => {
     const svg = svgRef.current;
@@ -220,6 +295,108 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
       x: Math.round(Math.max(0, Math.min(CAMPUS_W, local.x))),
       y: Math.round(Math.max(0, Math.min(CAMPUS_H, local.y))),
     };
+  };
+
+  // Add-mode: click on the SVG background drops a new item at that point.
+  const onSvgClick = async (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!addMode || !editMode) return;
+    // Ignore clicks on existing nodes — those bubble from <g> elements.
+    if ((e.target as Element).closest("[data-node]")) return;
+    const point = screenToSvg(e.clientX, e.clientY);
+    if (!point) return;
+    if (mode === "markers") {
+      await addCustomMarkerAt(point);
+    } else {
+      await addCustomWaypointAt(point);
+    }
+    setAddMode(false);
+  };
+
+  const addCustomMarkerAt = async (point: Coord) => {
+    const id = nextCustomId("custom_marker_", [
+      ...BUILDINGS.map((b) => b.id),
+      ...Object.keys(customMarkers),
+    ]);
+    const name = window.prompt("Name for this marker?", "");
+    if (!name || !name.trim()) return;
+    const usedNums = new Set<number>([
+      ...BUILDINGS.map((b) => b.num),
+      ...Object.values(customMarkers)
+        .map((m) => m.num ?? 0)
+        .filter((n) => n > 0),
+    ]);
+    let num = BUILDINGS.length + 1;
+    while (usedNums.has(num)) num += 1;
+    const payload: CustomMarker = {
+      id,
+      name: name.trim(),
+      abbr: name.trim().slice(0, 12),
+      x: point.x,
+      y: point.y,
+      num,
+    };
+    try {
+      const res = await api.saveCustomMarker(payload);
+      setCustomMarkers(res?.markers ?? { ...customMarkers, [id]: payload });
+      setStatusMsg(`Added marker "${payload.name}" (#${num}).`);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to save marker");
+    }
+  };
+
+  const addCustomWaypointAt = async (point: Coord) => {
+    const id = nextCustomId("wp_custom_", [
+      ...WAYPOINT_LIST.map((w) => w.id),
+      ...Object.keys(customWaypoints),
+    ]);
+    // Auto-connect to the 2 nearest existing waypoints so routing works
+    // immediately without manual edge editing.
+    const all = [
+      ...WAYPOINT_LIST.map((w) => ({ id: w.id, x: wpCoords[w.id]?.x ?? w.x, y: wpCoords[w.id]?.y ?? w.y })),
+      ...Object.values(customWaypoints).map((w) => ({ id: w.id, x: w.x, y: w.y })),
+    ];
+    const neighbors = findNearest(point, all, 2);
+    const entry: CustomWaypoint = { id, x: point.x, y: point.y, neighbors };
+    try {
+      // Persist this waypoint AND patch its neighbors' adjacency on the
+      // server so the bond is symmetric (Dijkstra in the frontend treats
+      // edges as undirected, but the admin sees both sides linked).
+      await api.saveMapWaypoints({
+        coords: { [id]: { x: point.x, y: point.y, neighbors } },
+      });
+      setCustomWaypoints({ ...customWaypoints, [id]: entry });
+      setSelectedWpId(id);
+      setStatusMsg(`Added waypoint ${id} (linked to ${neighbors.join(", ")}).`);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to save waypoint");
+    }
+  };
+
+  const handleDeleteCustomMarker = async (markerId: string) => {
+    if (!window.confirm(`Delete custom marker ${markerId}?`)) return;
+    try {
+      await api.deleteCustomMarker(markerId);
+      const next = { ...customMarkers };
+      delete next[markerId];
+      setCustomMarkers(next);
+      setStatusMsg(`Deleted marker ${markerId}.`);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to delete marker");
+    }
+  };
+
+  const handleDeleteCustomWaypoint = async (waypointId: string) => {
+    if (!window.confirm(`Delete custom waypoint ${waypointId}?`)) return;
+    try {
+      await api.deleteMapWaypoint(waypointId);
+      const next = { ...customWaypoints };
+      delete next[waypointId];
+      setCustomWaypoints(next);
+      if (selectedWpId === waypointId) setSelectedWpId(WAYPOINT_LIST[0]?.id ?? "");
+      setStatusMsg(`Deleted waypoint ${waypointId}.`);
+    } catch (err: any) {
+      setError(err?.message ?? "Failed to delete waypoint");
+    }
   };
 
   // Generic node pointer handlers, dispatch by mode.
@@ -240,9 +417,23 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
     const next = screenToSvg(e.clientX, e.clientY);
     if (!next) return;
     if (mode === "markers") {
-      setCoords((prev) => ({ ...prev, [drag.id]: next }));
+      if (drag.id in customMarkers) {
+        setCustomMarkers((prev) => ({
+          ...prev,
+          [drag.id]: { ...prev[drag.id], x: next.x, y: next.y },
+        }));
+      } else {
+        setCoords((prev) => ({ ...prev, [drag.id]: next }));
+      }
     } else {
-      setWpCoords((prev) => ({ ...prev, [drag.id]: next }));
+      if (drag.id in customWaypoints) {
+        setCustomWaypoints((prev) => ({
+          ...prev,
+          [drag.id]: { ...prev[drag.id], x: next.x, y: next.y },
+        }));
+      } else {
+        setWpCoords((prev) => ({ ...prev, [drag.id]: next }));
+      }
     }
   };
 
@@ -290,6 +481,13 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
     const max = axis === "x" ? CAMPUS_W : CAMPUS_H;
     const clamped = Math.max(0, Math.min(max, n));
     if (mode === "markers") {
+      if (selectedCustomMarker) {
+        setCustomMarkers((prev) => ({
+          ...prev,
+          [selectedCustomMarker.id]: { ...prev[selectedCustomMarker.id], [axis]: clamped },
+        }));
+        return;
+      }
       if (!selectedBuilding) return;
       setCoords((prev) => ({
         ...prev,
@@ -299,6 +497,13 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
         },
       }));
     } else {
+      if (selectedCustomWaypoint) {
+        setCustomWaypoints((prev) => ({
+          ...prev,
+          [selectedCustomWaypoint.id]: { ...prev[selectedCustomWaypoint.id], [axis]: clamped },
+        }));
+        return;
+      }
       if (!selectedWaypoint) return;
       setWpCoords((prev) => ({
         ...prev,
@@ -311,7 +516,7 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
   };
 
   const handleSave = async () => {
-    if (!dirty || saving) return;
+    if (saving) return;
     setSaving(true);
     setError(null);
     setStatusMsg(null);
@@ -324,27 +529,37 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
           if (!cur) continue;
           if (!srv || cur.x !== srv.x || cur.y !== srv.y) payload[b.id] = cur;
         }
-        await api.saveMapCoords({ coords: payload });
+        if (Object.keys(payload).length > 0) {
+          await api.saveMapCoords({ coords: payload });
+        }
+        // Re-push every custom marker so drag-edits to existing ones stick.
+        for (const m of Object.values(customMarkers)) {
+          await api.saveCustomMarker(m);
+        }
         setServerCoords({ ...coords });
-        setStatusMsg(`Saved ${Object.keys(payload).length} marker(s).`);
+        setStatusMsg(
+          `Saved ${Object.keys(payload).length} marker(s) + ${Object.keys(customMarkers).length} custom.`,
+        );
         const live = new Map<string, Coord>();
         for (const [id, c] of Object.entries(coords)) live.set(id, c);
         setCoordsLocal(live);
       } else {
-        const payload: Coords = {};
+        const payload: Record<string, { x: number; y: number; neighbors?: string[] }> = {};
         for (const w of WAYPOINT_LIST) {
           const cur = wpCoords[w.id];
           const srv = wpServerCoords?.[w.id];
           if (!cur) continue;
-          // Persist any waypoint whose current position differs from its
-          // server snapshot — that catches both new overrides and reverts.
           if (!srv || cur.x !== srv.x || cur.y !== srv.y) payload[w.id] = cur;
         }
-        await api.saveMapWaypoints({ coords: payload });
+        // Always re-include customs so drag/manual edits to them are saved.
+        for (const cw of Object.values(customWaypoints)) {
+          payload[cw.id] = { x: cw.x, y: cw.y, neighbors: cw.neighbors };
+        }
+        if (Object.keys(payload).length > 0) {
+          await api.saveMapWaypoints({ coords: payload });
+        }
         setWpServerCoords({ ...wpCoords });
         setStatusMsg(`Saved ${Object.keys(payload).length} waypoint(s).`);
-        // Propagate only the entries that differ from bundled defaults so
-        // the chat sees them as overrides.
         const live = new Map<string, Coord>();
         for (const w of WAYPOINT_LIST) {
           const cur = wpCoords[w.id];
@@ -454,15 +669,27 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
 
   const selCoord =
     mode === "markers"
-      ? (selectedBuilding ? coords[selectedBuilding.id] : undefined)
-      : (selectedWaypoint ? wpCoords[selectedWaypoint.id] : undefined);
+      ? (selectedCustomMarker
+          ? { x: selectedCustomMarker.x, y: selectedCustomMarker.y }
+          : selectedBuilding ? coords[selectedBuilding.id] : undefined)
+      : (selectedCustomWaypoint
+          ? { x: selectedCustomWaypoint.x, y: selectedCustomWaypoint.y }
+          : selectedWaypoint ? wpCoords[selectedWaypoint.id] : undefined);
 
   const selectedLabel =
     mode === "markers"
-      ? selectedBuilding
-        ? `${selectedBuilding.num}. ${selectedBuilding.name}`
-        : ""
-      : selectedWaypoint?.id ?? "";
+      ? selectedCustomMarker
+        ? `${selectedCustomMarker.num ?? "★"}. ${selectedCustomMarker.name} (custom)`
+        : selectedBuilding
+          ? `${selectedBuilding.num}. ${selectedBuilding.name}`
+          : ""
+      : selectedCustomWaypoint
+        ? `${selectedCustomWaypoint.id} (custom)`
+        : selectedWaypoint?.id ?? "";
+
+  const selectedIsCustom = mode === "markers"
+    ? !!selectedCustomMarker
+    : !!selectedCustomWaypoint;
 
   const breadcrumbTitle = mode === "markers" ? "Map Markers" : "Map Waypoints";
 
@@ -524,8 +751,8 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
           </button>
         </div>
 
-        {/* Mode tabs */}
-        <div className="flex gap-1.5">
+        {/* Mode tabs + add button */}
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => handleSwitchMode("markers")}
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
@@ -535,7 +762,7 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
             }`}
           >
             <MapPin className="h-3.5 w-3.5" />
-            Markers ({BUILDINGS.length})
+            Markers ({BUILDINGS.length + Object.keys(customMarkers).length})
           </button>
           <button
             onClick={() => handleSwitchMode("waypoints")}
@@ -546,7 +773,31 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
             }`}
           >
             <WaypointsIcon className="h-3.5 w-3.5" />
-            Waypoints ({WAYPOINT_LIST.length})
+            Waypoints ({WAYPOINT_LIST.length + Object.keys(customWaypoints).length})
+          </button>
+          <button
+            onClick={() => {
+              if (!editMode) {
+                setError("Enable edit mode to add new items.");
+                return;
+              }
+              setAddMode((v) => !v);
+              setStatusMsg(
+                addMode
+                  ? null
+                  : `Click anywhere on the map to drop a new ${mode === "markers" ? "marker" : "waypoint"}.`,
+              );
+              setError(null);
+            }}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+              addMode
+                ? "bg-amber-300 text-amber-950 hover:bg-amber-200"
+                : "bg-white text-green-800 hover:bg-green-50"
+            }`}
+            title={addMode ? "Click map to drop new item (Esc to cancel)" : "Add a new item to the map"}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {addMode ? "Click the map…" : `Add ${mode === "markers" ? "marker" : "waypoint"}`}
           </button>
         </div>
       </div>
@@ -589,7 +840,8 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
             ref={svgRef}
             viewBox={`0 0 ${CAMPUS_W} ${CAMPUS_H}`}
             className="block h-full w-full"
-            style={{ touchAction: "none" }}
+            style={{ touchAction: "none", cursor: addMode ? "crosshair" : "default" }}
+            onClick={onSvgClick}
             aria-label="Drag-and-drop campus map editor"
           >
             <image
@@ -635,6 +887,7 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
                 return (
                   <g
                     key={b.id}
+                    data-node="marker"
                     onPointerDown={(e) => onNodePointerDown(b.id, e)}
                     onPointerMove={onNodePointerMove}
                     onPointerUp={onNodePointerUp}
@@ -683,6 +936,7 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
                 return (
                   <g
                     key={w.id}
+                    data-node="waypoint"
                     onPointerDown={(e) => onNodePointerDown(w.id, e)}
                     onPointerMove={onNodePointerMove}
                     onPointerUp={onNodePointerUp}
@@ -705,6 +959,99 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
                       stroke="#ffffff"
                       strokeWidth={isSel ? 4 : 2}
                     />
+                  </g>
+                );
+              })}
+
+            {/* Custom waypoints' adjacency lines (purple to stand out). */}
+            {mode === "waypoints" &&
+              Object.values(customWaypoints).flatMap((cw) =>
+                cw.neighbors.map((nId) => {
+                  const np =
+                    wpCoords[nId] ??
+                    (customWaypoints[nId] ? { x: customWaypoints[nId].x, y: customWaypoints[nId].y } : null);
+                  if (!np) return null;
+                  return (
+                    <line
+                      key={`cwedge-${cw.id}-${nId}`}
+                      x1={cw.x}
+                      y1={cw.y}
+                      x2={np.x}
+                      y2={np.y}
+                      stroke="#a855f7"
+                      strokeWidth={6}
+                      strokeLinecap="round"
+                      opacity={0.85}
+                      pointerEvents="none"
+                    />
+                  );
+                }),
+              )}
+
+            {/* Custom waypoint nodes */}
+            {mode === "waypoints" &&
+              Object.values(customWaypoints).map((cw) => {
+                const isSel = cw.id === selectedWpId;
+                return (
+                  <g
+                    key={cw.id}
+                    data-node="waypoint"
+                    onPointerDown={(e) => onNodePointerDown(cw.id, e)}
+                    onPointerMove={onNodePointerMove}
+                    onPointerUp={onNodePointerUp}
+                    onPointerCancel={onNodePointerUp}
+                    style={{ cursor: editMode ? "grab" : "pointer", touchAction: "none" }}
+                  >
+                    <title>{cw.id} (custom)</title>
+                    <circle
+                      cx={cw.x}
+                      cy={cw.y}
+                      r={WAYPOINT_RADIUS}
+                      fill={isSel ? "#7e22ce" : "#a855f7"}
+                      stroke="#ffffff"
+                      strokeWidth={isSel ? 4 : 2}
+                    />
+                  </g>
+                );
+              })}
+
+            {/* Custom marker nodes */}
+            {mode === "markers" &&
+              Object.values(customMarkers).map((cm) => {
+                const isSel = cm.id === selectedId;
+                return (
+                  <g
+                    key={cm.id}
+                    data-node="marker"
+                    onPointerDown={(e) => onNodePointerDown(cm.id, e)}
+                    onPointerMove={onNodePointerMove}
+                    onPointerUp={onNodePointerUp}
+                    onPointerCancel={onNodePointerUp}
+                    style={{ cursor: editMode ? "grab" : "pointer", touchAction: "none" }}
+                  >
+                    <title>{cm.num ? `${cm.num}. ` : ""}{cm.name} (custom)</title>
+                    <rect
+                      x={cm.x - MARKER_RADIUS}
+                      y={cm.y - MARKER_RADIUS}
+                      width={MARKER_RADIUS * 2}
+                      height={MARKER_RADIUS * 2}
+                      rx={8}
+                      fill={isSel ? "#7e22ce" : "#c084fc"}
+                      stroke={isSel ? "#ffffff" : "#3b0764"}
+                      strokeWidth={isSel ? 4 : 2}
+                    />
+                    <text
+                      x={cm.x}
+                      y={cm.y + 11}
+                      textAnchor="middle"
+                      fontSize="30"
+                      fontWeight={800}
+                      fill={isSel ? "#ffffff" : "#3b0764"}
+                      fontFamily="system-ui, -apple-system, sans-serif"
+                      pointerEvents="none"
+                    >
+                      {cm.num ?? "★"}
+                    </text>
                   </g>
                 );
               })}
@@ -769,13 +1116,26 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
                     </>
                   )}
                 </span>
-                {editMode && (
+                {editMode && !selectedIsCustom && (
                   <button
                     onClick={handleRevertSelected}
                     className="inline-flex items-center gap-1.5 font-medium text-gray-600 hover:text-gray-900"
                   >
                     <Crosshair className="h-3.5 w-3.5" />
                     Revert
+                  </button>
+                )}
+                {editMode && selectedIsCustom && (
+                  <button
+                    onClick={() =>
+                      mode === "markers"
+                        ? handleDeleteCustomMarker(selectedId)
+                        : handleDeleteCustomWaypoint(selectedWpId)
+                    }
+                    className="inline-flex items-center gap-1.5 font-medium text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete custom
                   </button>
                 )}
               </div>
@@ -870,8 +1230,74 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
                   </li>
                 );
               })}
-            {((mode === "markers" && filteredBuildings.length === 0) ||
-              (mode === "waypoints" && filteredWaypoints.length === 0)) && (
+            {mode === "markers" &&
+              Object.values(customMarkers)
+                .filter((m) => {
+                  const q = filter.trim().toLowerCase();
+                  return !q || m.name.toLowerCase().includes(q) || m.id.toLowerCase().includes(q);
+                })
+                .map((m) => {
+                  const isSel = m.id === selectedId;
+                  return (
+                    <li key={m.id}>
+                      <button
+                        onClick={() => setSelectedId(m.id)}
+                        className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors ${
+                          isSel ? "bg-purple-50 text-purple-900" : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <span
+                          className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded text-xs font-bold ${
+                            isSel ? "bg-purple-600 text-white" : "bg-purple-300 text-purple-900"
+                          }`}
+                        >
+                          {m.num ?? "★"}
+                        </span>
+                        <span className="flex-1 truncate" title={m.name}>
+                          {m.name}
+                        </span>
+                        <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700">
+                          custom
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+            {mode === "waypoints" &&
+              Object.values(customWaypoints)
+                .filter((w) => {
+                  const q = filter.trim().toLowerCase();
+                  return !q || w.id.toLowerCase().includes(q);
+                })
+                .map((w) => {
+                  const isSel = w.id === selectedWpId;
+                  return (
+                    <li key={w.id}>
+                      <button
+                        onClick={() => setSelectedWpId(w.id)}
+                        className={`flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors ${
+                          isSel ? "bg-purple-50 text-purple-900" : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <span
+                          className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                            isSel ? "bg-purple-600 text-white" : "bg-purple-300 text-purple-900"
+                          }`}
+                        >
+                          wp
+                        </span>
+                        <span className="flex-1 truncate font-mono text-xs" title={w.id}>
+                          {w.id}
+                        </span>
+                        <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700">
+                          custom
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+            {((mode === "markers" && filteredBuildings.length === 0 && Object.keys(customMarkers).length === 0) ||
+              (mode === "waypoints" && filteredWaypoints.length === 0 && Object.keys(customWaypoints).length === 0)) && (
               <li className="px-4 py-6 text-center text-sm text-gray-500">
                 No match for "{filter}"
               </li>
@@ -892,12 +1318,12 @@ export function AdminMapEditor({ onClose }: AdminMapEditorProps) {
             <div className="flex gap-2">
               <button
                 onClick={handleSave}
-                disabled={!editMode || !dirty || saving}
+                disabled={!editMode || saving}
                 className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
                 title={!editMode ? "Enter edit mode to save changes" : "Save edits"}
               >
                 <Save className="h-4 w-4" />
-                {saving ? "Saving…" : "Save"}
+                {saving ? "Saving…" : dirty ? "Save" : "Save (no changes)"}
               </button>
               <button
                 onClick={handleReset}

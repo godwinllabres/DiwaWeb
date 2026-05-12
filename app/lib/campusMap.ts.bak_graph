@@ -541,58 +541,58 @@ export interface Waypoint {
 // roads so cross-traffic doesn't cut diagonally through buildings.
 export const WAYPOINTS: Record<string, Waypoint> = {
   // ── SOUTH ARTERIAL (y = 1700) ─────────────────────────────────────
-  wp_sw:         { id: "wp_sw",         x: 691,  y: 1700, neighbors: ["wp_clinic", "wp_gate1", "wp_plaza", "wp_west"] },
-  wp_plaza:      { id: "wp_plaza",      x: 770,  y: 1700, neighbors: ["wp_clinic", "wp_gate1", "wp_south_row", "wp_sw"] },
-  wp_gate1:      { id: "wp_gate1",      x: 857,  y: 1700, neighbors: ["wp_central", "wp_gate3", "wp_plaza", "wp_softball", "wp_south_row", "wp_sw", "wp_west"] },
-  wp_south_row:  { id: "wp_south_row",  x: 1030, y: 1700, neighbors: ["wp_gate1", "wp_gate3", "wp_mall", "wp_plaza"] },
-  wp_mall:       { id: "wp_mall",       x: 1130, y: 1700, neighbors: ["wp_boys_dorm", "wp_gate3", "wp_girls_dorm", "wp_south_row"] },
-  wp_gate3:      { id: "wp_gate3",      x: 1208, y: 1700, neighbors: ["wp_bahay", "wp_boys_dorm", "wp_gate1", "wp_gym", "wp_mall", "wp_south_row"] },
-  wp_boys_dorm:  { id: "wp_boys_dorm",  x: 1280, y: 1700, neighbors: ["wp_bahay", "wp_gate3", "wp_girls_dorm", "wp_mall"] },
-  wp_girls_dorm: { id: "wp_girls_dorm", x: 1370, y: 1700, neighbors: ["wp_bahay", "wp_boys_dorm", "wp_mall"] },
+  wp_sw:         { id: "wp_sw",         x: 691,  y: 1700, neighbors: ["wp_softball", "wp_plaza"] },
+  wp_plaza:      { id: "wp_plaza",      x: 770,  y: 1700, neighbors: ["wp_sw", "wp_gate1"] },
+  wp_gate1:      { id: "wp_gate1",      x: 857,  y: 1700, neighbors: ["wp_plaza", "wp_south_row", "wp_oval"] },
+  wp_south_row:  { id: "wp_south_row",  x: 1030, y: 1700, neighbors: ["wp_gate1", "wp_mall"] },
+  wp_mall:       { id: "wp_mall",       x: 1130, y: 1700, neighbors: ["wp_south_row", "wp_gate3"] },
+  wp_gate3:      { id: "wp_gate3",      x: 1208, y: 1700, neighbors: ["wp_mall", "wp_boys_dorm", "wp_bahay"] },
+  wp_boys_dorm:  { id: "wp_boys_dorm",  x: 1280, y: 1700, neighbors: ["wp_gate3", "wp_girls_dorm"] },
+  wp_girls_dorm: { id: "wp_girls_dorm", x: 1370, y: 1700, neighbors: ["wp_boys_dorm"] },
 
   // ── WEST PERIMETER (x = 691) ──────────────────────────────────────
-  wp_softball:    { id: "wp_softball",    x: 691, y: 1500, neighbors: ["wp_central", "wp_clinic", "wp_gate1", "wp_oval", "wp_west"] },
-  wp_west:        { id: "wp_west",        x: 691, y: 1450, neighbors: ["wp_clinic", "wp_gate1", "wp_softball", "wp_sw"] },
-  wp_clinic:      { id: "wp_clinic",      x: 691, y: 1370, neighbors: ["wp_ccj", "wp_oval", "wp_plaza", "wp_softball", "wp_sw", "wp_west"] },
-  wp_ccj:         { id: "wp_ccj",         x: 691, y: 1250, neighbors: ["wp_chapel", "wp_clinic", "wp_int_w_admin", "wp_oval"] },
-  wp_int_w_admin: { id: "wp_int_w_admin", x: 691, y: 1150, neighbors: ["wp_admin", "wp_ccj", "wp_chapel", "wp_coed", "wp_gate2", "wp_oval"] },
-  wp_coed:        { id: "wp_coed",        x: 770, y: 1150, neighbors: ["wp_admin", "wp_ceit", "wp_gate2", "wp_int_w_admin"] },
-  wp_chapel:      { id: "wp_chapel",      x: 691, y: 1100, neighbors: ["wp_ccj", "wp_gate2", "wp_int_w_admin"] },
-  wp_gate2:       { id: "wp_gate2",       x: 691, y: 1050, neighbors: ["wp_ceit", "wp_chapel", "wp_coed", "wp_int_w_admin"] },
-  wp_ceit:        { id: "wp_ceit",        x: 691, y: 950,  neighbors: ["wp_admin", "wp_coed", "wp_gate2", "wp_oval"] },
+  wp_softball:    { id: "wp_softball",    x: 691, y: 1500, neighbors: ["wp_sw", "wp_west"] },
+  wp_west:        { id: "wp_west",        x: 691, y: 1450, neighbors: ["wp_softball", "wp_clinic"] },
+  wp_clinic:      { id: "wp_clinic",      x: 691, y: 1370, neighbors: ["wp_west", "wp_ccj", "wp_central"] },
+  wp_ccj:         { id: "wp_ccj",         x: 691, y: 1250, neighbors: ["wp_clinic", "wp_int_w_admin"] },
+  wp_int_w_admin: { id: "wp_int_w_admin", x: 691, y: 1150, neighbors: ["wp_ccj", "wp_chapel", "wp_admin", "wp_coed"] },
+  wp_coed:        { id: "wp_coed",        x: 770, y: 1150, neighbors: ["wp_int_w_admin", "wp_admin"] },
+  wp_chapel:      { id: "wp_chapel",      x: 691, y: 1100, neighbors: ["wp_int_w_admin", "wp_gate2"] },
+  wp_gate2:       { id: "wp_gate2",       x: 691, y: 1050, neighbors: ["wp_chapel", "wp_ceit"] },
+  wp_ceit:        { id: "wp_ceit",        x: 691, y: 950,  neighbors: ["wp_gate2"] },
 
   // ── CENTRAL SPINE (x = 857) ───────────────────────────────────────
-  wp_oval:    { id: "wp_oval",    x: 857, y: 1500, neighbors: ["wp_admin", "wp_ccj", "wp_ceit", "wp_central", "wp_clinic", "wp_int_w_admin", "wp_softball"] },
-  wp_central: { id: "wp_central", x: 857, y: 1370, neighbors: ["wp_gate1", "wp_oval", "wp_softball"] },
-  wp_admin:   { id: "wp_admin",   x: 857, y: 1150, neighbors: ["wp_ceit", "wp_coed", "wp_int_w_admin", "wp_oval"] },
+  wp_oval:    { id: "wp_oval",    x: 857, y: 1500, neighbors: ["wp_gate1", "wp_central", "wp_gym"] },
+  wp_central: { id: "wp_central", x: 857, y: 1370, neighbors: ["wp_oval", "wp_admin", "wp_clinic", "wp_osas"] },
+  wp_admin:   { id: "wp_admin",   x: 857, y: 1150, neighbors: ["wp_central", "wp_coed", "wp_grad", "wp_int_w_admin"] },
 
   // ── EAST-CENTRAL (x = 1100) ───────────────────────────────────────
-  wp_grad:    { id: "wp_grad",    x: 1100, y: 1150, neighbors: ["wp_cafenr", "wp_cas", "wp_con", "wp_hostel", "wp_library", "wp_processing", "wp_research"] },
-  wp_library: { id: "wp_library", x: 1100, y: 1083, neighbors: ["wp_grad", "wp_hostel"] },
-  wp_osas:    { id: "wp_osas",    x: 1100, y: 1370, neighbors: ["wp_bahay", "wp_gym", "wp_int_e_mid"] },
+  wp_grad:    { id: "wp_grad",    x: 1100, y: 1150, neighbors: ["wp_admin", "wp_library", "wp_osas"] },
+  wp_library: { id: "wp_library", x: 1100, y: 1083, neighbors: ["wp_grad", "wp_cas", "wp_rolle"] },
+  wp_osas:    { id: "wp_osas",    x: 1100, y: 1370, neighbors: ["wp_central", "wp_grad", "wp_int_e_mid"] },
 
   // ── EAST SPINE (x = 1208) ─────────────────────────────────────────
-  wp_bahay:     { id: "wp_bahay",     x: 1208, y: 1600, neighbors: ["wp_boys_dorm", "wp_gate3", "wp_girls_dorm", "wp_gym", "wp_int_e_mid", "wp_osas", "wp_processing"] },
-  wp_gym:       { id: "wp_gym",       x: 1208, y: 1500, neighbors: ["wp_bahay", "wp_gate3", "wp_osas"] },
-  wp_int_e_mid: { id: "wp_int_e_mid", x: 1208, y: 1370, neighbors: ["wp_bahay", "wp_osas", "wp_processing"] },
-  wp_cas:       { id: "wp_cas",       x: 1208, y: 1083, neighbors: ["wp_con", "wp_grad", "wp_hostel", "wp_north_ring"] },
-  wp_con:       { id: "wp_con",       x: 1208, y: 1000, neighbors: ["wp_cas", "wp_grad", "wp_icon", "wp_north_ring", "wp_rolle"] },
+  wp_bahay:     { id: "wp_bahay",     x: 1208, y: 1600, neighbors: ["wp_gate3", "wp_gym"] },
+  wp_gym:       { id: "wp_gym",       x: 1208, y: 1500, neighbors: ["wp_bahay", "wp_oval", "wp_int_e_mid"] },
+  wp_int_e_mid: { id: "wp_int_e_mid", x: 1208, y: 1370, neighbors: ["wp_gym", "wp_osas", "wp_cas", "wp_processing"] },
+  wp_cas:       { id: "wp_cas",       x: 1208, y: 1083, neighbors: ["wp_int_e_mid", "wp_library", "wp_con"] },
+  wp_con:       { id: "wp_con",       x: 1208, y: 1000, neighbors: ["wp_cas", "wp_hostel", "wp_north_ring"] },
 
   // ── FAR EAST (x = 1300, 1383) ─────────────────────────────────────
-  wp_processing: { id: "wp_processing", x: 1300, y: 1370, neighbors: ["wp_bahay", "wp_cafenr", "wp_cemds", "wp_grad", "wp_int_e_mid"] },
-  wp_cafenr:     { id: "wp_cafenr",     x: 1300, y: 1300, neighbors: ["wp_cemds", "wp_grad", "wp_processing", "wp_research"] },
-  wp_cemds:      { id: "wp_cemds",      x: 1383, y: 1300, neighbors: ["wp_cafenr", "wp_processing"] },
-  wp_research:   { id: "wp_research",   x: 1383, y: 1180, neighbors: ["wp_cafenr", "wp_grad", "wp_hostel"] },
-  wp_hostel:     { id: "wp_hostel",     x: 1383, y: 1000, neighbors: ["wp_bano", "wp_cas", "wp_grad", "wp_library", "wp_north_ring", "wp_research"] },
-  wp_north_ring: { id: "wp_north_ring", x: 1300, y: 850,  neighbors: ["wp_bano", "wp_cas", "wp_con", "wp_das", "wp_hostel", "wp_icon"] },
-  wp_bano:       { id: "wp_bano",       x: 1450, y: 800,  neighbors: ["wp_das", "wp_hostel", "wp_north_ring"] },
-  wp_das:        { id: "wp_das",        x: 1300, y: 700,  neighbors: ["wp_bano", "wp_cvmbs", "wp_icon", "wp_north_ring", "wp_star_farm"] },
+  wp_processing: { id: "wp_processing", x: 1300, y: 1370, neighbors: ["wp_int_e_mid", "wp_cafenr"] },
+  wp_cafenr:     { id: "wp_cafenr",     x: 1300, y: 1300, neighbors: ["wp_processing", "wp_cemds"] },
+  wp_cemds:      { id: "wp_cemds",      x: 1383, y: 1300, neighbors: ["wp_cafenr", "wp_research"] },
+  wp_research:   { id: "wp_research",   x: 1383, y: 1180, neighbors: ["wp_cemds", "wp_hostel"] },
+  wp_hostel:     { id: "wp_hostel",     x: 1383, y: 1000, neighbors: ["wp_research", "wp_con", "wp_north_ring"] },
+  wp_north_ring: { id: "wp_north_ring", x: 1300, y: 850,  neighbors: ["wp_con", "wp_hostel", "wp_bano", "wp_das"] },
+  wp_bano:       { id: "wp_bano",       x: 1450, y: 800,  neighbors: ["wp_north_ring"] },
+  wp_das:        { id: "wp_das",        x: 1300, y: 700,  neighbors: ["wp_north_ring", "wp_cvmbs"] },
 
   // ── NORTH ZONE (x = 1100, y decreasing = moving north) ────────────
-  wp_rolle:     { id: "wp_rolle",     x: 1100, y: 900, neighbors: ["wp_con", "wp_icon"] },
-  wp_icon:      { id: "wp_icon",      x: 1100, y: 800, neighbors: ["wp_con", "wp_cvmbs", "wp_das", "wp_north_ring", "wp_rolle", "wp_star_farm"] },
-  wp_cvmbs:     { id: "wp_cvmbs",     x: 1100, y: 700, neighbors: ["wp_das", "wp_icon", "wp_star_farm"] },
-  wp_star_farm: { id: "wp_star_farm", x: 1100, y: 580, neighbors: ["wp_cvmbs", "wp_das", "wp_icon"] },
+  wp_rolle:     { id: "wp_rolle",     x: 1100, y: 900, neighbors: ["wp_library", "wp_icon"] },
+  wp_icon:      { id: "wp_icon",      x: 1100, y: 800, neighbors: ["wp_rolle", "wp_cvmbs"] },
+  wp_cvmbs:     { id: "wp_cvmbs",     x: 1100, y: 700, neighbors: ["wp_icon", "wp_das", "wp_star_farm"] },
+  wp_star_farm: { id: "wp_star_farm", x: 1100, y: 580, neighbors: ["wp_cvmbs"] },
 };
 
 const _WAYPOINT_LIST = Object.values(WAYPOINTS);
