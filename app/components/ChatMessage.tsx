@@ -1,18 +1,19 @@
 import { useState } from "react";
-import { motion } from "motion/react";
-import { Bot, User, ThumbsUp, ThumbsDown, Check } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Bot, User, ThumbsUp, ThumbsDown, Check, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon } from "lucide-react";
 import { useTypewriter } from "@/lib/hooks/useTypewriter";
 import { CampusMap } from "@/components/CampusMap";
-import type { MapData } from "@/lib/types";
+import type { MapData, Directory } from "@/lib/types";
 
 // ── inline text formatting ────────────────────────────────────────────────────
 
-type SegKind = "text" | "url" | "bold" | "code" | "path";
-interface Seg { id: number; k: SegKind; v: string }
+type SegKind = "text" | "url" | "bold" | "code" | "path" | "mdlink";
+interface Seg { id: number; k: SegKind; v: string; href?: string }
 
-// Simplified path pattern ([A-Za-z]:\...) avoids nested quantifiers
+// Markdown link is matched first so a bare-URL inside [text](url) doesn't
+// get captured by the standalone URL alternative.
 const SEG_RE =
-  /(\*\*(.+?)\*\*)|(`([^`]+)`)|(https?:\/\/[^\s<>"]+)|([A-Za-z]:\\[^\s<>"]+)/g;
+  /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(\*\*(.+?)\*\*)|(`([^`]+)`)|(https?:\/\/[^\s<>"]+)|([A-Za-z]:\\[^\s<>"]+)/g;
 
 function parseSegments(text: string): Seg[] {
   const out: Seg[] = [];
@@ -24,10 +25,11 @@ function parseSegments(text: string): Seg[] {
   while ((m = SEG_RE.exec(text)) !== null) {
     if (m.index > last) out.push({ id: n++, k: "text", v: text.slice(last, m.index) });
 
-    if (m[1])      out.push({ id: n++, k: "bold", v: m[2] });
-    else if (m[3]) out.push({ id: n++, k: "code", v: m[4] });
-    else if (m[5]) out.push({ id: n++, k: "url",  v: m[5] });
-    else if (m[6]) out.push({ id: n++, k: "path", v: m[6] });
+    if (m[1])      out.push({ id: n++, k: "mdlink", v: m[1], href: m[2] });
+    else if (m[3]) out.push({ id: n++, k: "bold", v: m[4] });
+    else if (m[5]) out.push({ id: n++, k: "code", v: m[6] });
+    else if (m[7]) out.push({ id: n++, k: "url",  v: m[7] });
+    else if (m[8]) out.push({ id: n++, k: "path", v: m[8] });
 
     last = m.index + m[0].length;
   }
@@ -49,6 +51,11 @@ function FormattedText({
   const linkCls = isBot
     ? "underline underline-offset-2 text-green-700 font-medium break-all hover:text-green-800"
     : "underline underline-offset-2 text-white/90 font-medium break-all";
+  // Markdown links carry human-readable labels, so wrap at word
+  // boundaries instead of mid-character like raw-URL links do.
+  const mdLinkCls = isBot
+    ? "underline underline-offset-2 text-green-700 font-medium hover:text-green-800"
+    : "underline underline-offset-2 text-white/90 font-medium";
   const codeCls = isBot
     ? "bg-gray-200/80 text-gray-800 rounded px-1 py-0.5 text-[0.82em] font-mono"
     : "bg-white/20 text-white rounded px-1 py-0.5 text-[0.82em] font-mono";
@@ -63,6 +70,12 @@ function FormattedText({
           case "url":
             return (
               <a key={seg.id} href={seg.v} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                {seg.v}
+              </a>
+            );
+          case "mdlink":
+            return (
+              <a key={seg.id} href={seg.href} target="_blank" rel="noopener noreferrer" className={mdLinkCls}>
                 {seg.v}
               </a>
             );
@@ -94,6 +107,100 @@ interface ChatMessageProps {
   readonly typing?: boolean;
   readonly onTypingDone?: () => void;
   readonly mapData?: MapData | null;
+  readonly directory?: Directory | null;
+  readonly intent?: string;
+}
+
+// Intents where the user clearly wants to see the map/directions —
+// for everything else, the map is hidden behind a collapsed accordion.
+const MAP_FIRST_INTENT_RE = /direction|location|where|map|find_place|navigate|route/i;
+
+function MapAccordion({
+  mapData,
+  defaultOpen,
+}: {
+  readonly mapData: MapData;
+  readonly defaultOpen: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="w-full rounded-2xl border border-green-200 bg-green-50/60 shadow-sm overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-medium text-green-900 active:bg-green-100"
+      >
+        <MapIcon className="h-4 w-4 flex-shrink-0 text-green-700" />
+        <span className="flex-1 min-w-0 truncate">
+          {open ? "Hide campus map" : `Show on campus map — ${mapData.label}`}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 flex-shrink-0 text-green-700 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-2 pb-2">
+              <CampusMap place_id={mapData.place_id} label={mapData.label} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function DirectoryCard({ directory }: { readonly directory: Directory }) {
+  return (
+    <div className="w-full rounded-2xl border border-green-200 bg-green-50/60 p-3 text-sm shadow-sm">
+      <div className="flex items-start gap-2">
+        <Building2 className="h-4 w-4 flex-shrink-0 text-green-700 mt-0.5" />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-green-900 break-words">{directory.office}</p>
+          {directory.location && (
+            <p className="mt-0.5 flex items-start gap-1.5 text-xs text-gray-700">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-green-700 mt-0.5" />
+              <span className="break-words">{directory.location}</span>
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="mt-2 grid grid-cols-1 gap-1 text-xs sm:grid-cols-2">
+        {directory.email && (
+          <a
+            href={`mailto:${directory.email}`}
+            className="flex items-center gap-1.5 text-green-800 hover:text-green-900 break-all"
+          >
+            <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+            {directory.email}
+          </a>
+        )}
+        {directory.phone && (
+          <a
+            href={`tel:${directory.phone.replace(/[^\d+]/g, "")}`}
+            className="flex items-center gap-1.5 text-green-800 hover:text-green-900"
+          >
+            <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+            {directory.phone}
+          </a>
+        )}
+        {directory.hours && (
+          <p className="flex items-center gap-1.5 text-gray-600 sm:col-span-2">
+            <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+            {directory.hours}
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 interface FeedbackProps {
@@ -166,6 +273,8 @@ export function ChatMessage({
   typing = false,
   onTypingDone,
   mapData,
+  directory,
+  intent,
 }: ChatMessageProps) {
   const [feedback, setFeedback] = useState<boolean | null>(null);
   const { displayed, done } = useTypewriter(message, typing, onTypingDone);
@@ -217,9 +326,18 @@ export function ChatMessage({
           </div>
         )}
 
+        {done && isBot && directory && (
+          <div className="w-full mt-2">
+            <DirectoryCard directory={directory} />
+          </div>
+        )}
+
         {done && isBot && mapData && (
           <div className="w-full mt-2">
-            <CampusMap place_id={mapData.place_id} label={mapData.label} />
+            <MapAccordion
+              mapData={mapData}
+              defaultOpen={!!intent && MAP_FIRST_INTENT_RE.test(intent)}
+            />
           </div>
         )}
 

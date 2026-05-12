@@ -29,3 +29,10 @@
 {"level":"info","event":0,"ip":"198.41.192.67","connIndex":0,"time":"2026-05-11T06:43:10Z","message":"Retrying connection in up to 1s"}
 {"level":"error","error":"connection with edge closed","connIndex":0,"time":"2026-05-11T06:43:11Z","message":"Connection terminated"}
 {"level":"info","event":0,"connection":"3ca4d95c-a304-4f1e-becd-0798ee7d8c0d","connIndex":0,"location":"mnl02","ip":"198.41.192.67","protocol":"http2","time":"2026-05-11T06:43:22Z","message":"Registered tunnel connection"}
+{"level":"info","time":"2026-05-11T10:03:43Z","message":"Initiating graceful shutdown due to signal terminated ..."}
+{"level":"info","event":0,"connIndex":0,"ip":"198.41.192.67","time":"2026-05-11T10:03:44Z","message":"Unregistered tunnel connection"}
+{"level":"info","event":0,"ip":"198.41.192.67","connIndex":0,"time":"2026-05-11T10:03:44Z","message":"Retrying connection in up to 1s"}
+{"level":"error","connIndex":0,"time":"2026-05-11T10:03:44Z","message":"Connection terminated"}
+{"level":"error","time":"2026-05-11T10:03:44Z","message":"no more connections active and exiting"}
+{"level":"info","time":"2026-05-11T10:03:44Z","message":"Tunnel server stopped"}
+{"level":"info","time":"2026-05-11T10:03:44Z","message":"Metrics server stopped"}

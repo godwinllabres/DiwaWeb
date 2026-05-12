@@ -1,17 +1,15 @@
 import { useMemo, useState } from "react";
 import { MapPin, Navigation, ArrowRight } from "lucide-react";
 import {
-  BUILDINGS,
+  applyCoordOverrides,
+  applyWaypointOverrides,
   CAMPUS_H,
-  CAMPUS_OUTLINE,
-  CAMPUS_RIVER,
+  CAMPUS_IMAGE_URL,
   CAMPUS_W,
-  ROADS,
-  STREET_LABELS,
-  findBuilding,
   pointsToPath,
   routeBetween,
 } from "@/lib/campusMap";
+import { useCoordsOverrides, useWaypointOverrides } from "@/lib/hooks/useCoords";
 import type { MapData } from "@/lib/types";
 
 const HIGHLIGHT_RADIUS = 100;    // outer pulsing ring on the target
@@ -19,28 +17,33 @@ const TARGET_BADGE_R = 44;       // green badge over the target's number
 const MARKER_BADGE_R = 22;       // yellow marker for every other building
 const SOURCE_BADGE_R = 38;       // red badge over the source ("from") number
 
-function outlineToPath(): string {
-  if (CAMPUS_OUTLINE.length === 0) return "";
-  const [first, ...rest] = CAMPUS_OUTLINE;
-  return `M ${first.x} ${first.y} ` + rest.map((p) => `L ${p.x} ${p.y}`).join(" ") + " Z";
-}
-
 export function CampusMap({ place_id, label }: Readonly<MapData>) {
-  const target = findBuilding(place_id);
+  const overrides = useCoordsOverrides();
+  const wpOverrides = useWaypointOverrides();
+  const buildings = useMemo(() => applyCoordOverrides(overrides), [overrides]);
+  const waypointGraph = useMemo(
+    () => applyWaypointOverrides(wpOverrides),
+    [wpOverrides],
+  );
+  const findB = (id: string) => buildings.find((b) => b.id === id);
+
+  const target = findB(place_id);
   const isFullCampus = place_id === "main" || !target;
 
   // From-picker — defaults to Gate 1 (Main Gate). User can switch to any place.
   const [fromId, setFromId] = useState<string>("gate_1");
-  const from = useMemo(() => findBuilding(fromId) ?? findBuilding("gate_1")!, [fromId]);
+  const from = useMemo(
+    () => findB(fromId) ?? findB("gate_1")!,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fromId, buildings],
+  );
 
   const route = useMemo(() => {
     if (!target || target.id === from.id) return [];
-    return routeBetween(from, target);
-  }, [from, target]);
+    return routeBetween(from, target, waypointGraph);
+  }, [from, target, waypointGraph]);
 
   const routePath = useMemo(() => pointsToPath(route), [route]);
-
-  const campusOutline = useMemo(outlineToPath, []);
 
   return (
     <div className="mt-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
@@ -62,7 +65,7 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
             className="min-h-9 flex-1 min-w-[140px] px-2.5 py-1.5 rounded-md border border-gray-300 bg-white text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             aria-label="Starting location"
           >
-            {BUILDINGS.map((b) => (
+            {buildings.map((b) => (
               <option key={b.id} value={b.id}>{b.num}. {b.abbr}</option>
             ))}
           </select>
@@ -90,86 +93,24 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
               </feComponentTransfer>
               <feComposite in2="SourceGraphic" operator="in" />
             </filter>
-            <linearGradient id="cm-ground" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3d6e3d" />
-              <stop offset="100%" stopColor="#2d5a2d" />
-            </linearGradient>
           </defs>
 
-          {/* Dark green bezel */}
-          <rect x="0" y="0" width={CAMPUS_W} height={CAMPUS_H} fill="#1a3d1a" />
+          {/* Solid dark-green fallback for when the poster image hasn't been
+              saved yet (no /cvsu-campus-map.png in /public). */}
+          <rect x="0" y="0" width={CAMPUS_W} height={CAMPUS_H} fill="#1f3d1f" />
 
-          {/* Campus ground (the irregular shape of the Indang campus) */}
-          <path d={campusOutline} fill="url(#cm-ground)" stroke="#0f2e0f" strokeWidth="6" />
-
-          {/* River — drawn before roads so road overpasses paint on top.
-              Wide blue stroke with a lighter inner core for depth. */}
-          <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <polyline
-              points={CAMPUS_RIVER.map((p) => `${p.x},${p.y}`).join(" ")}
-              stroke="#1e3a8a"
-              strokeWidth="42"
-              opacity="0.55"
-            />
-            <polyline
-              points={CAMPUS_RIVER.map((p) => `${p.x},${p.y}`).join(" ")}
-              stroke="#60a5fa"
-              strokeWidth="22"
-              opacity="0.95"
-            />
-            <polyline
-              points={CAMPUS_RIVER.map((p) => `${p.x},${p.y}`).join(" ")}
-              stroke="#bfdbfe"
-              strokeWidth="6"
-              opacity="0.8"
-            />
-          </g>
-
-          {/* Major roads drawn as wide light-green strokes */}
-          <g stroke="#a4c5a4" strokeWidth="38" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.92">
-            {ROADS.map((road, i) => (
-              <polyline
-                key={i}
-                points={road.points.map((p) => `${p.x},${p.y}`).join(" ")}
-              />
-            ))}
-          </g>
-          {/* Road centerlines for a subtle paved look */}
-          <g stroke="#cde0cd" strokeWidth="2" strokeDasharray="14 14" fill="none" opacity="0.6">
-            {ROADS.map((road, i) => (
-              <polyline
-                key={i}
-                points={road.points.map((p) => `${p.x},${p.y}`).join(" ")}
-              />
-            ))}
-          </g>
-
-          {/* Major street labels overlaid on the campus */}
-          <g fontFamily="system-ui, -apple-system, sans-serif" fontWeight="600" fill="#1a3d1a" opacity="0.85">
-            {STREET_LABELS.map((s, i) => (
-              <text
-                key={i}
-                x={s.x}
-                y={s.y}
-                textAnchor="middle"
-                fontSize="20"
-                transform={s.rotation ? `rotate(${s.rotation} ${s.x} ${s.y})` : undefined}
-                style={{ paintOrder: "stroke", stroke: "#dcfce7", strokeWidth: 6, strokeLinejoin: "round" }}
-              >
-                {s.text}
-              </text>
-            ))}
-          </g>
-
-          {/* Compass rose */}
-          <g transform="translate(140, 280)" opacity="0.92">
-            <circle r="64" fill="#0f2e0f" stroke="#a4c5a4" strokeWidth="3" />
-            <text x="0" y="-30" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">N</text>
-            <text x="0" y="42" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">S</text>
-            <text x="-42" y="8" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">W</text>
-            <text x="42" y="8" textAnchor="middle" fontSize="22" fontWeight="700" fill="#dcfce7">E</text>
-            <polygon points="0,-22 -8,0 0,-6 8,0" fill="#dcfce7" />
-          </g>
+          {/* Official Matayuyon Crop Science Society campus poster.
+              The poster is 2048x2048 and fills the SVG viewBox 1:1. All
+              building (x, y) coordinates were read directly off this image,
+              so the numbered markers below land on the correct yellow tags. */}
+          <image
+            href={CAMPUS_IMAGE_URL}
+            x={0}
+            y={0}
+            width={CAMPUS_W}
+            height={CAMPUS_H}
+            preserveAspectRatio="xMidYMid meet"
+          />
 
 
           {/* Animated route polyline (only when from ≠ to and we have a target) */}
@@ -209,7 +150,7 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
               larger label badges further down. A <title> element surfaces the
               full building name on hover. */}
           <g>
-            {BUILDINGS.map((b) => {
+            {buildings.map((b) => {
               const isTarget = target && b.id === target.id;
               const isSource = target && b.id === from.id && b.id !== target.id;
               if (isTarget || isSource) return null;
@@ -418,7 +359,7 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
             CvSU Don Severino delas Alas Campus — Indang, Cavite
           </p>
           <p className="text-xs text-gray-600 leading-snug">
-            The campus has {BUILDINGS.length} numbered locations — 3 gates,
+            The campus has {buildings.length} numbered locations — 3 gates,
             10+ colleges, the Library, the Oval, OSAS/Registrar, the Chapel,
             the Lagoon, and the CvSU Star Farm at the far north. Ask about a
             specific place (e.g. &ldquo;Where is OSAS?&rdquo;, &ldquo;Where is
@@ -433,11 +374,11 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
           you can quickly find them in the list. */}
       <details className="border-t border-gray-100 bg-white" open>
         <summary className="px-3 py-2 text-[11px] font-semibold text-gray-600 cursor-pointer select-none flex items-center justify-between">
-          <span>Legend ({BUILDINGS.length} locations)</span>
+          <span>Legend ({buildings.length} locations)</span>
           <span className="text-gray-400 font-normal">tap to toggle</span>
         </summary>
         <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 pb-3 sm:grid-cols-3">
-          {BUILDINGS.map((b) => {
+          {buildings.map((b) => {
             const isFromRow = target && b.id === from.id && b.id !== target.id;
             const isToRow = target && b.id === target.id;
             const rowCls = isToRow

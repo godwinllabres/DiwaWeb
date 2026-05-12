@@ -38,3 +38,10 @@
 {"level":"info","event":0,"ip":"198.41.192.37","connIndex":0,"time":"2026-05-11T06:43:12Z","message":"Retrying connection in up to 1s"}
 {"level":"error","error":"Error shutting down control stream: client disconnected","connIndex":0,"time":"2026-05-11T06:43:12Z","message":"Connection terminated"}
 {"level":"info","event":0,"connection":"7e2c3e22-0987-4ab8-975f-750c1aebb083","connIndex":0,"location":"mnl02","ip":"198.41.192.37","protocol":"http2","time":"2026-05-11T06:43:22Z","message":"Registered tunnel connection"}
+{"level":"info","time":"2026-05-11T10:03:35Z","message":"Initiating graceful shutdown due to signal terminated ..."}
+{"level":"info","event":0,"connIndex":0,"ip":"198.41.192.37","time":"2026-05-11T10:03:36Z","message":"Unregistered tunnel connection"}
+{"level":"info","event":0,"ip":"198.41.192.37","connIndex":0,"time":"2026-05-11T10:03:36Z","message":"Retrying connection in up to 1s"}
+{"level":"error","connIndex":0,"time":"2026-05-11T10:03:36Z","message":"Connection terminated"}
+{"level":"error","time":"2026-05-11T10:03:36Z","message":"no more connections active and exiting"}
+{"level":"info","time":"2026-05-11T10:03:36Z","message":"Tunnel server stopped"}
+{"level":"info","time":"2026-05-11T10:03:36Z","message":"Metrics server stopped"}

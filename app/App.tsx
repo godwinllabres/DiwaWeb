@@ -9,6 +9,7 @@ import {
   BarChart3,
   AlertCircle,
   ChevronDown,
+  ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -17,8 +18,10 @@ import { QuickActionButton } from "./components/QuickActionButton";
 import { CategoryCard } from "./components/CategoryCard";
 import { TypingIndicator } from "./components/TypingIndicator";
 import { AdminDashboard } from "./components/AdminDashboard";
-
 import { api } from "@/lib/api";
+import { loadCoords } from "@/lib/coordsStore";
+import { loadWaypoints } from "@/lib/waypointsStore";
+import { useConsent } from "@/lib/hooks/useConsent";
 import { getUserId, getSessionId } from "@/lib/ids";
 import { timeNow } from "@/lib/time";
 import { pickIcon } from "@/lib/iconMap";
@@ -30,14 +33,16 @@ import {
   getTopicCard,
   rankRelevantTopicCards,
 } from "@/lib/topicCatalog";
-import type { Message } from "@/lib/types";
+const PRIVACY_POLICY_URL =
+  "https://cvsu.edu.ph/office-of-the-data-protection-officer/general-data-privacy-notice/";
 
-const WELCOME_MESSAGE: Message = {
-  id: 1,
-  text: "Welcome to Sevi, the CvSU Virtual Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?",
-  isBot: true,
-  timestamp: timeNow(),
-};
+const WELCOME_TEXT =
+  "Welcome to DIWA, the CvSU Digital Interface Web Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?";
+
+const CONSENT_PROMPT_TEXT =
+  `Hello and welcome to Cavite State University! I'm DIWA — the CvSU Digital Interface Web Assistant. ` +
+  `To continue this conversation, please acknowledge and agree to our [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
+  `If you agree, kindly click the **I Agree** button below.`;
 
 const LOW_CONFIDENCE_THRESHOLD = 0.5;
 const MEDIUM_CONFIDENCE_THRESHOLD = 0.8;
@@ -50,6 +55,7 @@ export default function App() {
   const userId = useMemo(() => getUserId(), []);
   const sessionId = useMemo(() => getSessionId(), []);
 
+  const consent = useConsent();
   const [inputValue, setInputValue] = useState("");
   const [showCategories, setShowCategories] = useState(true);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -63,7 +69,7 @@ export default function App() {
   const chat = useChat({
     userId,
     sessionId,
-    initialMessages: [WELCOME_MESSAGE],
+    initialMessages: [],
     onBotResponse: (res, userInput) => {
       if (res.confidence < LOW_CONFIDENCE_THRESHOLD) {
         chat.pushMessage({ text: FOLLOWUP_LOW_CONFIDENCE, isBot: true, followUp: true });
@@ -86,6 +92,11 @@ export default function App() {
   useEffect(() => {
     if (!chat.isTyping) inputRef.current?.focus();
   }, [chat.isTyping]);
+
+  useEffect(() => {
+    void loadCoords();
+    void loadWaypoints();
+  }, []);
 
   useEffect(() => {
     api
@@ -153,6 +164,24 @@ export default function App() {
     }
   };
 
+  const awaitingConsent = consent.hydrated && !consent.consented;
+  const initialBotText = consent.consented ? WELCOME_TEXT : CONSENT_PROMPT_TEXT;
+  const initialBotTimestamp = useMemo(() => timeNow(), []);
+  const sendDisabled = awaitingConsent || chat.isTyping || !inputValue.trim();
+
+  let inputPlaceholder = "Message DIWA…";
+  if (awaitingConsent) {
+    inputPlaceholder = "Please agree to the Data Privacy Notice to continue…";
+  } else if (chat.isTyping) {
+    inputPlaceholder = "DIWA is replying…";
+  }
+
+  const handleAcceptConsent = () => {
+    consent.accept();
+    setShowCategories(true);
+    inputRef.current?.focus();
+  };
+
   return (
     <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100 flex items-stretch justify-center p-0 sm:items-center sm:p-4">
       <div className="relative flex min-h-dvh w-full max-w-4xl flex-col overflow-hidden bg-white shadow-xl sm:h-[95vh] sm:min-h-0 sm:max-h-[920px] sm:rounded-3xl sm:shadow-2xl">
@@ -162,7 +191,7 @@ export default function App() {
             <GraduationCap className="h-6 w-6 text-green-600 sm:h-8 sm:w-8" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="mb-0.5 text-lg font-semibold text-white sm:mb-1 sm:text-xl">Sevi</h1>
+            <h1 className="mb-0.5 text-lg font-semibold text-white sm:mb-1 sm:text-xl">DIWA</h1>
             <div className="flex items-center gap-1.5">
               <div className="h-2 w-2 rounded-full bg-green-300 animate-pulse" />
               <p className="text-xs text-green-100 sm:text-sm">Online · CvSU Virtual Assistant</p>
@@ -198,6 +227,25 @@ export default function App() {
           onScroll={scroll.onScroll}
           className="relative flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6"
         >
+          <ChatMessage
+            message={initialBotText}
+            isBot={true}
+            timestamp={initialBotTimestamp}
+            isGrouped={false}
+          />
+
+          {awaitingConsent && (
+            <div className="mb-4 ml-10 sm:ml-11">
+              <button
+                onClick={handleAcceptConsent}
+                className="inline-flex items-center gap-2 rounded-xl border border-green-600 bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:text-base"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                I Agree
+              </button>
+            </div>
+          )}
+
           {chat.messages.map((message, index) => {
             const prev = chat.messages[index - 1];
             const isGrouped = !!prev && prev.isBot === message.isBot;
@@ -218,6 +266,8 @@ export default function App() {
                 typing={message.id === chat.typingMessageId}
                 onTypingDone={chat.clearTypingMessageId}
                 mapData={message.mapData}
+                directory={message.directory}
+                intent={message.intent}
               />
             );
           })}
@@ -225,7 +275,7 @@ export default function App() {
           {chat.isTyping && <TypingIndicator />}
 
           <AnimatePresence>
-            {showCategories && (
+            {showCategories && !awaitingConsent && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -300,13 +350,14 @@ export default function App() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder={chat.isTyping ? "Sevi is replying…" : "Message Sevi…"}
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-tight focus:outline-none focus:border-green-500 focus:bg-white transition-colors sm:text-base"
+                disabled={awaitingConsent}
+                placeholder={inputPlaceholder}
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-tight focus:outline-none focus:border-green-500 focus:bg-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 sm:text-base"
               />
             </div>
             <button
               onClick={handleSend}
-              disabled={!inputValue.trim() || chat.isTyping}
+              disabled={sendDisabled}
               className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-600 transition-colors active:bg-green-800 disabled:bg-gray-200 sm:h-12 sm:w-12"
               aria-label="Send message"
             >

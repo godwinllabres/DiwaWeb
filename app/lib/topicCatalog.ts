@@ -118,7 +118,7 @@ const TOPIC_CATALOG: Record<string, TopicMeta> = {
   greeting: {
     tag: "greeting",
     title: "Say hello",
-    description: "Start a conversation with Sevi",
+    description: "Start a conversation with DIWA",
     prompt: "Hello",
     group: "support",
     keywords: ["hello", "hi", "greetings"],

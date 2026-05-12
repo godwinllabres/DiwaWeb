@@ -1,5 +1,9 @@
+// Default to the same-origin `/api` path. In dev, Vite proxies it to the
+// local SeviAI server (see vite.config.ts), so this works both locally and
+// when the web UI is shared via a tunnel — no separate API tunnel needed.
+// Override with VITE_API_URL to point at a different backend.
 const API_BASE_URL =
-  (import.meta as any).env?.VITE_API_URL || "http://127.0.0.1:8010";
+  (import.meta as any).env?.VITE_API_URL || "/api";
 
 export interface ChatRequest {
   message: string;
@@ -12,14 +16,25 @@ export interface MapData {
   label: string;
 }
 
+export interface Directory {
+  office: string;
+  location?: string | null;
+  place_id?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  hours?: string | null;
+}
+
 export interface ChatResponse {
   response: string;
+  summary?: string | null;
   intent: string;
   confidence: number;
   user_id?: string | null;
   session_id?: string | null;
   message_id?: number | null;
   map_data?: MapData | null;
+  directory?: Directory | null;
 }
 
 export interface FeedbackRequest {
@@ -49,6 +64,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(`API ${path} failed: ${res.status}`);
   }
   return res.json() as Promise<T>;
+}
+
+export interface MapCoordsResponse {
+  coords: Record<string, { x: number; y: number }>;
+  overrides: Record<string, { x: number; y: number }>;
+}
+
+export interface MapCoordsUpdate {
+  coords: Record<string, { x: number; y: number }>;
+}
+
+export interface MapWaypointsResponse {
+  overrides: Record<string, { x: number; y: number }>;
 }
 
 export const api = {
@@ -93,4 +121,28 @@ export const api = {
   getIntentLogs: () => request<any>("/logs/intents"),
 
   getModelInfo: () => request<any>("/model/info"),
+
+  getMap: () => request<any>("/map"),
+
+  getMapCoords: () => request<MapCoordsResponse>("/map/coords"),
+
+  saveMapCoords: (body: MapCoordsUpdate) =>
+    request<any>("/map/coords", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+
+  resetMapCoords: () =>
+    request<any>("/map/coords", { method: "DELETE" }),
+
+  getMapWaypoints: () => request<MapWaypointsResponse>("/map/waypoints"),
+
+  saveMapWaypoints: (body: MapCoordsUpdate) =>
+    request<any>("/map/waypoints", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+
+  resetMapWaypoints: () =>
+    request<any>("/map/waypoints", { method: "DELETE" }),
 };

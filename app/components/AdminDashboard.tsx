@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
-import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon } from "lucide-react";
 import { api } from "../lib/api";
+import { AdminMapEditor } from "./AdminMapEditor";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -13,6 +14,7 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
   const [fallbacks, setFallbacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showMapEditor, setShowMapEditor] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,16 +50,32 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
       <div className="flex flex-shrink-0 items-center justify-between bg-gradient-to-r from-green-600 to-green-700 px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex min-w-0 items-center gap-3">
           <BarChart3 className="h-5 w-5 flex-shrink-0 text-white sm:h-6 sm:w-6" />
-          <h2 className="truncate text-lg text-white sm:text-xl">Sevi Admin Dashboard</h2>
+          <h2 className="truncate text-lg text-white sm:text-xl">DIWA Admin Dashboard</h2>
         </div>
-        <button
-          onClick={onClose}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/20 transition-colors hover:bg-white/30"
-          aria-label="Close"
-        >
-          <X className="h-5 w-5 text-white" />
-        </button>
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <button
+            onClick={() => setShowMapEditor(true)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white/20 px-3 text-xs font-medium text-white transition-colors hover:bg-white/30 sm:text-sm"
+            title="Edit campus map markers"
+          >
+            <MapIcon className="h-4 w-4" />
+            Edit Map
+          </button>
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 transition-colors hover:bg-white/30"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5 text-white" />
+          </button>
+        </div>
       </div>
+
+      <AnimatePresence>
+        {showMapEditor && (
+          <AdminMapEditor onClose={() => setShowMapEditor(false)} />
+        )}
+      </AnimatePresence>
 
       <div className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:space-y-6 sm:p-6">
         {loading && <p className="text-gray-500">Loading stats...</p>}

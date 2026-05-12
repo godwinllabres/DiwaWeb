@@ -65,11 +65,13 @@ export function useChat({
 
         const botId = pushMessage({
           text: res.response,
+          summary: res.summary ?? undefined,
           isBot: true,
           intent: res.intent,
           confidence: res.confidence,
           messageId: res.message_id ?? undefined,
           mapData: res.map_data ?? undefined,
+          directory: res.directory ?? undefined,
         });
         setTypingMessageId(botId);
 

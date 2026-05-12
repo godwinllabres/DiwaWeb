@@ -35,17 +35,17 @@ export const MAIN_GATE = { x: 639, y: 1610 } as const;
 export const BUILDINGS: readonly Building[] = [
   {
     id: "plaza", num: 1, name: "University Plaza (Laya't Diwa)", abbr: "Plaza",
-    x: 806, y: 1715,
+    x: 636, y: 1670,
     steps: ["You are just inside Gate 1 — the plaza is the open area at the south entrance."],
   },
   {
     id: "gate_1", num: 2, name: "Gate 1 (Main Gate)", abbr: "Gate 1",
-    x: 868, y: 1670,
+    x: 639, y: 1610,
     steps: ["You are at Gate 1, the main southern entrance to campus."],
   },
   {
     id: "softball", num: 3, name: "Softball Field", abbr: "Softball",
-    x: 746, y: 1586,
+    x: 537, y: 1400,
     steps: [
       "From Gate 1, head west along the southern boundary.",
       "The softball field is to your left, near the southwest corner.",
@@ -53,7 +53,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "intl_house", num: 4, name: "International House — Marketing", abbr: "Intl House",
-    x: 943, y: 1705,
+    x: 713, y: 1612,
     steps: [
       "From Gate 1, walk east a short distance along the southern road.",
       "International House — Marketing is on your right.",
@@ -61,7 +61,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "bleachers", num: 5, name: "Bleachers", abbr: "Bleachers",
-    x: 985, y: 1628,
+    x: 781, y: 1610,
     steps: [
       "From Gate 1, walk north toward the University Oval.",
       "The bleachers face the oval grandstand.",
@@ -69,7 +69,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "open_court", num: 6, name: "Open Court", abbr: "Open Court",
-    x: 953, y: 1581,
+    x: 781, y: 1490,
     steps: [
       "From Gate 1, walk north past the bleachers.",
       "The open court is east of the University Oval.",
@@ -77,7 +77,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "oval", num: 7, name: "University Oval — Grandstand", abbr: "Oval",
-    x: 900, y: 1382,
+    x: 684, y: 1265,
     steps: [
       "From Gate 1, walk straight north.",
       "The University Oval and grandstand are the large track in the center of campus.",
@@ -85,7 +85,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "mall", num: 8, name: "University Mall", abbr: "Mall",
-    x: 1124, y: 1733,
+    x: 843, y: 1610,
     steps: [
       "From Gate 1, walk east along the southern row.",
       "The University Mall is part of the south-east cluster, before the dormitories.",
@@ -95,7 +95,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "osas", num: 9,
     name: "Office of Student Affairs and Services (OSAS) — University Registrar",
     abbr: "OSAS / Registrar",
-    x: 1122, y: 1439,
+    x: 895, y: 1370,
     steps: [
       "From Gate 1, walk north along the central road past the oval.",
       "OSAS / University Registrar is on the east side, near the gymnasium.",
@@ -105,7 +105,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "gym", num: 10,
     name: "College of Sports and Physical Education and Recreation — University Gymnasium",
     abbr: "Gymnasium",
-    x: 1154, y: 1563,
+    x: 928, y: 1510,
     steps: [
       "From Gate 1, walk north past the bleachers and open court.",
       "The University Gymnasium is on the east side of campus.",
@@ -113,7 +113,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "boys_dorm", num: 11, name: "Boy's Dormitory", abbr: "Boys Dorm",
-    x: 1246, y: 1708,
+    x: 928, y: 1610,
     steps: [
       "From Gate 1, walk east along the southern road past the mall.",
       "Boy's Dormitory is in the southeast dorm cluster.",
@@ -121,7 +121,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "bahay_alumni", num: 12, name: "Bahay Alumni", abbr: "Bahay Alumni",
-    x: 1261, y: 1601,
+    x: 990, y: 1545,
     steps: [
       "From Gate 1, walk east past the mall and gymnasium.",
       "Bahay Alumni is in the east-central area near the dormitories.",
@@ -129,7 +129,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "girls_dorm", num: 13, name: "Girl's Dormitory", abbr: "Girls Dorm",
-    x: 1368, y: 1695,
+    x: 1052, y: 1610,
     steps: [
       "From Gate 1, walk east along the southern row past Bahay Alumni.",
       "Girl's Dormitory is at the eastern end of the south boundary.",
@@ -139,7 +139,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "ncrdec", num: 14,
     name: "National Coffee Research, Development, and Extension Center (NCRDEC)",
     abbr: "NCRDEC",
-    x: 1530, y: 1568,
+    x: 1081, y: 1370,
     steps: [
       "From Gate 1, walk east to the far edge of campus.",
       "NCRDEC is in the eastern strip, near the agri-extension area.",
@@ -147,7 +147,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "demo_farm", num: 15, name: "Technology Demonstration Farm", abbr: "Demo Farm",
-    x: 1495, y: 1399,
+    x: 1087, y: 1275,
     steps: [
       "From Gate 1, walk northeast past the gymnasium.",
       "The Demonstration Farm is in the east-central agri zone.",
@@ -155,7 +155,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "processing", num: 16, name: "Fruits and Vegetable Processing Center", abbr: "Processing",
-    x: 1368, y: 1429,
+    x: 1009, y: 1275,
     steps: [
       "From Gate 1, walk northeast past the gymnasium.",
       "The Fruits and Vegetable Processing Center is next to the demo farm.",
@@ -165,7 +165,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "cafenr", num: 17,
     name: "College of Agriculture, Food, Environment, and Natural Resources (CAFENR)",
     abbr: "CAFENR",
-    x: 1306, y: 1300,
+    x: 960, y: 1155,
     steps: [
       "From Gate 1, walk north past the oval and Admin.",
       "CAFENR is in the central-east area of campus.",
@@ -173,7 +173,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "dcs", num: 18, name: "Department of Crop Science (DCS)", abbr: "DCS",
-    x: 1251, y: 1327,
+    x: 928, y: 1145,
     steps: [
       "Walk north from Gate 1 past the oval.",
       "DCS sits right beside CAFENR in the central-east cluster.",
@@ -183,7 +183,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "cemds", num: 19,
     name: "College of Economics, Management, and Development Studies (CEMDS)",
     abbr: "CEMDS",
-    x: 1468, y: 1292,
+    x: 1013, y: 1040,
     steps: [
       "Walk north from Gate 1 past Admin and the oval.",
       "CEMDS is in the north-central area, east side.",
@@ -191,7 +191,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "research_center", num: 20, name: "Research Center", abbr: "Research",
-    x: 1443, y: 1185,
+    x: 1006, y: 950,
     steps: [
       "Walk north past Admin, then continue past CAFENR.",
       "The Research Center is just north of CEMDS.",
@@ -199,7 +199,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "cthm", num: 21, name: "College of Tourism and Hospitality Management (CTHM)", abbr: "CTHM",
-    x: 1420, y: 1091,
+    x: 977, y: 910,
     steps: [
       "Walk north along the eastern road past CEMDS.",
       "CTHM is in the upper-central area, east side.",
@@ -207,7 +207,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "cas", num: 22, name: "College of Arts and Sciences (CAS)", abbr: "CAS",
-    x: 1189, y: 1088,
+    x: 876, y: 910,
     steps: [
       "Walk north from Gate 1 past Admin and the oval.",
       "CAS is in the upper-central cluster, west of CTHM.",
@@ -215,7 +215,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "old_cemds", num: 23, name: "Old CEMDS Building", abbr: "Old CEMDS",
-    x: 960, y: 1088,
+    x: 762, y: 910,
     steps: [
       "Walk north from Gate 1 past Admin.",
       "The Old CEMDS building is in the upper-central area, west of CAS.",
@@ -225,7 +225,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "admin", num: 24,
     name: "Administration Building — University Cashier",
     abbr: "Admin",
-    x: 851, y: 1223,
+    x: 635, y: 1015,
     steps: [
       "Walk straight north from Gate 1 along the central road.",
       "The Administration Building (University Cashier) is the first major structure on your left.",
@@ -235,7 +235,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "ceit", num: 25,
     name: "College of Engineering and Information Technology (CEIT)",
     abbr: "CEIT",
-    x: 754, y: 1173,
+    x: 566, y: 910,
     steps: [
       "Walk north from Gate 1, then bear left past Admin.",
       "CEIT is in the west-central cluster, near Gate 2.",
@@ -243,7 +243,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "child_dev", num: 26, name: "Child Development Center", abbr: "Child Dev",
-    x: 622, y: 1121,
+    x: 517, y: 910,
     steps: [
       "Enter from Gate 2 on the west, or walk north-west from Gate 1.",
       "The Child Development Center is in the western strip, near CEIT.",
@@ -251,12 +251,12 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "gate_2", num: 27, name: "Gate 2", abbr: "Gate 2",
-    x: 582, y: 1213,
+    x: 517, y: 985,
     steps: ["Gate 2 is the western entrance, on the side of CEIT and the Chapel."],
   },
   {
     id: "chapel", num: 28, name: "University Chapel", abbr: "Chapel",
-    x: 530, y: 1354,
+    x: 511, y: 1095,
     steps: [
       "Enter via Gate 2, or walk west from the central road past Admin.",
       "The Chapel is on the western edge of campus.",
@@ -264,7 +264,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "ccj", num: 29, name: "College of Criminal Justice (CCJ)", abbr: "CCJ",
-    x: 557, y: 1439,
+    x: 511, y: 1170,
     steps: [
       "Enter from Gate 2 or walk west from the central road.",
       "CCJ is on the western edge, south of the Chapel.",
@@ -272,7 +272,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "clinic", num: 30, name: "University Clinic (Infirmary)", abbr: "Clinic",
-    x: 607, y: 1561,
+    x: 511, y: 1265,
     steps: [
       "Walk west from Gate 1 along the southern road, then turn north.",
       "The University Clinic (Infirmary) is on the western edge of campus.",
@@ -280,7 +280,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "sci_hs", num: 31, name: "Science Highschool", abbr: "Sci HS",
-    x: 726, y: 1466,
+    x: 599, y: 1145,
     steps: [
       "Walk north from Gate 1, then west of the Admin Building.",
       "Science Highschool is in the south-west sector.",
@@ -288,14 +288,14 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "quadrangle", num: 32, name: "Quadrangle", abbr: "Quad",
-    x: 699, y: 1374,
+    x: 628, y: 1140,
     steps: [
       "Walk north from Gate 1; the quadrangle is the open area just south of Admin.",
     ],
   },
   {
     id: "coed", num: 33, name: "College of Education (CED)", abbr: "CEd",
-    x: 677, y: 1277,
+    x: 599, y: 1060,
     steps: [
       "Walk north from Gate 1 past Admin.",
       "CED is in the west-central cluster, near CEIT.",
@@ -303,7 +303,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "hostel", num: 34, name: "Hostel Tropicana", abbr: "Hostel",
-    x: 1430, y: 1001,
+    x: 1048, y: 870,
     steps: [
       "Walk north past CEMDS and the Research Center.",
       "Hostel Tropicana is in the northeast cluster.",
@@ -311,7 +311,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "agri_eco", num: 35, name: "CvSU Agri-Eco Park", abbr: "Agri-Eco",
-    x: 1552, y: 949,
+    x: 1091, y: 845,
     steps: [
       "Walk north along the eastern road past CTHM and the hostel.",
       "The Agri-Eco Park is in the northeast section.",
@@ -319,7 +319,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "saluysoy", num: 36, name: "Saluysoy", abbr: "Saluysoy",
-    x: 1423, y: 884,
+    x: 1039, y: 780,
     steps: [
       "Walk north past CTHM into the north-central area.",
       "Saluysoy is in the upper-east section of campus.",
@@ -327,7 +327,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "bano_resort", num: 37, name: "Baño De Señora Resort", abbr: "Baño Resort",
-    x: 1493, y: 797,
+    x: 1091, y: 715,
     steps: [
       "Walk north all the way past CTHM and the Agri-Eco area.",
       "Baño De Señora Resort is at the northeast edge of campus.",
@@ -335,7 +335,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "icon", num: 38, name: "International Convention Center (ICON)", abbr: "ICON",
-    x: 1159, y: 840,
+    x: 804, y: 720,
     steps: [
       "Walk north past CAS and the library cluster.",
       "The International Convention Center is in the north-central area.",
@@ -343,7 +343,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "con", num: 39, name: "College of Nursing (CON)", abbr: "CON",
-    x: 1211, y: 1024,
+    x: 876, y: 855,
     steps: [
       "Walk north past Admin and the library.",
       "The College of Nursing is in the north-central area, near CAS.",
@@ -353,7 +353,7 @@ export const BUILDINGS: readonly Building[] = [
     id: "cvmbs", num: 40,
     name: "College of Veterinary Medicine and Biological Sciences (CVMBS)",
     abbr: "CVMBS",
-    x: 1124, y: 703,
+    x: 749, y: 595,
     steps: [
       "Walk far north past CAS, the library, and ICON.",
       "CVMBS is in the upper-north section of campus.",
@@ -361,7 +361,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "star_farm", num: 41, name: "CvSU Star Farm", abbr: "Star Farm",
-    x: 1221, y: 566,
+    x: 833, y: 515,
     steps: [
       "Walk all the way north past CVMBS.",
       "The CvSU Star Farm is at the far northern tip of campus.",
@@ -369,7 +369,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "das", num: 42, name: "Department of Animal Science (DAS)", abbr: "DAS",
-    x: 1311, y: 700,
+    x: 892, y: 600,
     steps: [
       "Walk far north past CTHM and the Agri-Eco area.",
       "DAS is in the upper-north cluster, east of CVMBS.",
@@ -377,12 +377,12 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "gate_3", num: 43, name: "Gate 3", abbr: "Gate 3",
-    x: 1104, y: 1650,
+    x: 807, y: 1610,
     steps: ["Gate 3 is the third entrance, on the south side near the dormitory row."],
   },
   {
     id: "lagoon", num: 44, name: "Lagoon", abbr: "Lagoon",
-    x: 1174, y: 939,
+    x: 853, y: 760,
     steps: [
       "Walk north past Admin, then past the library and CAS.",
       "The Lagoon is the water feature in the north-central area.",
@@ -390,7 +390,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "library", num: 45, name: "Ladislao N. Diwa Memorial Library", abbr: "Library",
-    x: 1256, y: 1225,
+    x: 918, y: 1040,
     steps: [
       "Walk north from Gate 1 past the Admin Building.",
       "Continue past CAFENR. The Ladislao N. Diwa Memorial Library is in the central area.",
@@ -399,7 +399,7 @@ export const BUILDINGS: readonly Building[] = [
   {
     id: "gender_dev", num: 46,
     name: "Gender and Development Research Center", abbr: "GAD",
-    x: 1174, y: 1190,
+    x: 853, y: 975,
     steps: [
       "Walk north past Admin and the library.",
       "The Gender and Development Research Center is in the central area, near CAS.",
@@ -407,7 +407,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "grad", num: 47, name: "Graduate School", abbr: "Grad School",
-    x: 1055, y: 1233,
+    x: 736, y: 1040,
     steps: [
       "Walk north from Gate 1 past Admin.",
       "The Graduate School is in the central area, near the library.",
@@ -415,7 +415,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "rolle_hall", num: 48, name: "S.M Rolle Hall", abbr: "Rolle Hall",
-    x: 1055, y: 912,
+    x: 778, y: 760,
     steps: [
       "Walk north past CAS into the upper-central area.",
       "S.M Rolle Hall is in the north-central section.",
@@ -534,65 +534,46 @@ export interface Waypoint {
   neighbors: readonly string[];
 }
 
-// Road-aligned waypoint graph. Every neighbor pair shares either an x
-// (same vertical road) or a y (same horizontal road), so the polyline
-// between consecutive waypoints stays on a single straight road segment.
-// Corner nodes (wp_sw, wp_int_w_admin, wp_int_e_mid) bridge perpendicular
-// roads so cross-traffic doesn't cut diagonally through buildings.
+// Routing waypoints, calibrated to OSM-projected positions.
 export const WAYPOINTS: Record<string, Waypoint> = {
-  // ── SOUTH ARTERIAL (y = 1700) ─────────────────────────────────────
-  wp_sw:         { id: "wp_sw",         x: 691,  y: 1700, neighbors: ["wp_softball", "wp_plaza"] },
-  wp_plaza:      { id: "wp_plaza",      x: 770,  y: 1700, neighbors: ["wp_sw", "wp_gate1"] },
-  wp_gate1:      { id: "wp_gate1",      x: 857,  y: 1700, neighbors: ["wp_plaza", "wp_south_row", "wp_oval"] },
-  wp_south_row:  { id: "wp_south_row",  x: 1030, y: 1700, neighbors: ["wp_gate1", "wp_mall"] },
-  wp_mall:       { id: "wp_mall",       x: 1130, y: 1700, neighbors: ["wp_south_row", "wp_gate3"] },
-  wp_gate3:      { id: "wp_gate3",      x: 1208, y: 1700, neighbors: ["wp_mall", "wp_boys_dorm", "wp_bahay"] },
-  wp_boys_dorm:  { id: "wp_boys_dorm",  x: 1280, y: 1700, neighbors: ["wp_gate3", "wp_girls_dorm"] },
-  wp_girls_dorm: { id: "wp_girls_dorm", x: 1370, y: 1700, neighbors: ["wp_boys_dorm"] },
-
-  // ── WEST PERIMETER (x = 691) ──────────────────────────────────────
-  wp_softball:    { id: "wp_softball",    x: 691, y: 1500, neighbors: ["wp_sw", "wp_west"] },
-  wp_west:        { id: "wp_west",        x: 691, y: 1450, neighbors: ["wp_softball", "wp_clinic"] },
-  wp_clinic:      { id: "wp_clinic",      x: 691, y: 1370, neighbors: ["wp_west", "wp_ccj", "wp_central"] },
-  wp_ccj:         { id: "wp_ccj",         x: 691, y: 1250, neighbors: ["wp_clinic", "wp_int_w_admin"] },
-  wp_int_w_admin: { id: "wp_int_w_admin", x: 691, y: 1150, neighbors: ["wp_ccj", "wp_chapel", "wp_admin", "wp_coed"] },
-  wp_coed:        { id: "wp_coed",        x: 770, y: 1150, neighbors: ["wp_int_w_admin", "wp_admin"] },
-  wp_chapel:      { id: "wp_chapel",      x: 691, y: 1100, neighbors: ["wp_int_w_admin", "wp_gate2"] },
-  wp_gate2:       { id: "wp_gate2",       x: 691, y: 1050, neighbors: ["wp_chapel", "wp_ceit"] },
-  wp_ceit:        { id: "wp_ceit",        x: 691, y: 950,  neighbors: ["wp_gate2"] },
-
-  // ── CENTRAL SPINE (x = 857) ───────────────────────────────────────
-  wp_oval:    { id: "wp_oval",    x: 857, y: 1500, neighbors: ["wp_gate1", "wp_central", "wp_gym"] },
-  wp_central: { id: "wp_central", x: 857, y: 1370, neighbors: ["wp_oval", "wp_admin", "wp_clinic", "wp_osas"] },
-  wp_admin:   { id: "wp_admin",   x: 857, y: 1150, neighbors: ["wp_central", "wp_coed", "wp_grad", "wp_int_w_admin"] },
-
-  // ── EAST-CENTRAL (x = 1100) ───────────────────────────────────────
-  wp_grad:    { id: "wp_grad",    x: 1100, y: 1150, neighbors: ["wp_admin", "wp_library", "wp_osas"] },
-  wp_library: { id: "wp_library", x: 1100, y: 1083, neighbors: ["wp_grad", "wp_cas", "wp_rolle"] },
-  wp_osas:    { id: "wp_osas",    x: 1100, y: 1370, neighbors: ["wp_central", "wp_grad", "wp_int_e_mid"] },
-
-  // ── EAST SPINE (x = 1208) ─────────────────────────────────────────
-  wp_bahay:     { id: "wp_bahay",     x: 1208, y: 1600, neighbors: ["wp_gate3", "wp_gym"] },
-  wp_gym:       { id: "wp_gym",       x: 1208, y: 1500, neighbors: ["wp_bahay", "wp_oval", "wp_int_e_mid"] },
-  wp_int_e_mid: { id: "wp_int_e_mid", x: 1208, y: 1370, neighbors: ["wp_gym", "wp_osas", "wp_cas", "wp_processing"] },
-  wp_cas:       { id: "wp_cas",       x: 1208, y: 1083, neighbors: ["wp_int_e_mid", "wp_library", "wp_con"] },
-  wp_con:       { id: "wp_con",       x: 1208, y: 1000, neighbors: ["wp_cas", "wp_hostel", "wp_north_ring"] },
-
-  // ── FAR EAST (x = 1300, 1383) ─────────────────────────────────────
-  wp_processing: { id: "wp_processing", x: 1300, y: 1370, neighbors: ["wp_int_e_mid", "wp_cafenr"] },
-  wp_cafenr:     { id: "wp_cafenr",     x: 1300, y: 1300, neighbors: ["wp_processing", "wp_cemds"] },
-  wp_cemds:      { id: "wp_cemds",      x: 1383, y: 1300, neighbors: ["wp_cafenr", "wp_research"] },
-  wp_research:   { id: "wp_research",   x: 1383, y: 1180, neighbors: ["wp_cemds", "wp_hostel"] },
-  wp_hostel:     { id: "wp_hostel",     x: 1383, y: 1000, neighbors: ["wp_research", "wp_con", "wp_north_ring"] },
-  wp_north_ring: { id: "wp_north_ring", x: 1300, y: 850,  neighbors: ["wp_con", "wp_hostel", "wp_bano", "wp_das"] },
-  wp_bano:       { id: "wp_bano",       x: 1450, y: 800,  neighbors: ["wp_north_ring"] },
-  wp_das:        { id: "wp_das",        x: 1300, y: 700,  neighbors: ["wp_north_ring", "wp_cvmbs"] },
-
-  // ── NORTH ZONE (x = 1100, y decreasing = moving north) ────────────
-  wp_rolle:     { id: "wp_rolle",     x: 1100, y: 900, neighbors: ["wp_library", "wp_icon"] },
-  wp_icon:      { id: "wp_icon",      x: 1100, y: 800, neighbors: ["wp_rolle", "wp_cvmbs"] },
-  wp_cvmbs:     { id: "wp_cvmbs",     x: 1100, y: 700, neighbors: ["wp_icon", "wp_das", "wp_star_farm"] },
-  wp_star_farm: { id: "wp_star_farm", x: 1100, y: 580, neighbors: ["wp_cvmbs"] },
+  wp_gate1: { id: "wp_gate1", x: 1283, y: 1862, neighbors: ["wp_plaza", "wp_south_row"] },
+  wp_plaza: { id: "wp_plaza", x: 1474, y: 1407, neighbors: ["wp_gate1", "wp_south_row", "wp_central", "wp_west"] },
+  wp_south_row: { id: "wp_south_row", x: 1546, y: 1782, neighbors: ["wp_plaza", "wp_mall", "wp_gate3", "wp_gate1"] },
+  wp_mall: { id: "wp_mall", x: 1692, y: 1402, neighbors: ["wp_south_row", "wp_osas", "wp_boys_dorm"] },
+  wp_gate3: { id: "wp_gate3", x: 1548, y: 1826, neighbors: ["wp_south_row", "wp_boys_dorm"] },
+  wp_boys_dorm: { id: "wp_boys_dorm", x: 1770, y: 1314, neighbors: ["wp_gate3", "wp_mall", "wp_girls_dorm"] },
+  wp_girls_dorm: { id: "wp_girls_dorm", x: 1885, y: 1310, neighbors: ["wp_boys_dorm", "wp_bahay"] },
+  wp_bahay: { id: "wp_bahay", x: 1813, y: 1271, neighbors: ["wp_girls_dorm", "wp_gym"] },
+  wp_osas: { id: "wp_osas", x: 1685, y: 1102, neighbors: ["wp_mall", "wp_gym", "wp_oval", "wp_library"] },
+  wp_gym: { id: "wp_gym", x: 1735, y: 1190, neighbors: ["wp_osas", "wp_bahay"] },
+  wp_oval: { id: "wp_oval", x: 1540, y: 1070, neighbors: ["wp_plaza", "wp_osas", "wp_grad", "wp_admin"] },
+  wp_central: { id: "wp_central", x: 1415, y: 1136, neighbors: ["wp_plaza", "wp_admin", "wp_sci_hs"] },
+  wp_admin: { id: "wp_admin", x: 1440, y: 892, neighbors: ["wp_central", "wp_oval", "wp_grad", "wp_chapel", "wp_coed"] },
+  wp_coed: { id: "wp_coed", x: 1342, y: 897, neighbors: ["wp_admin", "wp_ceit"] },
+  wp_chapel: { id: "wp_chapel", x: 1195, y: 956, neighbors: ["wp_admin", "wp_ccj", "wp_west"] },
+  wp_west: { id: "wp_west", x: 1023, y: 1265, neighbors: ["wp_plaza", "wp_chapel", "wp_softball"] },
+  wp_ccj: { id: "wp_ccj", x: 1275, y: 1222, neighbors: ["wp_chapel", "wp_clinic"] },
+  wp_clinic: { id: "wp_clinic", x: 1275, y: 1137, neighbors: ["wp_ccj", "wp_softball", "wp_sci_hs"] },
+  wp_softball: { id: "wp_softball", x: 928, y: 1414, neighbors: ["wp_clinic", "wp_west"] },
+  wp_sci_hs: { id: "wp_sci_hs", x: 1383, y: 1111, neighbors: ["wp_central", "wp_clinic"] },
+  wp_grad: { id: "wp_grad", x: 1569, y: 832, neighbors: ["wp_oval", "wp_library", "wp_admin"] },
+  wp_library: { id: "wp_library", x: 1685, y: 815, neighbors: ["wp_grad", "wp_osas", "wp_cas", "wp_cemds"] },
+  wp_cas: { id: "wp_cas", x: 1629, y: 707, neighbors: ["wp_library", "wp_con", "wp_ceit"] },
+  wp_ceit: { id: "wp_ceit", x: 1397, y: 787, neighbors: ["wp_coed", "wp_cas", "wp_gate2"] },
+  wp_gate2: { id: "wp_gate2", x: 841, y: 967, neighbors: ["wp_ceit", "wp_chapel"] },
+  wp_con: { id: "wp_con", x: 1605, y: 604, neighbors: ["wp_cas", "wp_hostel", "wp_processing"] },
+  wp_cemds: { id: "wp_cemds", x: 1828, y: 862, neighbors: ["wp_library", "wp_cafenr", "wp_research"] },
+  wp_cafenr: { id: "wp_cafenr", x: 1736, y: 858, neighbors: ["wp_cemds", "wp_research", "wp_hostel"] },
+  wp_research: { id: "wp_research", x: 1800, y: 777, neighbors: ["wp_cemds", "wp_cafenr", "wp_hostel"] },
+  wp_hostel: { id: "wp_hostel", x: 1751, y: 576, neighbors: ["wp_con", "wp_cafenr", "wp_research", "wp_north_ring"] },
+  wp_processing: { id: "wp_processing", x: 1511, y: 516, neighbors: ["wp_con", "wp_icon", "wp_north_ring"] },
+  wp_icon: { id: "wp_icon", x: 1605, y: 387, neighbors: ["wp_processing", "wp_rolle", "wp_north_ring"] },
+  wp_rolle: { id: "wp_rolle", x: 1567, y: 474, neighbors: ["wp_icon", "wp_cvmbs"] },
+  wp_cvmbs: { id: "wp_cvmbs", x: 1541, y: 173, neighbors: ["wp_rolle", "wp_star_farm", "wp_das"] },
+  wp_star_farm: { id: "wp_star_farm", x: 1548, y: -196, neighbors: ["wp_cvmbs"] },
+  wp_das: { id: "wp_das", x: 1639, y: 182, neighbors: ["wp_cvmbs", "wp_bano"] },
+  wp_bano: { id: "wp_bano", x: 1778, y: -53, neighbors: ["wp_das", "wp_north_ring"] },
+  wp_north_ring: { id: "wp_north_ring", x: 1808, y: 361, neighbors: ["wp_processing", "wp_icon", "wp_hostel", "wp_bano"] },
 };
 
 const _WAYPOINT_LIST = Object.values(WAYPOINTS);
@@ -603,28 +584,11 @@ function dist2(a: { x: number; y: number }, b: { x: number; y: number }): number
   return dx * dx + dy * dy;
 }
 
-/** Merge bundled WAYPOINTS with admin overrides — only x/y change. */
-export function applyWaypointOverrides(
-  overrides: ReadonlyMap<string, { x: number; y: number }>,
-): Record<string, Waypoint> {
-  if (overrides.size === 0) return WAYPOINTS;
-  const out: Record<string, Waypoint> = {};
-  for (const [id, w] of Object.entries(WAYPOINTS)) {
-    const o = overrides.get(id);
-    out[id] = o ? { ...w, x: o.x, y: o.y } : w;
-  }
-  return out;
-}
-
 /** Nearest waypoint to a building, used as the entry/exit point onto the road graph. */
-export function nearestWaypoint(
-  p: { x: number; y: number },
-  graph: Record<string, Waypoint> = WAYPOINTS,
-): Waypoint {
-  const list = graph === WAYPOINTS ? _WAYPOINT_LIST : Object.values(graph);
-  let best = list[0];
+export function nearestWaypoint(p: { x: number; y: number }): Waypoint {
+  let best = _WAYPOINT_LIST[0];
   let bestD = dist2(p, best);
-  for (const w of list) {
+  for (const w of _WAYPOINT_LIST) {
     const d = dist2(p, w);
     if (d < bestD) { best = w; bestD = d; }
   }
@@ -632,16 +596,12 @@ export function nearestWaypoint(
 }
 
 /** Dijkstra's algorithm on the waypoint graph. Returns the sequence of waypoint ids. */
-function dijkstra(
-  startId: string,
-  goalId: string,
-  graph: Record<string, Waypoint>,
-): string[] {
+function dijkstra(startId: string, goalId: string): string[] {
   if (startId === goalId) return [startId];
   const dist: Record<string, number> = {};
   const prev: Record<string, string | null> = {};
   const unvisited = new Set<string>();
-  for (const id of Object.keys(graph)) {
+  for (const id of Object.keys(WAYPOINTS)) {
     dist[id] = Infinity;
     prev[id] = null;
     unvisited.add(id);
@@ -658,10 +618,10 @@ function dijkstra(
     if (current === null || currentD === Infinity) break;
     if (current === goalId) break;
     unvisited.delete(current);
-    const node = graph[current];
+    const node = WAYPOINTS[current];
     for (const nId of node.neighbors) {
       if (!unvisited.has(nId)) continue;
-      const alt = dist[current] + Math.sqrt(dist2(node, graph[nId]));
+      const alt = dist[current] + Math.sqrt(dist2(node, WAYPOINTS[nId]));
       if (alt < dist[nId]) {
         dist[nId] = alt;
         prev[nId] = current;
@@ -679,6 +639,7 @@ function dijkstra(
   return path[0] === startId ? path : [];
 }
 
+/** Build a complete route from building A to building B as an array of (x, y) points. */
 /**
  * Build a route from building A to building B as an array of points that
  * strictly hugs the waypoint graph (road network). The building centers are
@@ -692,13 +653,12 @@ function dijkstra(
 export function routeBetween(
   from: Building,
   to: Building,
-  graph: Record<string, Waypoint> = WAYPOINTS,
 ): ReadonlyArray<{ x: number; y: number }> {
   if (from.id === to.id) return [];
-  const fromW = nearestWaypoint(from, graph);
-  const toW = nearestWaypoint(to, graph);
-  const wpIds = dijkstra(fromW.id, toW.id, graph);
-  return wpIds.map((id) => ({ x: graph[id].x, y: graph[id].y }));
+  const fromW = nearestWaypoint(from);
+  const toW = nearestWaypoint(to);
+  const wpIds = dijkstra(fromW.id, toW.id);
+  return wpIds.map((id) => ({ x: WAYPOINTS[id].x, y: WAYPOINTS[id].y }));
 }
 
 /** Polyline path attribute string from an array of points. */
