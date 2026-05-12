@@ -1,0 +1,43 @@
+/* Plus Jakarta Sans — the primary UI typeface. Loaded from Google Fonts
+   with the full weight range (200–800) plus italics so any Tailwind/Radix
+   component that requests semibold or italic just works. The @charset
+   declaration forces UTF-8 parsing of the import URL and any glyphs that
+   appear in this file (e.g. Tagalog / Spanish characters in fallback names). */
+@charset "UTF-8";
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+
+:root {
+  --font-sans:
+    "Plus Jakarta Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji";
+}
+
+html,
+body,
+#root {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Make sure every form control and button inherits — browser defaults are
+   serif on some controls (textarea on Firefox, input on Safari). */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
