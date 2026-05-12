@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon } from "lucide-react";
+import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon, Plus } from "lucide-react";
 import { api } from "../lib/api";
 import { AdminMapEditor } from "./AdminMapEditor";
+import { IntentOnboarding } from "./IntentOnboarding";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -15,6 +16,7 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showMapEditor, setShowMapEditor] = useState(false);
+  const [showIntentOnboarding, setShowIntentOnboarding] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,6 +56,14 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
           <button
+            onClick={() => setShowIntentOnboarding(true)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white/20 px-3 text-xs font-medium text-white transition-colors hover:bg-white/30 sm:text-sm"
+            title="Onboard a new intent with sanitation checks"
+          >
+            <Plus className="h-4 w-4" />
+            New Intent
+          </button>
+          <button
             onClick={() => setShowMapEditor(true)}
             className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white/20 px-3 text-xs font-medium text-white transition-colors hover:bg-white/30 sm:text-sm"
             title="Edit campus map markers"
@@ -74,6 +84,9 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
       <AnimatePresence>
         {showMapEditor && (
           <AdminMapEditor onClose={() => setShowMapEditor(false)} />
+        )}
+        {showIntentOnboarding && (
+          <IntentOnboarding onClose={() => setShowIntentOnboarding(false)} />
         )}
       </AnimatePresence>
 

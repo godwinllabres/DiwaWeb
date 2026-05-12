@@ -1,6 +1,31 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Bot, User, ThumbsUp, ThumbsDown, Check, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon } from "lucide-react";
+import { Bot, User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon } from "lucide-react";
+
+// Reason taxonomy — keep in sync with backend FEEDBACK_REASONS in api/app.py
+// and the /feedback/reasons endpoint. Inlined so the picker renders without
+// an extra API round-trip on first use.
+const POSITIVE_REASONS: { code: string; label: string }[] = [
+  { code: "accurate", label: "Got my answer" },
+  { code: "clear",    label: "Easy to understand" },
+  { code: "helpful",  label: "Pointed me the right way" },
+  { code: "other",    label: "Something else" },
+];
+
+const NEGATIVE_REASONS: { code: string; label: string }[] = [
+  { code: "wrong_info",  label: "Contains incorrect info" },
+  { code: "wrong_topic", label: "Answered something else" },
+  { code: "incomplete",  label: "Missing key details" },
+  { code: "outdated",    label: "Looks out of date" },
+  { code: "confusing",   label: "Hard to understand" },
+  { code: "other",       label: "Something else" },
+];
+
+export interface FeedbackSubmission {
+  readonly helpful: boolean;
+  readonly reason?: string;
+  readonly comment?: string;
+}
 import { useTypewriter } from "@/lib/hooks/useTypewriter";
 import { CampusMap } from "@/components/CampusMap";
 import type { MapData, Directory } from "@/lib/types";
@@ -103,7 +128,7 @@ interface ChatMessageProps {
   readonly confidence?: number;
   readonly messageId?: number;
   readonly isGrouped?: boolean;
-  readonly onFeedback?: (helpful: boolean) => void;
+  readonly onFeedback?: (submission: FeedbackSubmission) => void;
   readonly typing?: boolean;
   readonly onTypingDone?: () => void;
   readonly mapData?: MapData | null;
@@ -203,35 +228,37 @@ function DirectoryCard({ directory }: { readonly directory: Directory }) {
   );
 }
 
-interface FeedbackProps {
-  readonly feedback: boolean | null;
-  readonly onFeedback: (helpful: boolean) => void;
+interface FeedbackButtonsProps {
+  readonly thumb: boolean | null;
+  readonly submitted: boolean;
+  readonly onThumb: (helpful: boolean) => void;
 }
 
-function FeedbackButtons({ feedback, onFeedback }: FeedbackProps) {
+function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsProps) {
   const base = "rounded-full border p-1.5 transition-colors sm:border-0 sm:p-1";
+  const disabled = thumb !== null;
   return (
     <div className="flex items-center gap-1">
       <button
-        onClick={() => onFeedback(true)}
-        disabled={feedback !== null}
+        onClick={() => onThumb(true)}
+        disabled={disabled}
         aria-label="Helpful"
         className={`${base} ${
-          feedback === true
+          thumb === true
             ? "border-green-600 text-green-600"
             : "border-gray-300 text-gray-600 active:bg-gray-100 disabled:opacity-40 sm:border-transparent"
         }`}
       >
-        {feedback === true
+        {submitted && thumb === true
           ? <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           : <ThumbsUp className="h-4 w-4 sm:h-3.5 sm:w-3.5" />}
       </button>
       <button
-        onClick={() => onFeedback(false)}
-        disabled={feedback !== null}
+        onClick={() => onThumb(false)}
+        disabled={disabled}
         aria-label="Not helpful"
         className={`${base} ${
-          feedback === false
+          thumb === false
             ? "border-red-500 text-red-500"
             : "border-gray-300 text-gray-600 active:bg-gray-100 disabled:opacity-40 sm:border-transparent"
         }`}
@@ -239,6 +266,106 @@ function FeedbackButtons({ feedback, onFeedback }: FeedbackProps) {
         <ThumbsDown className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
       </button>
     </div>
+  );
+}
+
+interface FeedbackReasonPanelProps {
+  readonly helpful: boolean;
+  readonly selectedReason: string | null;
+  readonly comment: string;
+  readonly onReasonChange: (code: string | null) => void;
+  readonly onCommentChange: (v: string) => void;
+  readonly onSubmit: () => void;
+  readonly onSkip: () => void;
+  readonly onCancel: () => void;
+}
+
+function FeedbackReasonPanel({
+  helpful,
+  selectedReason,
+  comment,
+  onReasonChange,
+  onCommentChange,
+  onSubmit,
+  onSkip,
+  onCancel,
+}: FeedbackReasonPanelProps) {
+  const reasons = helpful ? POSITIVE_REASONS : NEGATIVE_REASONS;
+  const activeChip = helpful
+    ? "bg-green-600 text-white border-green-600"
+    : "bg-red-600 text-white border-red-600";
+  const submitBtn = helpful
+    ? "bg-green-600 text-white hover:bg-green-700"
+    : "bg-red-600 text-white hover:bg-red-700";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      transition={{ duration: 0.2 }}
+      className="w-full mt-2"
+    >
+      <div className="rounded-2xl border border-gray-200 bg-white p-3 text-sm shadow-sm">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <span className="text-xs font-medium text-gray-700">
+            {helpful ? "What worked well?" : "What went wrong?"}{" "}
+            <span className="text-gray-400">(optional)</span>
+          </span>
+          <button
+            onClick={onCancel}
+            aria-label="Cancel feedback"
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {reasons.map((opt) => {
+            const active = selectedReason === opt.code;
+            return (
+              <button
+                key={opt.code}
+                onClick={() => onReasonChange(active ? null : opt.code)}
+                className={`text-xs px-2 py-1 rounded-full border transition-colors ${
+                  active ? activeChip : "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-400"
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <textarea
+          value={comment}
+          onChange={(e) => onCommentChange(e.target.value)}
+          placeholder={
+            helpful
+              ? "Anything else you'd like us to know? (optional)"
+              : "Tell us more so we can fix it (optional)"
+          }
+          rows={2}
+          maxLength={500}
+          className="w-full text-xs rounded-md border border-gray-200 px-2 py-1.5 resize-none focus:outline-none focus:border-gray-400"
+        />
+
+        <div className="flex items-center justify-end gap-2 mt-2">
+          <button
+            onClick={onSkip}
+            className="text-xs px-2 py-1 rounded text-gray-500 hover:text-gray-700"
+          >
+            Skip
+          </button>
+          <button
+            onClick={onSubmit}
+            className={`text-xs px-3 py-1 rounded font-medium ${submitBtn}`}
+          >
+            Send feedback
+          </button>
+        </div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -276,16 +403,46 @@ export function ChatMessage({
   directory,
   intent,
 }: ChatMessageProps) {
-  const [feedback, setFeedback] = useState<boolean | null>(null);
+  // Three-state UI: thumb=null = not yet picked; thumb=true|false = picked
+  // but not finalized (reason panel visible); submitted=true = locked in.
+  const [thumb, setThumb] = useState<boolean | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
   const { displayed, done } = useTypewriter(message, typing, onTypingDone);
 
-  const handleFeedback = (helpful: boolean) => {
-    if (feedback !== null) return;
-    setFeedback(helpful);
-    onFeedback?.(helpful);
+  const handleThumb = (helpful: boolean) => {
+    if (submitted || thumb !== null) return;
+    setThumb(helpful);
+    // Don't submit yet — let the user pick a reason first.
+  };
+
+  const handleSubmit = () => {
+    if (thumb === null || submitted) return;
+    onFeedback?.({
+      helpful: thumb,
+      reason: selectedReason ?? undefined,
+      comment: comment.trim() ? comment.trim() : undefined,
+    });
+    setSubmitted(true);
+  };
+
+  const handleSkip = () => {
+    if (thumb === null || submitted) return;
+    // Bare thumb signal, no reason/comment.
+    onFeedback?.({ helpful: thumb });
+    setSubmitted(true);
+  };
+
+  const handleCancel = () => {
+    if (submitted) return;
+    setThumb(null);
+    setSelectedReason(null);
+    setComment("");
   };
 
   const showFeedback = done && isBot && messageId !== undefined && !!onFeedback;
+  const showReasonPanel = showFeedback && thumb !== null && !submitted;
   const showHint = done && isBot && confidence !== undefined && confidence < 0.5;
 
   const bubbleColors = isBot ? "bg-gray-100 text-gray-900" : "bg-green-600 text-white";
@@ -343,8 +500,23 @@ export function ChatMessage({
 
         <div className="mt-1 flex flex-wrap items-center gap-1.5 px-1 sm:gap-2">
           <span className="text-[11px] text-gray-400 sm:text-xs">{timestamp}</span>
-          {showFeedback && <FeedbackButtons feedback={feedback} onFeedback={handleFeedback} />}
+          {showFeedback && (
+            <FeedbackButtons thumb={thumb} submitted={submitted} onThumb={handleThumb} />
+          )}
         </div>
+
+        {showReasonPanel && thumb !== null && (
+          <FeedbackReasonPanel
+            helpful={thumb}
+            selectedReason={selectedReason}
+            comment={comment}
+            onReasonChange={setSelectedReason}
+            onCommentChange={setComment}
+            onSubmit={handleSubmit}
+            onSkip={handleSkip}
+            onCancel={handleCancel}
+          />
+        )}
       </div>
 
       {!isBot && <UserAvatar grouped={isGrouped} />}

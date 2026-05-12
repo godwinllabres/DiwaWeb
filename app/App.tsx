@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-import { ChatMessage } from "./components/ChatMessage";
+import { ChatMessage, type FeedbackSubmission } from "./components/ChatMessage";
 import { QuickActionButton } from "./components/QuickActionButton";
 import { CategoryCard } from "./components/CategoryCard";
 import { TypingIndicator } from "./components/TypingIndicator";
@@ -27,8 +27,10 @@ import { timeNow } from "@/lib/time";
 import { pickIcon } from "@/lib/iconMap";
 import { useChat } from "@/lib/hooks/useChat";
 import { useSmartScroll } from "@/lib/hooks/useSmartScroll";
+import { useApiHealth } from "@/lib/hooks/useApiHealth";
 import {
   type TopicCard,
+  buildTopicCards,
   getDefaultTopicCards,
   getTopicCard,
   rankRelevantTopicCards,
@@ -56,6 +58,7 @@ export default function App() {
   const sessionId = useMemo(() => getSessionId(), []);
 
   const consent = useConsent();
+  const apiHealth = useApiHealth();
   const [inputValue, setInputValue] = useState("");
   const [showCategories, setShowCategories] = useState(true);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -113,6 +116,24 @@ export default function App() {
       .catch(() => {});
   }, []);
 
+  // Seasonal homepage cards — the backend ranks topics for the current
+  // month (e.g. enrollment cards in Aug/Jan, CvSUCAT cards in Apr/May).
+  // Falls back to the static default if the call fails.
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getRecommendedTopics()
+      .then((data) => {
+        if (cancelled || !data?.tags?.length) return;
+        setCategoriesHeading(data.label || "Common questions");
+        setCategories(buildTopicCards(data.tags));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const resetCategories = () => {
     setCategoriesHeading("Common questions");
     setCategories(getDefaultTopicCards(availableIntentTags));
@@ -134,15 +155,21 @@ export default function App() {
     void chat.sendMessage(topic.prompt);
   };
 
-  const handleFeedback = async (messageId: number, intent: string | undefined, helpful: boolean) => {
+  const handleFeedback = async (
+    messageId: number,
+    intent: string | undefined,
+    submission: FeedbackSubmission,
+  ) => {
     try {
       await api.submitFeedback({
         message_id: messageId,
         user_id: userId,
         session_id: sessionId,
         intent,
-        helpful,
-        rating: helpful ? 5 : 2,
+        helpful: submission.helpful,
+        rating: submission.helpful ? 5 : 2,
+        reason: submission.reason,
+        comment: submission.comment,
       });
     } catch {
       /* ignore feedback errors silently */
@@ -193,8 +220,24 @@ export default function App() {
           <div className="min-w-0 flex-1">
             <h1 className="mb-0.5 text-lg font-semibold text-white sm:mb-1 sm:text-xl">DIWA</h1>
             <div className="flex items-center gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-green-300 animate-pulse" />
-              <p className="text-xs text-green-100 sm:text-sm">Online · CvSU Virtual Assistant</p>
+              <div
+                className={`h-2 w-2 rounded-full ${
+                  apiHealth === "online"
+                    ? "bg-green-300 animate-pulse"
+                    : apiHealth === "offline"
+                      ? "bg-red-400"
+                      : "bg-yellow-300 animate-pulse"
+                }`}
+                aria-hidden="true"
+              />
+              <p className="text-xs text-green-100 sm:text-sm">
+                {apiHealth === "online"
+                  ? "Online"
+                  : apiHealth === "offline"
+                    ? "Offline"
+                    : "Connecting…"}{" "}
+                · CvSU Virtual Assistant
+              </p>
             </div>
           </div>
           <button
@@ -260,7 +303,8 @@ export default function App() {
                 isGrouped={isGrouped}
                 onFeedback={
                   message.messageId !== undefined
-                    ? (helpful) => handleFeedback(message.messageId!, message.intent, helpful)
+                    ? (submission) =>
+                        handleFeedback(message.messageId!, message.intent, submission)
                     : undefined
                 }
                 typing={message.id === chat.typingMessageId}
