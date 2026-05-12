@@ -30,6 +30,7 @@ export interface ChatResponse {
   summary?: string | null;
   intent: string;
   confidence: number;
+  model_used?: string | null;
   user_id?: string | null;
   session_id?: string | null;
   message_id?: number | null;
@@ -44,8 +45,21 @@ export interface FeedbackRequest {
   intent?: string;
   rating?: number;
   helpful?: boolean;
+  /** Structured reason code from /feedback/reasons (e.g. "wrong_info", "accurate"). */
+  reason?: string;
+  /** Optional free-text reason supplied by the user. */
   comment?: string;
   suggested_intent?: string;
+}
+
+export interface FeedbackReasonOption {
+  code: string;
+  label: string;
+}
+
+export interface FeedbackReasonsResponse {
+  positive: FeedbackReasonOption[];
+  negative: FeedbackReasonOption[];
 }
 
 export interface IntentSummary {
@@ -75,8 +89,31 @@ export interface MapCoordsUpdate {
   coords: Record<string, { x: number; y: number }>;
 }
 
+export interface WaypointOverride {
+  x: number;
+  y: number;
+  neighbors?: string[];
+}
+
 export interface MapWaypointsResponse {
-  overrides: Record<string, { x: number; y: number }>;
+  overrides: Record<string, WaypointOverride>;
+}
+
+export interface MapWaypointsUpdate {
+  coords: Record<string, WaypointOverride>;
+}
+
+export interface CustomMarker {
+  id: string;
+  name: string;
+  abbr: string;
+  x: number;
+  y: number;
+  num?: number;
+}
+
+export interface CustomMarkersResponse {
+  markers: Record<string, CustomMarker>;
 }
 
 export const api = {
@@ -94,6 +131,48 @@ export const api = {
 
   getIntents: () => request<any>("/intents"),
 
+  getRecommendedTopics: () =>
+    request<{
+      today: string;
+      season: string;
+      label: string;
+      reason: string;
+      tags: string[];
+    }>("/topics/recommended"),
+
+  sanitizeCandidateIntent: (body: { tag: string; patterns: string[]; responses: string[] }) =>
+    request<{
+      candidate_tag: string;
+      pattern_count: number;
+      response_count: number;
+      has_errors: boolean;
+      has_warnings: boolean;
+      findings: Array<{
+        severity: "error" | "warning" | "info";
+        code: string;
+        message: string;
+        detail?: Record<string, any> | null;
+      }>;
+    }>("/admin/intents/sanitize", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  createIntent: (
+    body: { tag: string; patterns: string[]; responses: string[] },
+    options: { force?: boolean } = {},
+  ) =>
+    request<{
+      status: string;
+      tag: string;
+      warnings: boolean;
+      report: any;
+      next_step: string;
+    }>(`/admin/intents${options.force ? "?force=true" : ""}`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
   getIntent: (tag: string) =>
     request<any>(`/intents/${encodeURIComponent(tag)}`),
 
@@ -102,6 +181,8 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+
+  getFeedbackReasons: () => request<FeedbackReasonsResponse>("/feedback/reasons"),
 
   getFeedbackStats: () => request<any>("/feedback/stats"),
 
@@ -137,12 +218,30 @@ export const api = {
 
   getMapWaypoints: () => request<MapWaypointsResponse>("/map/waypoints"),
 
-  saveMapWaypoints: (body: MapCoordsUpdate) =>
+  saveMapWaypoints: (body: MapWaypointsUpdate | MapCoordsUpdate) =>
     request<any>("/map/waypoints", {
       method: "PUT",
       body: JSON.stringify(body),
     }),
 
+  deleteMapWaypoint: (waypointId: string) =>
+    request<any>(`/map/waypoints/${encodeURIComponent(waypointId)}`, {
+      method: "DELETE",
+    }),
+
   resetMapWaypoints: () =>
     request<any>("/map/waypoints", { method: "DELETE" }),
+
+  getCustomMarkers: () => request<CustomMarkersResponse>("/map/custom_markers"),
+
+  saveCustomMarker: (body: CustomMarker) =>
+    request<any>("/map/custom_markers", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  deleteCustomMarker: (markerId: string) =>
+    request<any>(`/map/custom_markers/${encodeURIComponent(markerId)}`, {
+      method: "DELETE",
+    }),
 };

@@ -24,6 +24,7 @@ export interface Message {
   followUp?: boolean;
   mapData?: MapData | null;
   directory?: Directory | null;
+  modelUsed?: string | null;  // which backend served the reply (dev badge)
 }
 
 export type Sender = "bot" | "user";

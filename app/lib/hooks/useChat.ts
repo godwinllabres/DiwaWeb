@@ -72,6 +72,7 @@ export function useChat({
           messageId: res.message_id ?? undefined,
           mapData: res.map_data ?? undefined,
           directory: res.directory ?? undefined,
+          modelUsed: res.model_used ?? undefined,
         });
         setTypingMessageId(botId);
 
