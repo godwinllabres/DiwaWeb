@@ -10,7 +10,8 @@ export default defineConfig(({ mode }) => {
   const apiProxyTarget = env.VITE_API_PROXY_TARGET || "http://127.0.0.1:8009";
 
   // GitHub Pages deploys to /<repo-name>/; local dev stays at /
-  const base = env.VITE_BASE_PATH || "/";
+  // Use process.env to avoid loadEnv path-mangling on Windows/Git Bash
+  const base = process.env.VITE_BASE_PATH || "/";
 
   return {
     base,
