@@ -244,4 +244,10 @@ export const api = {
     request<any>(`/map/custom_markers/${encodeURIComponent(markerId)}`, {
       method: "DELETE",
     }),
+
+  verifyPin: (pin: string) =>
+    request<{ status: string }>("/admin/verify", {
+      method: "POST",
+      body: JSON.stringify({ pin }),
+    }),
 };

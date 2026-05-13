@@ -62,6 +62,38 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [showCategories, setShowCategories] = useState(true);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showPinPrompt, setShowPinPrompt] = useState(false);
+  const [pinValue, setPinValue] = useState("");
+  const [pinError, setPinError] = useState("");
+  const [pinLoading, setPinLoading] = useState(false);
+
+  const isAdminAuthed = () => sessionStorage.getItem("admin_authed") === "1";
+
+  const handleAdminClick = () => {
+    if (isAdminAuthed()) {
+      setShowAdmin(true);
+    } else {
+      setPinValue("");
+      setPinError("");
+      setShowPinPrompt(true);
+    }
+  };
+
+  const handlePinSubmit = async () => {
+    if (!pinValue.trim()) return;
+    setPinLoading(true);
+    setPinError("");
+    try {
+      await api.verifyPin(pinValue.trim());
+      sessionStorage.setItem("admin_authed", "1");
+      setShowPinPrompt(false);
+      setShowAdmin(true);
+    } catch {
+      setPinError("Invalid PIN");
+    } finally {
+      setPinLoading(false);
+    }
+  };
   const [availableIntentTags, setAvailableIntentTags] = useState<string[]>([]);
   const [categoriesHeading, setCategoriesHeading] = useState("Common questions");
   const [categories, setCategories] = useState<TopicCard[]>(() => getDefaultTopicCards());
@@ -241,7 +273,7 @@ export default function App() {
             </div>
           </div>
           <button
-            onClick={() => setShowAdmin(true)}
+            onClick={handleAdminClick}
             className="h-10 w-10 rounded-full bg-white/20 active:bg-white/40 flex items-center justify-center transition-colors"
             aria-label="Admin dashboard"
           >
@@ -415,6 +447,57 @@ export default function App() {
 
         <AnimatePresence>
           {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} />}
+        </AnimatePresence>
+
+        {/* PIN prompt overlay */}
+        <AnimatePresence>
+          {showPinPrompt && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+              onClick={() => setShowPinPrompt(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <ShieldCheck className="h-5 w-5 text-green-700" />
+                  <h2 className="text-lg font-semibold text-gray-900">Admin Access</h2>
+                </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handlePinSubmit();
+                  }}
+                >
+                  <input
+                    type="password"
+                    placeholder="Enter PIN"
+                    value={pinValue}
+                    onChange={(e) => setPinValue(e.target.value)}
+                    autoFocus
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  />
+                  {pinError && (
+                    <p className="text-red-500 text-xs mt-1">{pinError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={pinLoading || !pinValue.trim()}
+                    className="mt-3 w-full bg-green-700 text-white rounded-lg py-2 text-sm font-medium hover:bg-green-800 disabled:opacity-50 transition-colors"
+                  >
+                    {pinLoading ? "Verifying…" : "Unlock"}
+                  </button>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </div>
