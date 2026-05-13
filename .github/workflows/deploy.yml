@@ -30,13 +30,30 @@ jobs:
       - run: npm run build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_BASE_PATH: /diwa/
 
-      # SPA fallback — GitHub Pages serves 404.html for unknown paths
-      - run: cp dist/index.html dist/404.html
+      # Move build output into /diwa/ subdirectory
+      - run: |
+          mkdir -p staging/diwa
+          cp -r dist/* staging/diwa/
+          cp dist/index.html staging/diwa/404.html
+          cp public/CNAME staging/CNAME
+          # Root redirect: godwincreates.net → godwincreates.net/diwa/
+          cat > staging/index.html << 'REDIRECT'
+          <!DOCTYPE html>
+          <html><head>
+            <meta http-equiv="refresh" content="0;url=/diwa/" />
+            <link rel="canonical" href="/diwa/" />
+          </head><body>
+            <p>Redirecting to <a href="/diwa/">DIWA</a>...</p>
+          </body></html>
+          REDIRECT
+          # SPA fallback at root level
+          cp staging/diwa/404.html staging/404.html
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: staging
 
   deploy:
     needs: build
