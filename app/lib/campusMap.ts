@@ -27,7 +27,8 @@ export const CAMPUS_W = 2000;
 export const CAMPUS_H = 2000;
 
 // Background image served by Vite from /public.
-export const CAMPUS_IMAGE_URL = "/cvsu-campus-map.png";
+// import.meta.env.BASE_URL includes the trailing slash (e.g. "/DiwaWeb/")
+export const CAMPUS_IMAGE_URL = `${(import.meta as any).env?.BASE_URL ?? "/"}cvsu-campus-map.png`;
 
 // Main Gate position — origin for walking directions.
 export const MAIN_GATE = { x: 639, y: 1610 } as const;
