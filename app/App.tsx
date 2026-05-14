@@ -39,19 +39,15 @@ const PRIVACY_POLICY_URL =
   "https://cvsu.edu.ph/office-of-the-data-protection-officer/general-data-privacy-notice/";
 
 const WELCOME_TEXT =
-  "Welcome to DIWA, the CvSU Digital Interface Web Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?";
+  "Welcome to DIWA, the CvSU Digital Intelligent Web Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?";
 
 const CONSENT_PROMPT_TEXT =
-  `Hello and welcome to Cavite State University! I'm DIWA — the CvSU Digital Interface Web Assistant. ` +
+  `Hello and welcome to Cavite State University! I'm DIWA — the CvSU Digital Intelligent Web Assistant. ` +
   `To continue this conversation, please acknowledge and agree to our [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
   `If you agree, kindly click the **I Agree** button below.`;
 
-const LOW_CONFIDENCE_THRESHOLD = 0.5;
-const MEDIUM_CONFIDENCE_THRESHOLD = 0.8;
 const FOLLOWUP_LOW_CONFIDENCE =
   "I may have missed your question. Try one of these related topics, or rephrase your question with a little more detail.";
-const FOLLOWUP_MEDIUM_CONFIDENCE =
-  "Did this answer your question? Use the feedback buttons above so I can improve the next answer.";
 
 export default function App() {
   const userId = useMemo(() => getUserId(), []);
@@ -86,6 +82,7 @@ export default function App() {
     try {
       await api.verifyPin(pinValue.trim());
       sessionStorage.setItem("admin_authed", "1");
+      sessionStorage.setItem("admin_pin", pinValue.trim());
       setShowPinPrompt(false);
       setShowAdmin(true);
     } catch {
@@ -106,13 +103,11 @@ export default function App() {
     sessionId,
     initialMessages: [],
     onBotResponse: (res, userInput) => {
-      if (res.confidence < LOW_CONFIDENCE_THRESHOLD) {
+      if (res.intent === "nlu_fallback") {
         chat.pushMessage({ text: FOLLOWUP_LOW_CONFIDENCE, isBot: true, followUp: true });
         setCategoriesHeading("Try one of these topics");
         setCategories(rankRelevantTopicCards(userInput, res.intent, availableIntentTags));
         setShowCategories(true);
-      } else if (res.confidence < MEDIUM_CONFIDENCE_THRESHOLD) {
-        chat.pushMessage({ text: FOLLOWUP_MEDIUM_CONFIDENCE, isBot: true, followUp: true });
       }
     },
   });
@@ -188,13 +183,11 @@ export default function App() {
   };
 
   const handleFeedback = async (
-    messageId: number,
     intent: string | undefined,
     submission: FeedbackSubmission,
   ) => {
     try {
       await api.submitFeedback({
-        message_id: messageId,
         user_id: userId,
         session_id: sessionId,
         intent,
@@ -330,13 +323,11 @@ export default function App() {
                 message={message.text}
                 isBot={message.isBot}
                 timestamp={message.timestamp}
-                confidence={message.confidence}
-                messageId={message.messageId}
                 isGrouped={isGrouped}
                 onFeedback={
-                  message.messageId !== undefined
+                  message.isBot && !message.followUp
                     ? (submission) =>
-                        handleFeedback(message.messageId!, message.intent, submission)
+                        handleFeedback(message.intent, submission)
                     : undefined
                 }
                 typing={message.id === chat.typingMessageId}
