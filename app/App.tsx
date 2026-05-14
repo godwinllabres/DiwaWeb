@@ -112,12 +112,18 @@ export default function App() {
     },
   });
 
-  // Auto-scroll for new messages with smart behavior.
+  // Auto-scroll only when a NEW message is appended — not on every parent
+  // re-render. Keying on the last message id avoids re-firing on keystrokes
+  // (inputValue), scroll-state flips, etc., which on mobile manifested as
+  // a stuck/fighting smooth-scroll.
+  const lastMessage = chat.messages[chat.messages.length - 1];
+  const lastId = lastMessage?.id;
+  const lastFromUser = lastMessage ? !lastMessage.isBot : false;
   useEffect(() => {
-    const last = chat.messages[chat.messages.length - 1];
-    if (!last) return;
-    scroll.notifyNewMessage(!last.isBot);
-  }, [chat.messages, scroll]);
+    if (lastId === undefined) return;
+    scroll.notifyNewMessage(lastFromUser);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastId]);
 
   useEffect(() => {
     if (!chat.isTyping) inputRef.current?.focus();
@@ -236,7 +242,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100 flex items-stretch justify-center p-0 sm:items-center sm:p-4">
-      <div className="relative flex min-h-dvh w-full max-w-4xl flex-col overflow-hidden bg-white shadow-xl sm:h-[95vh] sm:min-h-0 sm:max-h-[920px] sm:rounded-3xl sm:shadow-2xl">
+      <div className="relative flex h-dvh w-full max-w-4xl flex-col overflow-hidden bg-white shadow-xl sm:h-[95vh] sm:max-h-[920px] sm:rounded-3xl sm:shadow-2xl">
 
         <header className="bg-gradient-to-r from-green-600 to-green-700 px-4 py-4 flex items-center gap-3 flex-shrink-0 sm:px-6 sm:py-5 sm:gap-4">
           <div className="h-11 w-11 rounded-full bg-white flex items-center justify-center sm:h-14 sm:w-14">
@@ -293,7 +299,7 @@ export default function App() {
         <div
           ref={scroll.containerRef}
           onScroll={scroll.onScroll}
-          className="relative flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6"
+          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [-webkit-overflow-scrolling:touch] sm:px-6"
         >
           <ChatMessage
             message={initialBotText}

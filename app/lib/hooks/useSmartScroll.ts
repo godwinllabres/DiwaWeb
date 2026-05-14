@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type RefObject } from "react";
+import { useCallback, useMemo, useRef, useState, type RefObject } from "react";
 
 export interface SmartScrollApi {
   containerRef: RefObject<HTMLDivElement>;
@@ -48,13 +48,16 @@ export function useSmartScroll(thresholdPx = 80): SmartScrollApi {
     [scrollToBottom]
   );
 
-  return {
-    containerRef,
-    endRef,
-    scrollToBottom,
-    onScroll,
-    showScrollDown,
-    hasNewMessage,
-    notifyNewMessage,
-  };
+  return useMemo(
+    () => ({
+      containerRef,
+      endRef,
+      scrollToBottom,
+      onScroll,
+      showScrollDown,
+      hasNewMessage,
+      notifyNewMessage,
+    }),
+    [scrollToBottom, onScroll, showScrollDown, hasNewMessage, notifyNewMessage],
+  );
 }
