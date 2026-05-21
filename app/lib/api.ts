@@ -25,6 +25,46 @@ export interface Directory {
   hours?: string | null;
 }
 
+export interface DvCard {
+  name: string;
+  control_number?: string | null;
+  payee: string;
+  amount: number;
+  workflow_status: string;
+  posting_date?: string | null;
+  fund_cluster?: string | null;
+  ors_burs_reference?: string | null;
+  dv_type?: string | null;
+  desk_url: string;
+  modified?: string | null;
+}
+
+export interface AisContext {
+  dv?: string | null;
+  uacs_kind?: string | null;
+  uacs_query?: string | null;
+  report?: string | null;
+}
+
+export interface TableCellLink {
+  text: string;
+  href?: string | null;
+}
+export type TableCell = string | number | TableCellLink;
+
+export interface TableColumn {
+  key: string;
+  label: string;
+  align?: "left" | "right" | "center";
+}
+
+export interface TableData {
+  title?: string | null;
+  columns: TableColumn[];
+  rows: Record<string, TableCell>[];
+  footer?: string | null;
+}
+
 export interface ChatResponse {
   response: string;
   summary?: string | null;
@@ -36,6 +76,10 @@ export interface ChatResponse {
   message_id?: number | null;
   map_data?: MapData | null;
   directory?: Directory | null;
+  dv_card?: DvCard | null;
+  context_set?: AisContext | null;
+  table?: TableData | null;
+  suggestions?: string[] | null;
 }
 
 export interface FeedbackRequest {

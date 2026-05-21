@@ -28,6 +28,7 @@ import { pickIcon } from "@/lib/iconMap";
 import { useChat } from "@/lib/hooks/useChat";
 import { useSmartScroll } from "@/lib/hooks/useSmartScroll";
 import { useApiHealth } from "@/lib/hooks/useApiHealth";
+import { useAuth } from "@/lib/hooks/useAuth";
 import {
   type TopicCard,
   buildTopicCards,
@@ -49,9 +50,20 @@ const CONSENT_PROMPT_TEXT =
 const FOLLOWUP_LOW_CONFIDENCE =
   "I may have missed your question. Try one of these related topics, or rephrase your question with a little more detail.";
 
+// Phase 2A Wave 2 — write tools gated behind an env flag so the
+// UI surface only appears when the operator has enabled the pilot.
+// Read once at module load: changing the flag requires a Vite restart,
+// which matches the "kill switch needs a redeploy" expectation.
+const AIS_WRITE_ENABLED =
+  ((import.meta as { env?: Record<string, string | undefined> }).env?.VITE_AIS_WRITE_ENABLED ?? "0") === "1";
+
 export default function App() {
   const userId = useMemo(() => getUserId(), []);
   const sessionId = useMemo(() => getSessionId(), []);
+  // Single source of truth for AIS auth state across all chat bubbles.
+  // useAuth runs whoami on mount so a page refresh in the middle of an
+  // active session restores the logged-in identity without a new login.
+  const ais = useAuth(sessionId);
 
   const consent = useConsent();
   const apiHealth = useApiHealth();
@@ -340,7 +352,16 @@ export default function App() {
                 onTypingDone={chat.clearTypingMessageId}
                 mapData={message.mapData}
                 directory={message.directory}
+                dvCard={message.dvCard}
+                contextSet={message.contextSet}
+                table={message.table}
+                suggestions={message.suggestions}
+                onSuggestion={chat.sendMessage}
                 intent={message.intent}
+                // Phase 2A Wave 2 — write actions on DV card.
+                writeEnabled={AIS_WRITE_ENABLED}
+                sessionId={sessionId}
+                ais={ais}
               />
             );
           })}
