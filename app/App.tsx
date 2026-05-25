@@ -18,6 +18,7 @@ import { QuickActionButton } from "./components/QuickActionButton";
 import { CategoryCard } from "./components/CategoryCard";
 import { TypingIndicator } from "./components/TypingIndicator";
 import { AdminDashboard } from "./components/AdminDashboard";
+import { LandingPage } from "./components/LandingPage";
 import { api } from "@/lib/api";
 import { loadCoords } from "@/lib/coordsStore";
 import { loadWaypoints } from "@/lib/waypointsStore";
@@ -36,6 +37,13 @@ import {
   getTopicCard,
   rankRelevantTopicCards,
 } from "@/lib/topicCatalog";
+// Embed mode — when DIWA is iframed (e.g. via the widget on cvsu.edu.ph),
+// hide the green header, footer line, and the outer shadow/rounded corners so
+// the host's iframe owns the visual frame. Enable via ?embed=1 query string.
+const IS_EMBED =
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("embed") === "1";
+
 const PRIVACY_POLICY_URL =
   "https://cvsu.edu.ph/office-of-the-data-protection-officer/general-data-privacy-notice/";
 
@@ -252,45 +260,16 @@ export default function App() {
     inputRef.current?.focus();
   };
 
-  return (
-    <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100 flex items-stretch justify-center p-0 sm:items-center sm:p-4">
-      <div className="relative flex h-dvh w-full max-w-4xl flex-col overflow-hidden bg-white shadow-xl sm:h-[95vh] sm:max-h-[920px] sm:rounded-3xl sm:shadow-2xl">
+  // Outside of the iframed embed, render the marketing landing page instead
+  // of the full chat. The widget script (loaded from index.html) supplies the
+  // chat itself via a launcher bubble that opens an iframe of ?embed=1.
+  if (!IS_EMBED) {
+    return <LandingPage />;
+  }
 
-        <header className="bg-gradient-to-r from-green-600 to-green-700 px-4 py-4 flex items-center gap-3 flex-shrink-0 sm:px-6 sm:py-5 sm:gap-4">
-          <div className="h-11 w-11 rounded-full bg-white flex items-center justify-center sm:h-14 sm:w-14">
-            <GraduationCap className="h-6 w-6 text-green-600 sm:h-8 sm:w-8" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="mb-0.5 text-lg font-semibold text-white sm:mb-1 sm:text-xl">DIWA</h1>
-            <div className="flex items-center gap-1.5">
-              <div
-                className={`h-2 w-2 rounded-full ${
-                  apiHealth === "online"
-                    ? "bg-green-300 animate-pulse"
-                    : apiHealth === "offline"
-                      ? "bg-red-400"
-                      : "bg-yellow-300 animate-pulse"
-                }`}
-                aria-hidden="true"
-              />
-              <p className="text-xs text-green-100 sm:text-sm">
-                {apiHealth === "online"
-                  ? "Online"
-                  : apiHealth === "offline"
-                    ? "Offline"
-                    : "Connecting…"}{" "}
-                · CvSU Virtual Assistant
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleAdminClick}
-            className="h-10 w-10 rounded-full bg-white/20 active:bg-white/40 flex items-center justify-center transition-colors"
-            aria-label="Admin dashboard"
-          >
-            <BarChart3 className="h-5 w-5 text-white" />
-          </button>
-        </header>
+  return (
+    <div className="min-h-dvh w-full bg-white">
+      <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-white">
 
         <AnimatePresence>
           {chat.apiError && (
@@ -342,6 +321,7 @@ export default function App() {
                 isBot={message.isBot}
                 timestamp={message.timestamp}
                 isGrouped={isGrouped}
+                messageId={message.messageId}
                 onFeedback={
                   message.isBot && !message.followUp
                     ? (submission) =>
@@ -350,12 +330,12 @@ export default function App() {
                 }
                 typing={message.id === chat.typingMessageId}
                 onTypingDone={chat.clearTypingMessageId}
-                mapData={message.mapData}
-                directory={message.directory}
-                dvCard={message.dvCard}
-                contextSet={message.contextSet}
-                table={message.table}
+                cards={message.cards}
+                context={message.context}
                 suggestions={message.suggestions}
+                displayHint={message.displayHint}
+                source={message.source}
+                refusalReason={message.refusalReason}
                 onSuggestion={chat.sendMessage}
                 intent={message.intent}
                 // Phase 2A Wave 2 — write actions on DV card.
@@ -458,9 +438,6 @@ export default function App() {
               <Send className="h-4 w-4 text-white sm:h-5 sm:w-5" />
             </button>
           </div>
-          <p className="mt-2.5 text-center text-[11px] text-gray-400">
-            Urgent concerns? Call CvSU: (046) 430-6332
-          </p>
         </div>
 
         <AnimatePresence>

@@ -32,5 +32,22 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/app/main.tsx"></script>
+
+    <!--
+      DIWA chat widget. On the marketing landing page this drops a green
+      chat bubble bottom-right and (first visit) auto-opens after 3s.
+      On the embed page (?embed=1), widget.js self-detects and stays out
+      of the way so the chat iframe doesn't nest itself.
+    -->
+    <script
+      src="/widget.js"
+      data-diwa-url="/"
+      data-diwa-color="#16a34a"
+      data-diwa-position="bottom-right"
+      data-diwa-label="Chat with DIWA"
+      data-diwa-open-after="3000"
+      data-diwa-remember="closed"
+      async
+    ></script>
   </body>
 </html>
