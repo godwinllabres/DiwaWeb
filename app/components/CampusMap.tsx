@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { MapPin, Navigation, ArrowRight } from "lucide-react";
+import { MapPin, Navigation, ArrowRight, Info, Plus, Minus, Maximize2 } from "lucide-react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
   applyCoordOverrides,
   applyWaypointOverrides,
@@ -17,7 +18,22 @@ const TARGET_BADGE_R = 44;       // green badge over the target's number
 const MARKER_BADGE_R = 22;       // yellow marker for every other building
 const SOURCE_BADGE_R = 38;       // red badge over the source ("from") number
 
-export function CampusMap({ place_id, label }: Readonly<MapData>) {
+export interface CampusMapProps extends MapData {
+  /** When true, surface a To-picker so the user can pick the destination
+   *  in addition to the starting point. Defaults to false (read-only target),
+   *  which is what the inline chat preview wants. */
+  readonly editableTarget?: boolean;
+  /** When true, wrap the SVG in a pan/zoom container with pinch support and
+   *  on-screen +/-/fit controls. Inline preview leaves this off. */
+  readonly zoomable?: boolean;
+}
+
+export function CampusMap({
+  place_id,
+  label,
+  editableTarget = false,
+  zoomable = false,
+}: Readonly<CampusMapProps>) {
   const overrides = useCoordsOverrides();
   const wpOverrides = useWaypointOverrides();
   const buildings = useMemo(() => applyCoordOverrides(overrides), [overrides]);
@@ -27,8 +43,12 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
   );
   const findB = (id: string) => buildings.find((b) => b.id === id);
 
-  const target = findB(place_id);
-  const isFullCampus = place_id === "main" || !target;
+  // To-picker (only surfaced when editableTarget). Starts at the place_id
+  // the chat passed in so the user's last question still wins by default.
+  const [toId, setToId] = useState<string>(place_id);
+  const effectiveTargetId = editableTarget ? toId : place_id;
+  const target = findB(effectiveTargetId);
+  const isFullCampus = effectiveTargetId === "main" || !target;
 
   // From-picker — defaults to Gate 1 (Main Gate). User can switch to any place.
   const [fromId, setFromId] = useState<string>("gate_1");
@@ -45,6 +65,224 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
 
   const routePath = useMemo(() => pointsToPath(route), [route]);
 
+  // Pulled out so both the bare-SVG and TransformWrapper-zoom branches can
+  // share the same markup without duplication.
+  const svgChildren = (
+    <>
+      <defs>
+        <filter id="cm-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="14" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="2" />
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in" />
+        </filter>
+      </defs>
+
+      {/* Dark-green fallback for when the poster image hasn't been saved
+          yet (no /cvsu-campus-map.png in /public). */}
+      <rect x="0" y="0" width={CAMPUS_W} height={CAMPUS_H} fill="#1f3d1f" />
+
+      {/* Official Matayuyon Crop Science Society campus poster. 2048x2048,
+          fills the SVG viewBox 1:1. */}
+      <image
+        href={CAMPUS_IMAGE_URL}
+        x={0}
+        y={0}
+        width={CAMPUS_W}
+        height={CAMPUS_H}
+        preserveAspectRatio="xMidYMid meet"
+      />
+
+      {/* Animated route polyline (only when from ≠ to and we have a target) */}
+      {target && route.length > 1 && (
+        <g>
+          <path
+            d={routePath}
+            fill="none"
+            stroke="#000000"
+            strokeWidth="22"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.25"
+          />
+          <path
+            d={routePath}
+            fill="none"
+            stroke="#ef4444"
+            strokeWidth="14"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray="28 18"
+          >
+            <animate
+              attributeName="stroke-dashoffset"
+              values="0;-92"
+              dur="1.8s"
+              repeatCount="indefinite"
+            />
+          </path>
+        </g>
+      )}
+
+      {/* Yellow numbered markers for every building (skip source/target —
+          those get larger label badges below). */}
+      <g>
+        {buildings.map((b) => {
+          const isTarget = target && b.id === target.id;
+          const isSource = target && b.id === from.id && b.id !== target.id;
+          if (isTarget || isSource) return null;
+          return (
+            <g key={`mk-${b.id}`}>
+              <title>{b.num}. {b.name}</title>
+              <rect
+                x={b.x - MARKER_BADGE_R}
+                y={b.y - MARKER_BADGE_R}
+                width={MARKER_BADGE_R * 2}
+                height={MARKER_BADGE_R * 2}
+                rx="6"
+                fill="#facc15"
+                stroke="#1a3d1a"
+                strokeWidth="1.5"
+                opacity="0.95"
+              />
+              <text
+                x={b.x}
+                y={b.y + 9}
+                textAnchor="middle"
+                fontSize="26"
+                fontWeight="800"
+                fill="#1a3d1a"
+                fontFamily="system-ui, -apple-system, sans-serif"
+              >
+                {b.num}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+
+      {/* Source pin (red badge with FROM label) — drawn after generic markers */}
+      {target && from.id !== target.id && (
+        <g>
+          <circle cx={from.x} cy={from.y} r={SOURCE_BADGE_R + 8} fill="#ffffff" />
+          <circle
+            cx={from.x}
+            cy={from.y}
+            r={SOURCE_BADGE_R}
+            fill="#dc2626"
+            stroke="#ffffff"
+            strokeWidth="5"
+          />
+          <text
+            x={from.x}
+            y={from.y + 10}
+            textAnchor="middle"
+            fontSize="28"
+            fontWeight="900"
+            fill="#ffffff"
+            fontFamily="system-ui, -apple-system, sans-serif"
+          >
+            {from.num}
+          </text>
+          <g transform={`translate(${from.x}, ${from.y - SOURCE_BADGE_R - 38})`}>
+            <rect
+              x={-90}
+              y={-22}
+              width={180}
+              height={40}
+              rx={20}
+              fill="#dc2626"
+              stroke="#ffffff"
+              strokeWidth="3"
+            />
+            <text x="0" y="6" textAnchor="middle" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui, -apple-system, sans-serif">
+              FROM
+            </text>
+          </g>
+        </g>
+      )}
+
+      {/* Target pin (pulsing green) — drawn last so it sits on top */}
+      {target && (
+        <g>
+          <circle
+            cx={target.x}
+            cy={target.y}
+            r={HIGHLIGHT_RADIUS}
+            fill="#facc15"
+            opacity="0.4"
+            filter="url(#cm-glow)"
+          >
+            <animate
+              attributeName="r"
+              values={`${HIGHLIGHT_RADIUS};${HIGHLIGHT_RADIUS + 50};${HIGHLIGHT_RADIUS}`}
+              dur="2s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="0.5;0.15;0.5"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle cx={target.x} cy={target.y} r={TARGET_BADGE_R + 8} fill="#ffffff" />
+          <circle
+            cx={target.x}
+            cy={target.y}
+            r={TARGET_BADGE_R}
+            fill="#16a34a"
+            stroke="#ffffff"
+            strokeWidth="6"
+          />
+          <text
+            x={target.x}
+            y={target.y + 12}
+            textAnchor="middle"
+            fontSize="34"
+            fontWeight="900"
+            fill="#ffffff"
+            fontFamily="system-ui, -apple-system, sans-serif"
+          >
+            {target.num}
+          </text>
+
+          {/* TO label above the target pin */}
+          <g transform={`translate(${target.x}, ${target.y - TARGET_BADGE_R - 46})`}>
+            <rect
+              x={-Math.max(110, target.abbr.length * 14)}
+              y={-26}
+              width={Math.max(220, target.abbr.length * 28)}
+              height={48}
+              rx={24}
+              fill="#16a34a"
+              stroke="#ffffff"
+              strokeWidth="4"
+            />
+            <text x="0" y="7" textAnchor="middle" fontSize="24" fontWeight="700" fill="#ffffff" fontFamily="system-ui, -apple-system, sans-serif">
+              {target.abbr}
+            </text>
+          </g>
+        </g>
+      )}
+
+      {/* Footer label inside the canvas */}
+      <text
+        x={CAMPUS_W / 2}
+        y={CAMPUS_H - 24}
+        textAnchor="middle"
+        fontSize="22"
+        fontWeight="700"
+        fill="#dcfce7"
+        opacity="0.85"
+        fontFamily="system-ui, -apple-system, sans-serif"
+      >
+        CvSU Don Severino delas Alas Campus — Indang, Cavite
+      </text>
+    </>
+  );
+
   return (
     <div className="mt-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
       <div className="flex items-start gap-1.5 px-3 py-2 bg-gray-50 border-b border-gray-200 sm:items-center">
@@ -54,14 +292,25 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
         </span>
       </div>
 
-      {/* From-picker — touch-friendly on mobile (44px+ tap target) */}
+      {/* Coverage disclaimer — map data is limited to the Indang main campus for now. */}
+      <div className="flex items-start gap-1.5 px-3 py-1.5 bg-amber-50 border-b border-amber-200">
+        <Info className="h-3 w-3 text-amber-600 flex-shrink-0 mt-0.5" />
+        <span className="text-[11px] text-amber-800 leading-snug">
+          Map coverage is currently limited to CvSU Main (Don Severino delas Alas, Indang).
+          Other campuses (CCAT, Silang, etc.) are not yet supported.
+        </span>
+      </div>
+
+      {/* From / To pickers — touch-friendly on mobile (44px+ tap target).
+          When editableTarget is true the destination is a select too; otherwise
+          we render the target as a read-only label so the inline preview stays
+          compact. */}
       {target && (
         <div className="px-3 py-2.5 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
           <span className="text-gray-600 font-medium">From</span>
           <select
             value={fromId}
             onChange={(e) => setFromId(e.target.value)}
-            // text-base on mobile prevents iOS auto-zoom; min-h-9 gives a 36px+ tap target.
             className="min-h-9 flex-1 min-w-[140px] px-2.5 py-1.5 rounded-md border border-gray-300 bg-white text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             aria-label="Starting location"
           >
@@ -70,239 +319,105 @@ export function CampusMap({ place_id, label }: Readonly<MapData>) {
             ))}
           </select>
           <ArrowRight className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-          <span className="text-gray-800 font-semibold truncate" title={target.name}>
-            {target.num}. {target.abbr}
-          </span>
+          {editableTarget ? (
+            <>
+              <span className="text-gray-600 font-medium">To</span>
+              <select
+                value={toId}
+                onChange={(e) => setToId(e.target.value)}
+                className="min-h-9 flex-1 min-w-[140px] px-2.5 py-1.5 rounded-md border border-gray-300 bg-white text-gray-800 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                aria-label="Destination"
+              >
+                {buildings.map((b) => (
+                  <option key={b.id} value={b.id}>{b.num}. {b.abbr}</option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <span className="text-gray-800 font-semibold truncate" title={target.name}>
+              {target.num}. {target.abbr}
+            </span>
+          )}
         </div>
       )}
 
-      {/* Illustrated campus map */}
-      <div className="overflow-x-auto bg-[#1f3d1f]">
-        <svg
-          viewBox={`0 0 ${CAMPUS_W} ${CAMPUS_H}`}
-          className="block w-full"
-          style={{ maxHeight: 640 }}
-          aria-label={`CvSU Indang campus map highlighting ${target ? target.name : "the full campus"}`}
-          role="img"
-        >
-          <defs>
-            <filter id="cm-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="14" />
-              <feComponentTransfer>
-                <feFuncA type="linear" slope="2" />
-              </feComponentTransfer>
-              <feComposite in2="SourceGraphic" operator="in" />
-            </filter>
-          </defs>
-
-          {/* Solid dark-green fallback for when the poster image hasn't been
-              saved yet (no /cvsu-campus-map.png in /public). */}
-          <rect x="0" y="0" width={CAMPUS_W} height={CAMPUS_H} fill="#1f3d1f" />
-
-          {/* Official Matayuyon Crop Science Society campus poster.
-              The poster is 2048x2048 and fills the SVG viewBox 1:1. All
-              building (x, y) coordinates were read directly off this image,
-              so the numbered markers below land on the correct yellow tags. */}
-          <image
-            href={CAMPUS_IMAGE_URL}
-            x={0}
-            y={0}
-            width={CAMPUS_W}
-            height={CAMPUS_H}
-            preserveAspectRatio="xMidYMid meet"
-          />
-
-
-          {/* Animated route polyline (only when from ≠ to and we have a target) */}
-          {target && route.length > 1 && (
-            <g>
-              <path
-                d={routePath}
-                fill="none"
-                stroke="#000000"
-                strokeWidth="22"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity="0.25"
-              />
-              <path
-                d={routePath}
-                fill="none"
-                stroke="#ef4444"
-                strokeWidth="14"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray="28 18"
-              >
-                <animate
-                  attributeName="stroke-dashoffset"
-                  values="0;-92"
-                  dur="1.8s"
-                  repeatCount="indefinite"
-                />
-              </path>
-            </g>
-          )}
-
-          {/* Yellow numbered markers for every building.
-              Matches the official schematic style — bare numbered badges, no
-              per-marker text label. Source ("FROM") and target keep their
-              larger label badges further down. A <title> element surfaces the
-              full building name on hover. */}
-          <g>
-            {buildings.map((b) => {
-              const isTarget = target && b.id === target.id;
-              const isSource = target && b.id === from.id && b.id !== target.id;
-              if (isTarget || isSource) return null;
-              return (
-                <g key={`mk-${b.id}`}>
-                  <title>{b.num}. {b.name}</title>
-                  <rect
-                    x={b.x - MARKER_BADGE_R}
-                    y={b.y - MARKER_BADGE_R}
-                    width={MARKER_BADGE_R * 2}
-                    height={MARKER_BADGE_R * 2}
-                    rx="6"
-                    fill="#facc15"
-                    stroke="#1a3d1a"
-                    strokeWidth="1.5"
-                    opacity="0.95"
-                  />
-                  <text
-                    x={b.x}
-                    y={b.y + 9}
-                    textAnchor="middle"
-                    fontSize="26"
-                    fontWeight="800"
-                    fill="#1a3d1a"
-                    fontFamily="system-ui, -apple-system, sans-serif"
-                  >
-                    {b.num}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-
-          {/* Source pin (red ★ with number) — drawn after generic markers so it's on top */}
-          {target && from.id !== target.id && (
-            <g>
-              <circle cx={from.x} cy={from.y} r={SOURCE_BADGE_R + 8} fill="#ffffff" />
-              <circle
-                cx={from.x}
-                cy={from.y}
-                r={SOURCE_BADGE_R}
-                fill="#dc2626"
-                stroke="#ffffff"
-                strokeWidth="5"
-              />
-              <text
-                x={from.x}
-                y={from.y + 10}
-                textAnchor="middle"
-                fontSize="28"
-                fontWeight="900"
-                fill="#ffffff"
-                fontFamily="system-ui, -apple-system, sans-serif"
-              >
-                {from.num}
-              </text>
-              <g transform={`translate(${from.x}, ${from.y - SOURCE_BADGE_R - 38})`}>
-                <rect
-                  x={-90}
-                  y={-22}
-                  width={180}
-                  height={40}
-                  rx={20}
-                  fill="#dc2626"
-                  stroke="#ffffff"
-                  strokeWidth="3"
-                />
-                <text x="0" y="6" textAnchor="middle" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui, -apple-system, sans-serif">
-                  FROM
-                </text>
-              </g>
-            </g>
-          )}
-
-          {/* Target pin (pulsing green) — drawn last so it sits on top */}
-          {target && (
-            <g>
-              <circle
-                cx={target.x}
-                cy={target.y}
-                r={HIGHLIGHT_RADIUS}
-                fill="#facc15"
-                opacity="0.4"
-                filter="url(#cm-glow)"
-              >
-                <animate
-                  attributeName="r"
-                  values={`${HIGHLIGHT_RADIUS};${HIGHLIGHT_RADIUS + 50};${HIGHLIGHT_RADIUS}`}
-                  dur="2s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  values="0.5;0.15;0.5"
-                  dur="2s"
-                  repeatCount="indefinite"
-                />
-              </circle>
-              <circle cx={target.x} cy={target.y} r={TARGET_BADGE_R + 8} fill="#ffffff" />
-              <circle
-                cx={target.x}
-                cy={target.y}
-                r={TARGET_BADGE_R}
-                fill="#16a34a"
-                stroke="#ffffff"
-                strokeWidth="6"
-              />
-              <text
-                x={target.x}
-                y={target.y + 12}
-                textAnchor="middle"
-                fontSize="34"
-                fontWeight="900"
-                fill="#ffffff"
-                fontFamily="system-ui, -apple-system, sans-serif"
-              >
-                {target.num}
-              </text>
-
-              {/* TO label above the target pin */}
-              <g transform={`translate(${target.x}, ${target.y - TARGET_BADGE_R - 46})`}>
-                <rect
-                  x={-Math.max(110, target.abbr.length * 14)}
-                  y={-26}
-                  width={Math.max(220, target.abbr.length * 28)}
-                  height={48}
-                  rx={24}
-                  fill="#16a34a"
-                  stroke="#ffffff"
-                  strokeWidth="4"
-                />
-                <text x="0" y="7" textAnchor="middle" fontSize="24" fontWeight="700" fill="#ffffff" fontFamily="system-ui, -apple-system, sans-serif">
-                  {target.abbr}
-                </text>
-              </g>
-            </g>
-          )}
-
-          {/* Footer label inside the canvas */}
-          <text
-            x={CAMPUS_W / 2}
-            y={CAMPUS_H - 24}
-            textAnchor="middle"
-            fontSize="22"
-            fontWeight="700"
-            fill="#dcfce7"
-            opacity="0.85"
-            fontFamily="system-ui, -apple-system, sans-serif"
+      {/* Illustrated campus map. When `zoomable`, wrap the SVG in
+          TransformWrapper so pinch / wheel / drag pan the canvas. Floating
+          +/-/fit buttons sit in the top-right for non-touch users. */}
+      <div
+        className={`relative bg-[#1f3d1f] ${
+          zoomable ? "h-full min-h-[60vh] overflow-hidden" : "overflow-x-auto"
+        }`}
+      >
+        {zoomable ? (
+          <TransformWrapper
+            initialScale={1}
+            minScale={1}
+            maxScale={6}
+            wheel={{ step: 0.2 }}
+            pinch={{ step: 8 }}
+            doubleClick={{ mode: "toggle", step: 1.5 }}
+            limitToBounds
+            centerOnInit
           >
-            CvSU Don Severino delas Alas Campus — Indang, Cavite
-          </text>
-        </svg>
+            {({ zoomIn, zoomOut, resetTransform }) => (
+              <>
+                <TransformComponent
+                  wrapperClass="!h-full !w-full"
+                  contentClass="!h-full !w-full"
+                >
+                  <svg
+                    viewBox={`0 0 ${CAMPUS_W} ${CAMPUS_H}`}
+                    className="block h-full w-full select-none"
+                    aria-label={`CvSU Indang campus map highlighting ${target ? target.name : "the full campus"}`}
+                    role="img"
+                  >
+                    {svgChildren}
+                  </svg>
+                </TransformComponent>
+                <div className="absolute right-3 top-3 flex flex-col gap-1.5 rounded-lg bg-white/95 p-1 shadow-md backdrop-blur">
+                  <button
+                    type="button"
+                    onClick={() => zoomIn()}
+                    aria-label="Zoom in"
+                    className="rounded-md p-1.5 text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => zoomOut()}
+                    aria-label="Zoom out"
+                    className="rounded-md p-1.5 text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => resetTransform()}
+                    aria-label="Reset zoom"
+                    className="rounded-md p-1.5 text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-2.5 py-0.5 text-[10px] font-medium text-white">
+                  Pinch / scroll to zoom · drag to pan · double-tap to toggle
+                </div>
+              </>
+            )}
+          </TransformWrapper>
+        ) : (
+          <svg
+            viewBox={`0 0 ${CAMPUS_W} ${CAMPUS_H}`}
+            className="block w-full"
+            style={{ maxHeight: 640 }}
+            aria-label={`CvSU Indang campus map highlighting ${target ? target.name : "the full campus"}`}
+            role="img"
+          >
+            {svgChildren}
+          </svg>
+        )}
       </div>
 
       {/* Walking directions panel */}

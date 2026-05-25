@@ -64,19 +64,18 @@ export function useChat({
         });
 
         const botId = pushMessage({
-          text: res.response,
+          text: res.text,
           summary: res.summary ?? undefined,
           isBot: true,
           intent: res.intent,
           confidence: res.confidence,
-          messageId: res.message_id ?? undefined,
-          mapData: res.map_data ?? undefined,
-          directory: res.directory ?? undefined,
-          dvCard: res.dv_card ?? undefined,
-          contextSet: res.context_set ?? undefined,
-          table: res.table ?? undefined,
-          suggestions: res.suggestions ?? undefined,
-          modelUsed: res.model_used ?? undefined,
+          messageId: res.message_id,
+          cards: res.cards,
+          context: res.context ?? undefined,
+          suggestions: res.suggestions,
+          source: res.source,
+          refusalReason: res.refusal_reason ?? undefined,
+          displayHint: res.display_hint,
         });
         setTypingMessageId(botId);
 

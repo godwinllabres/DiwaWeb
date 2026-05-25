@@ -11,12 +11,24 @@ export interface ChatRequest {
   session_id?: string;
 }
 
-export interface MapData {
-  place_id: string;
-  label: string;
-}
+// ─── ChatResponse v2 ─────────────────────────────────────────────────────────
+// Mirrors api/app.py ChatResponse + ChatCard discriminated union.
 
-export interface Directory {
+export type ResponseSource =
+  | "naive_bayes"
+  | "neural_network"
+  | "llm_local"
+  | "llm_claude"
+  | "ais_mcp"
+  | "fallback"
+  | "refusal";
+
+export type RefusalReason = "nonsense" | "out_of_scope" | "prohibited";
+
+export type DisplayHint = "default" | "map_first" | "card_first" | "text_only";
+
+export interface DirectoryCard {
+  kind: "directory";
   office: string;
   location?: string | null;
   place_id?: string | null;
@@ -25,7 +37,15 @@ export interface Directory {
   hours?: string | null;
 }
 
+export interface MapCard {
+  kind: "map";
+  place_id: string;
+  label: string;
+  default_open?: boolean;
+}
+
 export interface DvCard {
+  kind: "dv";
   name: string;
   control_number?: string | null;
   payee: string;
@@ -39,11 +59,10 @@ export interface DvCard {
   modified?: string | null;
 }
 
-export interface AisContext {
-  dv?: string | null;
-  uacs_kind?: string | null;
-  uacs_query?: string | null;
-  report?: string | null;
+export interface TableColumn {
+  key: string;
+  label: string;
+  align?: "left" | "right" | "center";
 }
 
 export interface TableCellLink {
@@ -52,34 +71,59 @@ export interface TableCellLink {
 }
 export type TableCell = string | number | TableCellLink;
 
-export interface TableColumn {
-  key: string;
-  label: string;
-  align?: "left" | "right" | "center";
-}
-
-export interface TableData {
-  title?: string | null;
+export interface TableCard {
+  kind: "table";
+  title: string;
   columns: TableColumn[];
   rows: Record<string, TableCell>[];
   footer?: string | null;
+  total_rows?: number | null;
+}
+
+export type ChatCard = DirectoryCard | MapCard | DvCard | TableCard;
+
+export interface UacsContext {
+  kind: "object" | "funding_source" | "responsibility_center";
+  query?: string | null;
+}
+
+export interface ChatContext {
+  dv?: string | null;
+  uacs?: UacsContext | null;
+  report?: string | null;
 }
 
 export interface ChatResponse {
-  response: string;
-  summary?: string | null;
-  intent: string;
-  confidence: number;
-  model_used?: string | null;
+  // Identity
+  message_id: number;
   user_id?: string | null;
   session_id?: string | null;
-  message_id?: number | null;
-  map_data?: MapData | null;
-  directory?: Directory | null;
-  dv_card?: DvCard | null;
-  context_set?: AisContext | null;
-  table?: TableData | null;
-  suggestions?: string[] | null;
+
+  // Content
+  text: string;
+  summary?: string | null;
+
+  // Classification + provenance
+  intent: string;
+  confidence: number;
+  source: ResponseSource;
+  refusal_reason?: RefusalReason | null;
+
+  // Structured attachments
+  cards: ChatCard[];
+  context?: ChatContext | null;
+  suggestions: string[];
+
+  // Layout hint for the renderer
+  display_hint: DisplayHint;
+}
+
+// Type-narrowing helpers — use these to pluck a specific card kind out of cards[].
+export function findCard<K extends ChatCard["kind"]>(
+  cards: ChatCard[] | undefined,
+  kind: K,
+): Extract<ChatCard, { kind: K }> | undefined {
+  return cards?.find((c) => c.kind === kind) as Extract<ChatCard, { kind: K }> | undefined;
 }
 
 export interface FeedbackRequest {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { Bot, User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon, FileText, ExternalLink, ChevronUp, ArrowUpDown, Search } from "lucide-react";
 
 // Reason taxonomy — keep in sync with backend FEEDBACK_REASONS in api/app.py
@@ -28,12 +28,25 @@ export interface FeedbackSubmission {
 }
 import { useTypewriter } from "@/lib/hooks/useTypewriter";
 import { CampusMap } from "@/components/CampusMap";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { findCard } from "@/lib/api";
 import type {
-  MapData,
-  Directory,
+  ChatCard,
+  ChatContext,
+  DisplayHint,
+  DirectoryCard as DirectoryCardData,
   DvCard as DvCardData,
-  AisContext,
-  TableData,
+  MapCard as MapCardData,
+  RefusalReason,
+  ResponseSource,
+  TableCard as TableCardData,
   TableCell,
 } from "@/lib/types";
 import type { UseAuthApi } from "@/lib/hooks/useAuth";
@@ -276,12 +289,13 @@ interface ChatMessageProps {
   readonly onFeedback?: (submission: FeedbackSubmission) => void;
   readonly typing?: boolean;
   readonly onTypingDone?: () => void;
-  readonly mapData?: MapData | null;
-  readonly directory?: Directory | null;
-  readonly dvCard?: DvCardData | null;
-  readonly contextSet?: AisContext | null;
-  readonly table?: TableData | null;
-  readonly suggestions?: string[] | null;
+  // v2 envelope
+  readonly cards?: ChatCard[];
+  readonly context?: ChatContext | null;
+  readonly suggestions?: string[];
+  readonly source?: ResponseSource;
+  readonly refusalReason?: RefusalReason | null;
+  readonly displayHint?: DisplayHint;
   readonly onSuggestion?: (text: string) => void | Promise<void>;
   readonly intent?: string;
   // Phase 2A Wave 2 — write actions on DV card.
@@ -290,60 +304,62 @@ interface ChatMessageProps {
   readonly ais?: UseAuthApi;
 }
 
-function formatContextChip(ctx: AisContext): string | null {
+function formatContextChip(ctx: ChatContext): string | null {
   if (ctx.dv) return `talking about ${ctx.dv}`;
   if (ctx.report) return `last report: ${ctx.report}`;
-  if (ctx.uacs_kind) {
-    const label = ctx.uacs_kind === "funding_source" ? "funding source" : ctx.uacs_kind;
-    return ctx.uacs_query ? `last lookup: ${label} "${ctx.uacs_query}"` : `last lookup: ${label}`;
+  if (ctx.uacs) {
+    const label = ctx.uacs.kind === "funding_source" ? "funding source" : ctx.uacs.kind;
+    return ctx.uacs.query ? `last lookup: ${label} "${ctx.uacs.query}"` : `last lookup: ${label}`;
   }
   return null;
 }
-
-// Intents where the user clearly wants to see the map/directions —
-// for everything else, the map is hidden behind a collapsed accordion.
-const MAP_FIRST_INTENT_RE = /direction|location|where|map|find_place|navigate|route/i;
 
 function MapAccordion({
   mapData,
   defaultOpen,
 }: {
-  readonly mapData: MapData;
+  readonly mapData: MapCardData;
   readonly defaultOpen: boolean;
 }) {
+  // Tap-to-expand opens a fullscreen Dialog (mobile) / large modal (desktop)
+  // with editable From/To pickers. `defaultOpen` is still honored so map-first
+  // intents (directions, navigation) auto-surface the map.
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="w-full rounded-2xl border border-green-200 bg-green-50/60 shadow-sm overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-medium text-green-900 active:bg-green-100"
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="flex w-full items-center gap-2 rounded-2xl border border-green-200 bg-green-50/60 px-3 py-2 text-left text-sm font-medium text-green-900 shadow-sm active:bg-green-100"
+          aria-label={`Open campus map for ${mapData.label}`}
+        >
+          <MapIcon className="h-4 w-4 flex-shrink-0 text-green-700" />
+          <span className="flex-1 min-w-0 truncate">
+            View campus map — {mapData.label}
+          </span>
+          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-green-700" />
+        </button>
+      </DialogTrigger>
+      <DialogContent
+        // Fullscreen on mobile, large centered modal on desktop. `gap-0` and
+        // `p-0` override DialogContent defaults so the map fills the frame
+        // edge-to-edge; the close button (rendered by DialogContent) sits on
+        // top in the top-right corner.
+        className="!grid !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !inset-0 !rounded-none !p-0 !gap-0 !border-0 grid-rows-[auto_1fr] h-[100dvh] w-screen overflow-hidden sm:!inset-auto sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!rounded-2xl sm:!max-w-[min(900px,95vw)] sm:!h-[min(900px,90dvh)]"
       >
-        <MapIcon className="h-4 w-4 flex-shrink-0 text-green-700" />
-        <span className="flex-1 min-w-0 truncate">
-          {open ? "Hide campus map" : `Show on campus map — ${mapData.label}`}
-        </span>
-        <ChevronDown
-          className={`h-4 w-4 flex-shrink-0 text-green-700 transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-2 pb-2">
-              <CampusMap place_id={mapData.place_id} label={mapData.label} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        <DialogHeader className="border-b border-gray-200 bg-white px-4 py-3 sm:rounded-t-2xl">
+          <DialogTitle className="text-base font-semibold text-gray-900 sm:text-lg">
+            Campus map
+          </DialogTitle>
+          <DialogDescription className="text-xs text-gray-500 sm:text-sm">
+            Pick a starting point and a destination — the walking route updates instantly.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="overflow-y-auto">
+          <CampusMap place_id={mapData.place_id} label={mapData.label} editableTarget zoomable />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -609,7 +625,7 @@ function cellToSortKey(cell: TableCell): string | number {
   return s.toLowerCase();
 }
 
-function TableCard({ table }: { readonly table: TableData }) {
+function TableCard({ table }: { readonly table: TableCardData }) {
   const alignClass: Record<string, string> = {
     left:   "text-left",
     right:  "text-right tabular-nums",
@@ -756,7 +772,7 @@ function TableCard({ table }: { readonly table: TableData }) {
   );
 }
 
-function DirectoryCard({ directory }: { readonly directory: Directory }) {
+function DirectoryCard({ directory }: { readonly directory: DirectoryCardData }) {
   return (
     <div className="w-full rounded-2xl border border-green-200 bg-green-50/60 p-3 text-sm shadow-sm">
       <div className="flex items-start gap-2">
@@ -808,18 +824,21 @@ interface FeedbackButtonsProps {
 }
 
 function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsProps) {
-  const base = "rounded-full border p-1.5 transition-colors sm:border-0 sm:p-1";
+  // Keep tap targets 36 px wide on mobile (still WCAG-compliant when paired
+  // with the gap), but drop the bordered-circle treatment that doubled the
+  // visual weight against the small timestamp.
+  const base = "rounded-full p-1 transition-colors";
   const disabled = thumb !== null;
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-0.5">
       <button
         onClick={() => onThumb(true)}
         disabled={disabled}
         aria-label="Helpful"
         className={`${base} ${
           thumb === true
-            ? "border-green-600 text-green-600"
-            : "border-gray-300 text-gray-600 active:bg-gray-100 disabled:opacity-40 sm:border-transparent"
+            ? "text-green-600"
+            : "text-gray-400 active:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
         }`}
       >
         {submitted && thumb === true
@@ -832,8 +851,8 @@ function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsProps) {
         aria-label="Not helpful"
         className={`${base} ${
           thumb === false
-            ? "border-red-500 text-red-500"
-            : "border-gray-300 text-gray-600 active:bg-gray-100 disabled:opacity-40 sm:border-transparent"
+            ? "text-red-500"
+            : "text-gray-400 active:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
         }`}
       >
         <ThumbsDown className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
@@ -972,19 +991,23 @@ export function ChatMessage({
   onFeedback,
   typing = false,
   onTypingDone,
-  mapData,
-  directory,
-  dvCard,
-  contextSet,
-  table,
+  cards,
+  context,
   suggestions,
+  displayHint,
   onSuggestion,
   intent,
   writeEnabled,
   sessionId,
   ais,
 }: ChatMessageProps) {
-  const contextChipText = contextSet ? formatContextChip(contextSet) : null;
+  // Pull each typed card out of the discriminated union. `findCard` keeps
+  // the narrowed type so JSX below gets full IntelliSense.
+  const directory = findCard(cards, "directory");
+  const mapCard   = findCard(cards, "map");
+  const dvCard    = findCard(cards, "dv");
+  const table     = findCard(cards, "table");
+  const contextChipText = context ? formatContextChip(context) : null;
   // Three-state UI: thumb=null = not yet picked; thumb=true|false = picked
   // but not finalized (reason panel visible); submitted=true = locked in.
   const [thumb, setThumb] = useState<boolean | null>(null);
@@ -1046,11 +1069,14 @@ export function ChatMessage({
       {isBot && <BotAvatar grouped={isGrouped} />}
 
       <div
-        className={`flex flex-col ${
-          mapData
-            ? "max-w-[96%] sm:max-w-[85%]"
-            : "max-w-[88%] sm:max-w-[75%]"
-        } ${isBot ? "items-start" : "items-end"}`}
+        className={`flex min-w-0 flex-col ${
+          // Bot side gets the wider cap unconditionally so the bubble and
+          // any attached cards (directory, dvCard, map, table) share a
+          // right edge. User bubbles stay narrower.
+          isBot
+            ? "max-w-[96%] sm:max-w-[85%] items-start"
+            : "max-w-[88%] sm:max-w-[75%] items-end"
+        }`}
       >
         {/* When a structured table is available, render it in place of the
             monospace text bubble — the title carries the same lead-in. Text
@@ -1095,11 +1121,11 @@ export function ChatMessage({
           </div>
         )}
 
-        {done && isBot && mapData && (
+        {done && isBot && mapCard && (
           <div className="w-full mt-2">
             <MapAccordion
-              mapData={mapData}
-              defaultOpen={!!intent && MAP_FIRST_INTENT_RE.test(intent)}
+              mapData={mapCard}
+              defaultOpen={mapCard.default_open ?? (displayHint === "map_first")}
             />
           </div>
         )}
@@ -1119,7 +1145,7 @@ export function ChatMessage({
           </div>
         )}
 
-        <div className="mt-1 flex flex-wrap items-center gap-1.5 px-1 sm:gap-2">
+        <div className="mt-1 flex flex-wrap items-center gap-2 px-1.5 sm:gap-2 sm:px-2">
           <span className="text-[11px] text-gray-400 sm:text-xs">{timestamp}</span>
           {done && isBot && contextChipText && (
             <span
