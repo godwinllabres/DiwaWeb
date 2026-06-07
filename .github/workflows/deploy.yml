@@ -62,8 +62,9 @@ jobs:
             <meta name="twitter:title" content="DIWA — CvSU Digital Intelligent Web Assistant" />
             <meta name="twitter:description" content="Ask about CvSU admissions, enrollment, programs, scholarships, and campus directions." />
             <meta name="twitter:image" content="https://godwincreates.net/diwa/og-image.jpg" />
-            <meta http-equiv="refresh" content="0;url=/diwa/" />
             <link rel="canonical" href="/diwa/" />
+            <script>location.replace('/diwa/' + location.search + location.hash)</script>
+            <noscript><meta http-equiv="refresh" content="0;url=/diwa/" /></noscript>
           </head><body>
             <p>Redirecting to <a href="/diwa/">DIWA</a>...</p>
           </body></html>
