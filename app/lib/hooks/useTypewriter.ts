@@ -12,6 +12,10 @@ export function useTypewriter(
   charDelayMs = 18,
   charsPerTick = 4
 ): TypewriterState {
+  // The typewriter is purely cosmetic, so a missing/undefined message must
+  // never crash rendering (a bot message can arrive without text). Coerce to
+  // an empty string rather than reading `.length` off undefined.
+  message = message ?? "";
   const [displayed, setDisplayed] = useState(enabled ? "" : message);
   const [done, setDone] = useState(!enabled);
   const indexRef = useRef(0);

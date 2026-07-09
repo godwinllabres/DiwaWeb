@@ -103,29 +103,6 @@ export function LandingPage() {
           />
         </section>
 
-        <section className="mt-16 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-            For integrators
-          </p>
-          <h2 className="mt-2 text-lg font-semibold text-gray-900 sm:text-xl">
-            One-line embed for cvsu.edu.ph
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Drop this once anywhere in your page. The chat bubble appears on every page that
-            loads the script — auto-opens after 3 seconds the first time, remembers if a user
-            dismisses it.
-          </p>
-          <pre className="mt-4 overflow-x-auto rounded-xl bg-gray-900 p-4 text-[12px] leading-relaxed text-gray-100 sm:text-[13px]">
-{`<script
-  src="https://dev.godwincreates.net/widget.js"
-  data-diwa-url="https://dev.godwincreates.net"
-  data-diwa-color="#16a34a"
-  data-diwa-open-after="3000"
-  data-diwa-remember="closed"
-  async></script>`}
-          </pre>
-        </section>
-
         <footer className="mt-12 text-center text-[11px] text-gray-400 sm:text-xs">
           Urgent concerns? Call CvSU: (046) 430-6332
         </footer>

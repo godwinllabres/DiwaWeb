@@ -257,6 +257,9 @@ export interface CustomMarkersResponse {
 }
 
 export const api = {
+  // The backend (api/app.py) emits the v2 ChatResponse envelope natively —
+  // text, typed cards[], source/refusal_reason, suggestions, display_hint —
+  // so no client-side normalization is needed.
   chat: (body: ChatRequest) =>
     request<ChatResponse>("/chat", {
       method: "POST",

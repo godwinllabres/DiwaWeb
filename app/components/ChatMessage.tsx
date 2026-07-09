@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Bot, User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon, FileText, ExternalLink, ChevronUp, ArrowUpDown, Search } from "lucide-react";
+import { Bot, User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon, FileText, ExternalLink, ChevronUp, ArrowUpDown, Search, ArrowLeft } from "lucide-react";
 
 // Reason taxonomy — keep in sync with backend FEEDBACK_REASONS in api/app.py
 // and the /feedback/reasons endpoint. Inlined so the picker renders without
@@ -326,19 +326,83 @@ function formatContextChip(ctx: ChatContext): string | null {
   return null;
 }
 
+// One-time coachmark: the first time a map card appears, teach the user the
+// map exists and let them choose to open it — instead of the modal springing
+// open unbidden. Persisted so it only ever shows once per browser.
+const MAP_COACHMARK_KEY = "diwa_map_coachmark_seen";
+function mapCoachmarkSeen(): boolean {
+  try {
+    return localStorage.getItem(MAP_COACHMARK_KEY) === "1";
+  } catch {
+    return true; // storage disabled → treat as seen (never nag)
+  }
+}
+function markMapCoachmarkSeen() {
+  try {
+    localStorage.setItem(MAP_COACHMARK_KEY, "1");
+  } catch {
+    /* ignore */
+  }
+}
+
 function MapAccordion({
   mapData,
-  defaultOpen,
 }: {
   readonly mapData: MapCardData;
-  readonly defaultOpen: boolean;
 }) {
-  // Tap-to-expand opens a fullscreen Dialog (mobile) / large modal (desktop)
-  // with editable From/To pickers. `defaultOpen` is still honored so map-first
-  // intents (directions, navigation) auto-surface the map.
-  const [open, setOpen] = useState(defaultOpen);
+  // The map NEVER auto-opens. Tap-to-expand opens a fullscreen Dialog (mobile)
+  // / large modal (desktop) with editable From/To pickers.
+  const [open, setOpen] = useState(false);
+  // Show the first-run coachmark above the button (only once per browser).
+  const [showCoachmark, setShowCoachmark] = useState(() => !mapCoachmarkSeen());
+
+  const dismissCoachmark = () => {
+    markMapCoachmarkSeen();
+    setShowCoachmark(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {showCoachmark && (
+        <div className="mb-2 flex items-start gap-2 rounded-2xl border border-green-300 bg-green-50 px-3 py-2.5 text-sm shadow-sm">
+          <MapPin className="h-4 w-4 flex-shrink-0 text-green-700 mt-0.5" />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-green-900">
+              This spot is on the campus map.
+            </p>
+            <p className="mt-0.5 text-xs text-green-800">
+              You can open an interactive map with walking directions.
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  dismissCoachmark();
+                  setOpen(true);
+                }}
+                className="rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 active:bg-green-800"
+              >
+                View map
+              </button>
+              <button
+                type="button"
+                onClick={dismissCoachmark}
+                className="rounded-full border border-green-300 bg-white px-3 py-1 text-xs font-medium text-green-800 hover:bg-green-50 active:bg-green-100"
+              >
+                Not now
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={dismissCoachmark}
+            aria-label="Dismiss map tip"
+            className="flex-shrink-0 rounded-md p-0.5 text-green-700 hover:bg-green-100"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
       <DialogTrigger asChild>
         <button
           type="button"
@@ -353,19 +417,34 @@ function MapAccordion({
         </button>
       </DialogTrigger>
       <DialogContent
-        // Fullscreen on mobile, large centered modal on desktop. `gap-0` and
+        // Fullscreen on mobile, large centered modal on desktop. `gap-0` /
         // `p-0` override DialogContent defaults so the map fills the frame
-        // edge-to-edge; the close button (rendered by DialogContent) sits on
-        // top in the top-right corner.
-        className="!grid !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !inset-0 !rounded-none !p-0 !gap-0 !border-0 grid-rows-[auto_1fr] h-[100dvh] w-screen overflow-hidden sm:!inset-auto sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!rounded-2xl sm:!max-w-[min(900px,95vw)] sm:!h-[min(900px,90dvh)]"
+        // edge-to-edge. `[&>button.absolute]:hidden` suppresses the default
+        // Radix close X (we provide our own "Back to chat" affordance below
+        // — the floating X confused users into thinking it closed the chat
+        // widget itself, since the widget's own close X is at the same screen
+        // position when embedded).
+        className="!grid !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !inset-0 !rounded-none !p-0 !gap-0 !border-0 grid-rows-[auto_1fr] h-[100dvh] w-screen overflow-hidden sm:!inset-auto sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!rounded-2xl sm:!max-w-[min(900px,95vw)] sm:!h-[min(900px,90dvh)] [&>button.absolute]:hidden"
       >
-        <DialogHeader className="border-b border-gray-200 bg-white px-4 py-3 sm:rounded-t-2xl">
-          <DialogTitle className="text-base font-semibold text-gray-900 sm:text-lg">
-            Campus map
-          </DialogTitle>
-          <DialogDescription className="text-xs text-gray-500 sm:text-sm">
-            Pick a starting point and a destination — the walking route updates instantly.
-          </DialogDescription>
+        <DialogHeader className="flex flex-row items-center gap-3 border-b border-gray-200 bg-white px-3 py-2.5 sm:rounded-t-2xl sm:px-4 sm:py-3">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Back to chat"
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-green-700 hover:bg-green-50 active:bg-green-100"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Back to chat</span>
+            <span className="sm:hidden">Back</span>
+          </button>
+          <div className="min-w-0 flex-1 text-left">
+            <DialogTitle className="text-sm font-semibold text-gray-900 sm:text-base">
+              Campus map
+            </DialogTitle>
+            <DialogDescription className="truncate text-xs text-gray-500">
+              Pick a From and To — the route updates instantly.
+            </DialogDescription>
+          </div>
         </DialogHeader>
         <div className="overflow-y-auto">
           <CampusMap place_id={mapData.place_id} label={mapData.label} editableTarget zoomable />
@@ -1015,8 +1094,9 @@ export function ChatMessage({
   source,
 }: ChatMessageProps) {
   // Pull each typed card out of the discriminated union. `findCard` keeps
-  // the narrowed type so JSX below gets full IntelliSense.
-  const directory = findCard(cards, "directory");
+  // the narrowed type so JSX below gets full IntelliSense. Directory is a
+  // list (contact/directory intents return several offices).
+  const directories = (cards ?? []).filter((c) => c.kind === "directory") as DirectoryCardData[];
   const mapCard   = findCard(cards, "map");
   const dvCard    = findCard(cards, "dv");
   const table     = findCard(cards, "table");
@@ -1128,18 +1208,17 @@ export function ChatMessage({
           </div>
         )}
 
-        {done && isBot && directory && (
-          <div className="w-full mt-2">
-            <DirectoryCard directory={directory} />
+        {done && isBot && directories.length > 0 && (
+          <div className="w-full mt-2 flex flex-col gap-2">
+            {directories.map((d, i) => (
+              <DirectoryCard key={`${d.office}-${i}`} directory={d} />
+            ))}
           </div>
         )}
 
         {done && isBot && mapCard && (
           <div className="w-full mt-2">
-            <MapAccordion
-              mapData={mapCard}
-              defaultOpen={mapCard.default_open ?? (displayHint === "map_first")}
-            />
+            <MapAccordion mapData={mapCard} />
           </div>
         )}
 

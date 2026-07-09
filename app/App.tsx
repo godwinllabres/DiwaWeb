@@ -130,7 +130,11 @@ export default function App() {
     sessionId,
     initialMessages: [],
     onBotResponse: (res, userInput) => {
-      if (res.intent === "nlu_fallback") {
+      // Only apologize on a genuine miss — the static canned fallback
+      // (source === "fallback"). When the local/Claude LLM actually answered
+      // (still tagged intent nlu_fallback, but source llm_local/llm_claude),
+      // the reply is real, so don't append "I may have missed your question".
+      if (res.source === "fallback") {
         chat.pushMessage({ text: FOLLOWUP_LOW_CONFIDENCE, isBot: true, followUp: true });
         setCategoriesHeading("Try one of these topics");
         setCategories(rankRelevantTopicCards(userInput, res.intent, availableIntentTags));
