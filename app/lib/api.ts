@@ -25,7 +25,12 @@ export type ResponseSource =
   | "fallback"
   | "refusal";
 
-export type RefusalReason = "nonsense" | "out_of_scope" | "prohibited";
+export type RefusalReason =
+  | "nonsense"
+  | "out_of_scope"
+  | "prohibited"
+  | "abusive"
+  | "safety";
 
 export type DisplayHint = "default" | "map_first" | "card_first" | "text_only";
 
