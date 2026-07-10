@@ -20,6 +20,7 @@ export type ResponseSource =
   | "llm_local"
   | "llm_claude"
   | "ais_mcp"
+  | "connectors_mcp"
   | "fallback"
   | "refusal";
 
