@@ -21,6 +21,7 @@ export type ResponseSource =
   | "llm_claude"
   | "ais_mcp"
   | "connectors_mcp"
+  | "charter_rag"
   | "fallback"
   | "refusal";
 
