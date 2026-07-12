@@ -50,9 +50,16 @@ const PRIVACY_POLICY_URL =
 const WELCOME_TEXT =
   "Welcome to DIWA, the CvSU Digital Intelligent Web Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?";
 
+// Consent disclosure — the specific processing this assistant does, per the
+// Data Privacy Act (RA 10173) and docs/privacy_compliance.md §3.2. Copy is
+// pending final CvSU Data Protection Officer sign-off; the linked notice is
+// authoritative.
 const CONSENT_PROMPT_TEXT =
   `Hello and welcome to Cavite State University! I'm DIWA — the CvSU Digital Intelligent Web Assistant. ` +
-  `To continue this conversation, please acknowledge and agree to our [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
+  `Before we begin: your messages are logged to improve this service, automatically screened for safety, ` +
+  `and may be used to make DIWA's answers better. For live records (documents, tickets, accounts) I look ` +
+  `them up from the relevant CvSU system under your own access — I never ask for passwords in chat. ` +
+  `Full details are in our [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
   `If you agree, kindly click the **I Agree** button below.`;
 
 const FOLLOWUP_LOW_CONFIDENCE =

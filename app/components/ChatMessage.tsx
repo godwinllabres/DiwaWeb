@@ -279,6 +279,18 @@ function BlockText({
   );
 }
 
+// Human-readable provenance for the tier that produced an answer — an
+// AI-transparency cue (see docs/privacy_compliance.md §3.11). Knowledge-base
+// tiers (naive_bayes/neural_network) and fallback/refusal show nothing; only
+// answers that came from an AI model, live data, or the charter are labeled.
+const SOURCE_LABEL: Partial<Record<ResponseSource, string>> = {
+  llm_local: "AI · on-campus model",
+  llm_claude: "AI assistant",
+  charter_rag: "Citizens' Charter",
+  ais_mcp: "AIS live data",
+  connectors_mcp: "Live lookup",
+};
+
 interface ChatMessageProps {
   readonly message: string;
   readonly isBot: boolean;
@@ -1000,6 +1012,7 @@ export function ChatMessage({
   writeEnabled,
   sessionId,
   ais,
+  source,
 }: ChatMessageProps) {
   // Pull each typed card out of the discriminated union. `findCard` keeps
   // the narrowed type so JSX below gets full IntelliSense.
@@ -1147,6 +1160,14 @@ export function ChatMessage({
 
         <div className="mt-1 flex flex-wrap items-center gap-2 px-1.5 sm:gap-2 sm:px-2">
           <span className="text-[11px] text-gray-400 sm:text-xs">{timestamp}</span>
+          {done && isBot && source && SOURCE_LABEL[source] && (
+            <span
+              title="Where this answer came from"
+              className="text-[10px] text-gray-400 sm:text-[11px]"
+            >
+              · {SOURCE_LABEL[source]}
+            </span>
+          )}
           {done && isBot && contextChipText && (
             <span
               title="Follow-up questions like 'what's its status?' will resolve to this."
