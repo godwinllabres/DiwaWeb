@@ -7,7 +7,9 @@ interface SystemPanelProps {
   onClose: () => void;
 }
 
-const PIN_KEY = "diwa_admin_pin";
+// Reuse the pin the dashboard already stored on successful /admin/verify, so
+// opening System doesn't re-prompt.
+const PIN_KEY = "admin_pin";
 
 /**
  * Operational panel for the admin dashboard: live subsystem status, the
