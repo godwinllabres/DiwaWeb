@@ -166,13 +166,58 @@ export interface IntentSummary {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...init,
+    // Merge headers so per-call headers (e.g. X-Admin-Pin) add to, rather than
+    // replace, the default Content-Type.
+    headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
   });
   if (!res.ok) {
     throw new Error(`API ${path} failed: ${res.status}`);
   }
   return res.json() as Promise<T>;
+}
+
+/** Admin endpoints require the X-Admin-Pin header (matches DASHBOARD_PIN). */
+function adminRequest<T>(path: string, pin: string, init?: RequestInit): Promise<T> {
+  return request<T>(path, {
+    ...init,
+    headers: { "X-Admin-Pin": pin, ...(init?.headers || {}) },
+  });
+}
+
+export interface AdminStatus {
+  service: string;
+  uptime_seconds: number;
+  brain: {
+    classifier_ready: boolean;
+    neural_net_ready: boolean;
+    charter_rag: { available?: boolean; chunks?: number };
+    usage: Record<string, number>;
+  };
+  llm: { provider: string; model: string | null; available: boolean; second_opinion: boolean };
+  moderation: Record<string, number>;
+  connectors_bridge: Record<string, any>;
+  ais_bridge: Record<string, any>;
+  campus_context: Record<string, number>;
+}
+
+export interface LlmConfig {
+  provider: string;
+  model: string | null;
+  available: boolean;
+  ollama_models?: string[];
+}
+
+export interface ModerationSnapshot {
+  counts: Record<string, number>;
+  recent: Array<{
+    at: string;
+    category: string;
+    severity?: number | null;
+    message: string;
+    session_id?: string | null;
+  }>;
+  lexicon: { loaded: boolean; version?: string | null; entries?: number; forms?: number };
 }
 
 export interface MapCoordsResponse {
@@ -344,5 +389,18 @@ export const api = {
     request<{ status: string }>("/admin/verify", {
       method: "POST",
       body: JSON.stringify({ pin }),
+    }),
+
+  // ── System panel (admin-pin gated) ──────────────────────────────────────
+  getAdminStatus: (pin: string) => adminRequest<AdminStatus>("/admin/status", pin),
+
+  getModeration: (pin: string) => adminRequest<ModerationSnapshot>("/admin/moderation", pin),
+
+  getLlmConfig: (pin: string) => adminRequest<LlmConfig>("/admin/llm", pin),
+
+  setLlmConfig: (pin: string, body: { provider: string; model?: string }) =>
+    adminRequest<LlmConfig>("/admin/llm", pin, {
+      method: "POST",
+      body: JSON.stringify(body),
     }),
 };

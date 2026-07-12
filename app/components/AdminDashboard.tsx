@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon, Plus } from "lucide-react";
+import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon, Plus, Server } from "lucide-react";
 import { api } from "../lib/api";
 import { AdminMapEditor } from "./AdminMapEditor";
 import { IntentOnboarding } from "./IntentOnboarding";
+import { SystemPanel } from "./SystemPanel";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -17,6 +18,7 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
   const [error, setError] = useState<string | null>(null);
   const [showMapEditor, setShowMapEditor] = useState(false);
   const [showIntentOnboarding, setShowIntentOnboarding] = useState(false);
+  const [showSystem, setShowSystem] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +58,14 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
           <button
+            onClick={() => setShowSystem(true)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white/20 px-3 text-xs font-medium text-white transition-colors hover:bg-white/30 sm:text-sm"
+            title="System status, LLM toggle, and moderation feed"
+          >
+            <Server className="h-4 w-4" />
+            System
+          </button>
+          <button
             onClick={() => setShowIntentOnboarding(true)}
             className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white/20 px-3 text-xs font-medium text-white transition-colors hover:bg-white/30 sm:text-sm"
             title="Onboard a new intent with sanitation checks"
@@ -88,6 +98,7 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
         {showIntentOnboarding && (
           <IntentOnboarding onClose={() => setShowIntentOnboarding(false)} />
         )}
+        {showSystem && <SystemPanel onClose={() => setShowSystem(false)} />}
       </AnimatePresence>
 
       <div className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:space-y-6 sm:p-6">
