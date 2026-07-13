@@ -1,0 +1,11 @@
+# .env is tracked in git and points VITE_API_URL at the production API.
+# Exclude it so the Docker build falls back to same-origin /api (nginx proxy).
+.env
+
+node_modules
+dist
+coverage
+.git
+.github
+.cloudflared
+tsconfig.tsbuildinfo
