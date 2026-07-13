@@ -11,3 +11,7 @@ coverage/
 
 # Cloudflare tunnel state & logs
 .cloudflared/
+
+# Sevi design-asset source library (16MB of PNG/HTML exports; the runtime
+# SVGs the app uses live in public/sevi-professions/ and SeviAvatar.tsx)
+sevi-asset/
