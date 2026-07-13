@@ -3,11 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <title>Sevi | CvSU Virtual Assistant</title>
-    <script type="module" crossorigin src="/assets/index-CZ-aBZr_.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DO7j-F8t.css">
+    <meta name="description" content="Sevi is the CvSU Virtual Assistant — ask about admissions, enrollment, programs, scholarships, campus directions, and more." />
+
+    <!-- Favicons (absolute URLs so they resolve under /diwa/ base path) -->
+    <link rel="icon" type="image/svg+xml" href="https://godwincreates.net/diwa/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://godwincreates.net/diwa/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="https://godwincreates.net/diwa/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://godwincreates.net/diwa/apple-touch-icon.png" />
+
+    <!-- Open Graph (Facebook / Messenger / iMessage / Slack / Discord) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://godwincreates.net/diwa/" />
+    <meta property="og:title" content="Sevi — CvSU Virtual Assistant" />
+    <meta property="og:description" content="Ask about CvSU admissions, enrollment, programs, scholarships, and campus directions. English, Filipino, and Taglish supported." />
+    <meta property="og:image" content="https://godwincreates.net/diwa/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Cavite State University" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sevi — CvSU Virtual Assistant" />
+    <meta name="twitter:description" content="Ask about CvSU admissions, enrollment, programs, scholarships, and campus directions." />
+    <meta name="twitter:image" content="https://godwincreates.net/diwa/og-image.jpg" />
+    <script type="module" crossorigin src="/assets/index-niP7FKJv.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DVhRAqBW.css">
   </head>
   <body>
     <div id="root"></div>
+
+    <!--
+      Sevi chat widget. On the marketing landing page this drops a green
+      chat bubble bottom-right and (first visit) auto-opens after 3s.
+      On the embed page (?embed=1), widget.js self-detects and stays out
+      of the way so the chat iframe doesn't nest itself.
+    -->
+    <script
+      src="/widget.js"
+      data-diwa-url="/diwa/"
+      data-diwa-color="#16a34a"
+      data-diwa-position="bottom-right"
+      data-diwa-label="Chat with DIWA"
+      data-diwa-open-after="3000"
+      data-diwa-remember="closed"
+      async
+    ></script>
   </body>
 </html>
