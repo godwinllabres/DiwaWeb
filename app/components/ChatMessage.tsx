@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Bot, User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon, FileText, ExternalLink, ChevronUp, ArrowUpDown, Search, ArrowLeft } from "lucide-react";
+import { User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon, FileText, ExternalLink, ChevronUp, ArrowUpDown, Search, ArrowLeft } from "lucide-react";
+import { SeviAvatar } from "./SeviAvatar";
 
 // Reason taxonomy — keep in sync with backend FEEDBACK_REASONS in api/app.py
 // and the /feedback/reasons endpoint. Inlined so the picker renders without
@@ -1056,11 +1057,7 @@ const AVATAR_SIZE = "h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9";
 
 function BotAvatar({ grouped }: { readonly grouped: boolean }) {
   if (grouped) return <div className={AVATAR_SIZE} />;
-  return (
-    <div className={`${AVATAR_SIZE} rounded-full bg-green-600 flex items-center justify-center`}>
-      <Bot className="h-4 w-4 text-white sm:h-5 sm:w-5" />
-    </div>
-  );
+  return <SeviAvatar className={AVATAR_SIZE} title="Sevi" animated />;
 }
 
 function UserAvatar({ grouped }: { readonly grouped: boolean }) {

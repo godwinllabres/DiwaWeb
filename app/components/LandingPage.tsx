@@ -1,4 +1,5 @@
-import { GraduationCap, MessageCircle, Sparkles, MapPin, Clock } from "lucide-react";
+import { MessageCircle, Sparkles, MapPin, Clock } from "lucide-react";
+import { SeviAvatar } from "./SeviAvatar";
 
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
@@ -15,9 +16,7 @@ export function LandingPage() {
     <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5 sm:py-7">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 sm:h-12 sm:w-12">
-            <GraduationCap className="h-5 w-5 text-white sm:h-6 sm:w-6" />
-          </div>
+          <SeviAvatar className="h-10 w-10 sm:h-12 sm:w-12" expression="greeting" title="Sevi" />
           <div>
             <p className="text-sm font-semibold text-green-900 sm:text-base">Sevi</p>
             <p className="text-[11px] text-green-700/80 sm:text-xs">CvSU Virtual Assistant</p>

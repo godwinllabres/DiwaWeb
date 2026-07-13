@@ -1,3 +1,37 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+/* Sevi avatar idle motion — only when `animated` is set (e.g. in chat).
+   Each instance carries a per-instance --sevi-delay so a column of avatars
+   blinks out of sync rather than in a robotic unison. Reduced-motion users
+   get a still avatar. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Whole-avatar float — the bob from the artifact hero. Percentage translate
+     so it scales with the avatar (subtle at 32px, roomier in the header). */
+  .sevi-animated {
+    animation: sevi-float 6s ease-in-out var(--sevi-delay, 0s) infinite;
+  }
+  .sevi-animated .sevi-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: sevi-blink 5.2s var(--sevi-delay, 0s) infinite;
+  }
+  .sevi-animated .sevi-tassel {
+    transform-box: fill-box;
+    transform-origin: left top;
+    animation: sevi-sway 4.4s ease-in-out var(--sevi-delay, 0s) infinite;
+  }
+}
+@keyframes sevi-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7%); }
+}
+@keyframes sevi-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.12); }
+}
+@keyframes sevi-sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
