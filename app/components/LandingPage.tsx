@@ -42,7 +42,7 @@ export function LandingPage() {
               <h1 className="text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
                 Ask Sevi anything about Cavite State University.
               </h1>
-              <SeviHatCycle className="h-20 w-20 flex-shrink-0 sm:h-28 sm:w-28 lg:h-32 lg:w-32" />
+              <SeviHatCycle className="h-28 w-28 flex-shrink-0 sm:h-36 sm:w-36 lg:h-44 lg:w-44" />
             </div>
             <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
               Admissions, enrollment, courses, scholarships, fees, campus facilities,
