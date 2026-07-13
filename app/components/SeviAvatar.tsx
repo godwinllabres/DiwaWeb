@@ -1,71 +1,76 @@
 import { useId } from "react";
 
 /**
- * Sevi's avatar — Concept A "scholar-orb": a rounded CvSU-green head with a
- * cream face-plate, a tilted mortarboard and a gold tassel. One character,
- * four expressions that map to how Sevi answers (see the avatar design system).
+ * Sevi's avatar — rendered from the official Sevi asset geometry
+ * (sevi-asset/exports/states/*.svg): a CvSU-green head with a cream face-plate,
+ * a mortarboard and a gold tassel. Four expressions map to how Sevi answers.
  *
- * Renders as a self-contained SVG (its own head + cap), so drop it straight
- * into a sized box — no green circle wrapper needed. Sized via `className`
- * (e.g. "h-8 w-8"); the gradient id is per-instance so multiples don't clash.
+ * Inlined as SVG (rather than <img>) so the idle animation can move sub-parts:
+ * the eyes live in `.sevi-eyes` (blink) and the tassel in `.sevi-tassel` (sway),
+ * with the whole mark floating — see the `.sevi-animated` rules in index.css.
+ * Gradient ids are per-instance so multiple avatars don't collide.
  */
 
 export type SeviExpression = "answering" | "greeting" | "thinking" | "careful";
 
-/* Eyes live in a `.sevi-eyes` group so the blink animation can scale just the
-   eyes; the mouth and any brows/spark sit outside it. */
-const FACE: Record<SeviExpression, React.ReactNode> = {
-  answering: (
-    <>
-      <g className="sevi-eyes">
-        <circle cx="83" cy="112" r="7" fill="#0E2A1E" />
-        <circle cx="117" cy="112" r="7" fill="#0E2A1E" />
-        <circle cx="85.4" cy="109.4" r="2.2" fill="#FBF7EC" />
-        <circle cx="119.4" cy="109.4" r="2.2" fill="#FBF7EC" />
-      </g>
-      <path d="M82 128 Q100 145 118 128" fill="none" stroke="#0E2A1E" strokeWidth="5" strokeLinecap="round" />
-    </>
-  ),
-  greeting: (
-    <>
-      <g className="sevi-eyes">
-        <path d="M75 114 Q83 105 91 114" fill="none" stroke="#0E2A1E" strokeWidth="4.6" strokeLinecap="round" />
-        <path d="M109 114 Q117 105 125 114" fill="none" stroke="#0E2A1E" strokeWidth="4.6" strokeLinecap="round" />
-      </g>
-      <path d="M79 125 Q100 151 121 125 Z" fill="#0E2A1E" />
-      <path d="M90 133 Q100 141 110 133 Z" fill="#E27F84" />
-    </>
-  ),
-  thinking: (
-    <>
-      <g className="sevi-eyes">
-        <circle cx="84" cy="109" r="6.6" fill="#0E2A1E" />
-        <circle cx="118" cy="109" r="6.6" fill="#0E2A1E" />
-        <circle cx="86.2" cy="106.6" r="2" fill="#FBF7EC" />
-        <circle cx="120.2" cy="106.6" r="2" fill="#FBF7EC" />
-      </g>
-      <path d="M77 99 Q84 96 91 99" fill="none" stroke="#0E2A1E" strokeWidth="2.6" strokeLinecap="round" opacity="0.8" />
-      <path d="M111 99 Q118 96 125 99" fill="none" stroke="#0E2A1E" strokeWidth="2.6" strokeLinecap="round" opacity="0.8" />
-      <path d="M104 133 Q112 130 118 134" fill="none" stroke="#0E2A1E" strokeWidth="4.4" strokeLinecap="round" />
-      <path d="M150 34 l2.4 6.4 6.4 2.4 -6.4 2.4 -2.4 6.4 -2.4 -6.4 -6.4 -2.4 6.4 -2.4 z" fill="#F4C95D" />
-    </>
-  ),
-  careful: (
-    <>
-      <g className="sevi-eyes">
-        <path d="M76 111 Q83 117 90 111" fill="#0E2A1E" />
-        <path d="M110 111 Q117 117 124 111" fill="#0E2A1E" />
-      </g>
-      <path d="M84 132 Q100 138 116 132" fill="none" stroke="#0E2A1E" strokeWidth="4.4" strokeLinecap="round" />
-    </>
-  ),
-};
+/* Per-state eyes (in a `.sevi-eyes` group so blink scales only the eyes) + mouth. */
+function face(expression: SeviExpression): React.ReactNode {
+  switch (expression) {
+    case "greeting":
+      return (
+        <>
+          <g className="sevi-eyes">
+            <path d="M166 224 Q176 214 186 224" fill="none" stroke="#0A2417" strokeWidth="6" strokeLinecap="round" />
+            <path d="M214 224 Q224 214 234 224" fill="none" stroke="#0A2417" strokeWidth="6" strokeLinecap="round" />
+          </g>
+          <path d="M170 244 Q200 250 230 244 Q226 276 200 278 Q174 276 170 244 Z" fill="#0A2417" />
+          <path d="M188 268 Q200 263 212 268 Q210 280 200 280 Q190 280 188 268 Z" fill="#E86A5C" />
+        </>
+      );
+    case "thinking":
+      return (
+        <>
+          <g className="sevi-eyes">
+            <circle cx="176" cy="217" r="9" fill="#0A2417" />
+            <circle cx="224" cy="217" r="9" fill="#0A2417" />
+            <circle cx="178" cy="213" r="2.6" fill="#FBF7EC" />
+            <circle cx="226" cy="213" r="2.6" fill="#FBF7EC" />
+          </g>
+          <path d="M188 255 Q200 250 212 255" fill="none" stroke="#0A2417" strokeWidth="6" strokeLinecap="round" />
+          <path d="M252 176 L255 187 L266 190 L255 193 L252 204 L249 193 L238 190 L249 187 Z" fill="#F4C95D" />
+        </>
+      );
+    case "careful":
+      return (
+        <>
+          <g className="sevi-eyes">
+            <circle cx="176" cy="222" r="9.5" fill="#0A2417" />
+            <circle cx="179" cy="219" r="3" fill="#FBF7EC" />
+            <path d="M214 224 Q224 216 234 224" fill="none" stroke="#0A2417" strokeWidth="5.5" strokeLinecap="round" />
+          </g>
+          <path d="M178 248 Q200 262 222 248" fill="none" stroke="#0A2417" strokeWidth="7" strokeLinecap="round" />
+        </>
+      );
+    default: // answering
+      return (
+        <>
+          <g className="sevi-eyes">
+            <circle cx="176" cy="222" r="9.5" fill="#0A2417" />
+            <circle cx="224" cy="222" r="9.5" fill="#0A2417" />
+            <circle cx="179" cy="219" r="3" fill="#FBF7EC" />
+            <circle cx="227" cy="219" r="3" fill="#FBF7EC" />
+          </g>
+          <path d="M172 250 A 30 30 0 0 0 228 250 Z" fill="#0A2417" />
+        </>
+      );
+  }
+}
 
 interface SeviAvatarProps {
   readonly expression?: SeviExpression;
   readonly className?: string;
   readonly title?: string;
-  /** Enable idle motion (blink + tassel sway). Respects prefers-reduced-motion. */
+  /** Enable idle motion (float + blink + tassel sway). Respects prefers-reduced-motion. */
   readonly animated?: boolean;
 }
 
@@ -78,33 +83,44 @@ function delayFromId(id: string): string {
 
 export function SeviAvatar({ expression = "answering", className, title = "Sevi", animated = false }: SeviAvatarProps) {
   const gid = useId();
-  const headGrad = `sevi-head-${gid}`;
+  const hg = `sevi-hg-${gid}`;
+  const cg = `sevi-cg-${gid}`;
+  const fg = `sevi-fg-${gid}`;
   const cls = [animated ? "sevi-animated" : "", className].filter(Boolean).join(" ") || undefined;
   const style = animated ? ({ "--sevi-delay": delayFromId(gid) } as React.CSSProperties) : undefined;
   return (
-    <svg viewBox="0 0 200 200" className={cls} style={style} role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 400 400" className={cls} style={style} role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id={headGrad} cx="36%" cy="30%" r="78%">
-          <stop offset="0%" stopColor="#1E8A5A" />
-          <stop offset="100%" stopColor="#0A5A3A" />
+        <linearGradient id={hg} x1="0.2" y1="0" x2="0.85" y2="1">
+          <stop offset="0" stopColor="#1E8A5A" />
+          <stop offset="0.55" stopColor="#0C6B45" />
+          <stop offset="1" stopColor="#073D28" />
+        </linearGradient>
+        <linearGradient id={cg} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#123A26" />
+          <stop offset="1" stopColor="#08281A" />
+        </linearGradient>
+        <radialGradient id={fg} cx="0.42" cy="0.36" r="0.75">
+          <stop offset="0" stopColor="#FFFDF6" />
+          <stop offset="1" stopColor="#FBF7EC" />
         </radialGradient>
       </defs>
-      <circle cx="100" cy="112" r="60" fill={`url(#${headGrad})`} />
-      <circle cx="100" cy="112" r="59" fill="none" stroke="rgba(255,255,255,.10)" strokeWidth="2" />
-      <ellipse cx="100" cy="118" rx="43" ry="39" fill="#FBF7EC" />
-      <circle cx="71" cy="127" r="8" fill="#E8B44A" opacity="0.26" />
-      <circle cx="129" cy="127" r="8" fill="#E8B44A" opacity="0.26" />
-      {FACE[expression]}
-      <g>
-        <path d="M63 66 Q100 85 137 66 L133 57 Q100 74 67 57 Z" fill="#0E2A1E" />
-        <polygon points="100,29 147,52 100,75 53,52" fill="#0F3325" />
-        <polygon points="100,29 147,52 100,75 53,52" fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="1.4" />
-        <circle cx="100" cy="52" r="4.4" fill="#E8B44A" />
-        <g className="sevi-tassel">
-          <path d="M100 52 Q139 53 141 62 L141 80" fill="none" stroke="#E8B44A" strokeWidth="3.4" strokeLinecap="round" />
-          <circle cx="141" cy="82" r="4.6" fill="#F4C95D" />
-          <path d="M138 84 L137 95 M141 85 L141 97 M144 84 L145 95" stroke="#E8B44A" strokeWidth="2.3" strokeLinecap="round" />
-        </g>
+      <ellipse cx="200" cy="366" rx="96" ry="18" fill="#073D28" opacity="0.28" />
+      <circle cx="200" cy="228" r="118" fill={`url(#${hg})`} />
+      <circle cx="200" cy="228" r="118" fill="none" stroke="#052A1C" strokeWidth="2" opacity="0.35" />
+      <circle cx="200" cy="232" r="93" fill={`url(#${fg})`} />
+      <ellipse cx="158" cy="252" rx="13" ry="9" fill="#EE9F97" opacity="0.55" />
+      <ellipse cx="242" cy="252" rx="13" ry="9" fill="#EE9F97" opacity="0.55" />
+      {face(expression)}
+      <path d="M148 122 Q 200 100 258 122 L 250 154 Q 200 168 152 154 Z" fill={`url(#${cg})`} />
+      <polygon points="110,112 214,84 300,114 196,144" fill={`url(#${cg})`} />
+      <polygon points="110,112 214,84 300,114 196,144" fill="none" stroke="#052A1C" strokeWidth="1.5" opacity="0.4" />
+      <circle cx="205" cy="114" r="6" fill="#E8B44A" />
+      <g className="sevi-tassel">
+        <path d="M205 114 L298 115 L298 172" fill="none" stroke="#E8B44A" strokeWidth="4.5" strokeLinecap="round" />
+        <path d="M298 172 l-6 22 M298 172 l0 24 M298 172 l6 22" stroke="#F4C95D" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+        <circle cx="298" cy="171" r="5.5" fill="#F4C95D" />
+        <circle cx="298" cy="200" r="6.5" fill="#E8B44A" />
       </g>
     </svg>
   );
