@@ -35,3 +35,16 @@
   0%, 100% { transform: rotate(-5deg); }
   50% { transform: rotate(5deg); }
 }
+
+/* Hat-cycle crossfade (SeviHatCycle): the incoming hat fades/pops in over the
+   previous one. Utility class rather than a Tailwind config entry so it stays
+   next to the other sevi-* animation rules. */
+.animate-sevi-hat-in {
+  animation-name: sevi-hat-in;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+@keyframes sevi-hat-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}

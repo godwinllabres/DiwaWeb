@@ -1,26 +1,6 @@
 import { MessageCircle, Sparkles, MapPin, Clock } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
-
-/** Sevi profession avatars (public/sevi-professions/*.svg) → the CvSU college
- * each one nods to. Ordered to lead with CvSU's agricultural roots. */
-// import.meta.env.BASE_URL includes the trailing slash (e.g. "/diwa/"); cast
-// because the project doesn't wire up vite/client types (see campusMap.ts).
-const BASE_URL = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? "/";
-
-const PROFESSIONS = [
-  { key: "salakot", label: "Agriculture" },
-  { key: "veterinarian", label: "Veterinary Medicine" },
-  { key: "engineer", label: "Engineering" },
-  { key: "technologist", label: "Information Technology" },
-  { key: "nurse", label: "Nursing" },
-  { key: "doctor", label: "Medicine" },
-  { key: "scholar", label: "Education" },
-  { key: "artist", label: "Arts & Sciences" },
-  { key: "analyst", label: "Business & Management" },
-  { key: "officer", label: "Criminal Justice" },
-  { key: "athlete", label: "Sports & PE" },
-  { key: "chef", label: "Hospitality" },
-] as const;
+import { SeviHatCycle } from "./SeviHatCycle";
 
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
@@ -58,9 +38,12 @@ export function LandingPage() {
               <Sparkles className="h-3 w-3" />
               Powered by Naive Bayes + Neural Network + Local LLM
             </p>
-            <h1 className="mt-5 text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
-              Ask Sevi anything about Cavite State University.
-            </h1>
+            <div className="mt-5 flex items-start gap-4 sm:gap-6">
+              <h1 className="text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                Ask Sevi anything about Cavite State University.
+              </h1>
+              <SeviHatCycle className="h-20 w-20 flex-shrink-0 sm:h-28 sm:w-28 lg:h-32 lg:w-32" />
+            </div>
             <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
               Admissions, enrollment, courses, scholarships, fees, campus facilities,
               walking directions on the Indang main campus — all in one chat. Available in
@@ -121,35 +104,6 @@ export function LandingPage() {
             title="Always-on, anonymous"
             body="No login. No personal data stored. Just point a question at it and get a structured answer."
           />
-        </section>
-
-        <section className="mt-16">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 sm:text-3xl">
-              Whatever you&apos;re studying, Sevi&apos;s got you.
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-600 sm:text-base">
-              From agriculture to engineering, Sevi helps students across every CvSU college.
-            </p>
-          </div>
-          <ul className="mt-8 grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
-            {PROFESSIONS.map((p) => (
-              <li
-                key={p.key}
-                className="group flex flex-col items-center gap-2 rounded-2xl border border-green-100 bg-white p-3 shadow-sm transition-transform hover:-translate-y-1 hover:border-green-300 sm:p-4"
-              >
-                <img
-                  src={`${BASE_URL}sevi-professions/sevi-${p.key}.svg`}
-                  alt={`Sevi as ${p.label}`}
-                  loading="lazy"
-                  className="h-16 w-16 sm:h-20 sm:w-20"
-                />
-                <span className="text-center text-[11px] font-medium leading-tight text-green-800 sm:text-xs">
-                  {p.label}
-                </span>
-              </li>
-            ))}
-          </ul>
         </section>
 
         <footer className="mt-16 text-center text-[11px] text-gray-400 sm:text-xs">
