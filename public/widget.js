@@ -1,5 +1,6 @@
 /*!
- * DIWA chat widget — drop-in launcher.
+ * Sevi chat widget — drop-in launcher.
+ * (data-diwa-* attributes and window.diwa are kept for embedder compatibility.)
  *
  * Usage on any page (e.g. cvsu.edu.ph):
  *
@@ -22,7 +23,7 @@
   var DEBUG = true; // flip to false for production
   function log() {
     if (!DEBUG) return;
-    try { console.log.apply(console, ["[DIWA widget]"].concat([].slice.call(arguments))); } catch (e) {}
+    try { console.log.apply(console, ["[Sevi widget]"].concat([].slice.call(arguments))); } catch (e) {}
   }
 
   log("script start");
@@ -56,7 +57,7 @@
   var POSITION =
     (self && self.getAttribute("data-diwa-position")) || "bottom-right";
   var BTN_LABEL =
-    (self && self.getAttribute("data-diwa-label")) || "Chat with DIWA";
+    (self && self.getAttribute("data-diwa-label")) || "Chat with Sevi";
 
   // Auto-open behavior. `data-diwa-open-after="3000"` opens the panel after
   // 3s on page load. `data-diwa-remember="closed"` writes a localStorage flag
@@ -144,6 +145,9 @@
       "display: flex; flex-direction: column; overflow: hidden;";
 
     // Desktop sizing — slide-in panel from bottom-right, not fullscreen.
+    // On desktop the widget is NON-modal: the backdrop is transparent and
+    // click-through (pointer-events: none) so the page behind stays usable
+    // while chatting. Mobile keeps the fullscreen modal treatment.
     var mq = window.matchMedia("(min-width: 640px)");
     function applySize() {
       if (mq.matches) {
@@ -151,11 +155,17 @@
         panel.style.height = "min(720px, calc(100dvh - 100px))";
         panel.style.borderRadius = "20px";
         panel.style.margin = "0 20px 90px 0";
+        panel.style.pointerEvents = "auto";
+        overlay.style.background = "transparent";
+        overlay.style.pointerEvents = "none";
       } else {
         panel.style.width = "100%";
         panel.style.height = "100dvh";
         panel.style.borderRadius = "0";
         panel.style.margin = "0";
+        panel.style.pointerEvents = "auto";
+        overlay.style.background = "rgba(0, 0, 0, 0.45)";
+        overlay.style.pointerEvents = "auto";
       }
     }
     applySize();
@@ -174,7 +184,7 @@
       "padding: 0 12px 0 16px; font: 600 14px system-ui, -apple-system, sans-serif;";
 
     var title = document.createElement("span");
-    title.textContent = "DIWA";
+    title.textContent = "Sevi";
     title.style.cssText = "letter-spacing: 0.02em;";
 
     var closeBtn = document.createElement("button");
@@ -201,7 +211,7 @@
     header.appendChild(closeBtn);
 
     iframe = document.createElement("iframe");
-    iframe.title = "DIWA — CvSU Virtual Assistant";
+    iframe.title = "Sevi — CvSU Virtual Assistant";
     iframe.src = EMBED_URL;
     iframe.setAttribute(
       "allow",
@@ -221,7 +231,11 @@
     overlay.style.display = "flex";
     btn.style.display = "none";
     isOpen = true;
-    document.documentElement.style.overflow = "hidden";
+    // Lock page scroll only for the fullscreen (mobile) treatment — the
+    // desktop panel is non-modal and the page should keep scrolling.
+    if (!window.matchMedia("(min-width: 640px)").matches) {
+      document.documentElement.style.overflow = "hidden";
+    }
   }
   function closeWidget() {
     if (overlay) overlay.style.display = "none";

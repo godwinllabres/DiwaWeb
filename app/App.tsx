@@ -37,7 +37,7 @@ import {
   getTopicCard,
   rankRelevantTopicCards,
 } from "@/lib/topicCatalog";
-// Embed mode — when DIWA is iframed (e.g. via the widget on cvsu.edu.ph),
+// Embed mode — when Sevi is iframed (e.g. via the widget on cvsu.edu.ph),
 // hide the green header, footer line, and the outer shadow/rounded corners so
 // the host's iframe owns the visual frame. Enable via ?embed=1 query string.
 const IS_EMBED =
@@ -48,16 +48,16 @@ const PRIVACY_POLICY_URL =
   "https://cvsu.edu.ph/office-of-the-data-protection-officer/general-data-privacy-notice/";
 
 const WELCOME_TEXT =
-  "Welcome to DIWA, the CvSU Digital Intelligent Web Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?";
+  "Welcome to Sevi, the CvSU Virtual Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?";
 
 // Consent disclosure — the specific processing this assistant does, per the
 // Data Privacy Act (RA 10173) and docs/privacy_compliance.md §3.2. Copy is
 // pending final CvSU Data Protection Officer sign-off; the linked notice is
 // authoritative.
 const CONSENT_PROMPT_TEXT =
-  `Hello and welcome to Cavite State University! I'm DIWA — the CvSU Digital Intelligent Web Assistant. ` +
+  `Hello and welcome to Cavite State University! I'm Sevi — the CvSU Virtual Assistant. ` +
   `Before we begin: your messages are logged to improve this service, automatically screened for safety, ` +
-  `and may be used to make DIWA's answers better. For live records (documents, tickets, accounts) I look ` +
+  `and may be used to make Sevi's answers better. For live records (documents, tickets, accounts) I look ` +
   `them up from the relevant CvSU system under your own access — I never ask for passwords in chat. ` +
   `Full details are in our [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
   `If you agree, kindly click the **I Agree** button below.`;
@@ -258,11 +258,13 @@ export default function App() {
   const initialBotTimestamp = useMemo(() => timeNow(), []);
   const sendDisabled = awaitingConsent || chat.isTyping || !inputValue.trim();
 
-  let inputPlaceholder = "Message DIWA…";
+  let inputPlaceholder = "Message Sevi…";
   if (awaitingConsent) {
     inputPlaceholder = "Please agree to the Data Privacy Notice to continue…";
   } else if (chat.isTyping) {
-    inputPlaceholder = "DIWA is replying…";
+    inputPlaceholder = "Sevi is replying…";
+  } else if (apiHealth === "offline") {
+    inputPlaceholder = "Server unreachable — you can still try sending…";
   }
 
   const handleAcceptConsent = () => {
@@ -283,7 +285,7 @@ export default function App() {
       <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-white">
 
         <AnimatePresence>
-          {chat.apiError && (
+          {(chat.apiError || (apiHealth === "offline" && !awaitingConsent)) && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
@@ -292,7 +294,22 @@ export default function App() {
             >
               <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-start gap-2 text-xs text-amber-800 sm:px-6 sm:items-center">
                 <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5 sm:mt-0" />
-                <span>API unreachable: {chat.apiError}. Make sure the chatbot server is running.</span>
+                <span className="min-w-0 flex-1">
+                  {chat.apiError
+                    ? `Sevi couldn't get a reply (${chat.apiError}).`
+                    : "Can't reach the CvSU server right now — replies may fail."}
+                </span>
+                {chat.apiError && (
+                  <button
+                    onClick={() => {
+                      chat.setApiError(null);
+                      chat.retryLast();
+                    }}
+                    className="flex-shrink-0 rounded-lg border border-amber-300 bg-white px-2.5 py-1 font-semibold text-amber-800 transition-colors hover:bg-amber-100"
+                  >
+                    Retry
+                  </button>
+                )}
               </div>
             </motion.div>
           )}

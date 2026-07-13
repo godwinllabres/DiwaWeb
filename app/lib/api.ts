@@ -22,6 +22,8 @@ export type ResponseSource =
   | "ais_mcp"
   | "connectors_mcp"
   | "charter_rag"
+  | "site_rag"
+  | "intent_retrieval"
   | "fallback"
   | "refusal";
 
@@ -164,17 +166,40 @@ export interface IntentSummary {
   responses?: string[];
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    // Merge headers so per-call headers (e.g. X-Admin-Pin) add to, rather than
-    // replace, the default Content-Type.
-    headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
-  });
-  if (!res.ok) {
-    throw new Error(`API ${path} failed: ${res.status}`);
+// An unreachable host otherwise hangs until the browser's TCP timeout
+// (60s+), leaving the typing indicator spinning forever.
+const DEFAULT_TIMEOUT_MS = 15_000;
+// Chat replies can legitimately take longer — the LLM fallback (Ollama on
+// CPU) needs tens of seconds on hard questions.
+const CHAT_TIMEOUT_MS = 45_000;
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  timeoutMs: number = DEFAULT_TIMEOUT_MS,
+): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      signal: controller.signal,
+      // Merge headers so per-call headers (e.g. X-Admin-Pin) add to, rather than
+      // replace, the default Content-Type.
+      headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
+    });
+    if (!res.ok) {
+      throw new Error(`API ${path} failed: ${res.status}`);
+    }
+    return (await res.json()) as T;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error(`API ${path} timed out after ${Math.round(timeoutMs / 1000)}s`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json() as Promise<T>;
 }
 
 /** Admin endpoints require the X-Admin-Pin header (matches DASHBOARD_PIN). */
@@ -261,16 +286,24 @@ export const api = {
   // text, typed cards[], source/refusal_reason, suggestions, display_hint —
   // so no client-side normalization is needed.
   chat: (body: ChatRequest) =>
-    request<ChatResponse>("/chat", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
+    request<ChatResponse>(
+      "/chat",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+      CHAT_TIMEOUT_MS,
+    ),
 
   batchChat: (requests: ChatRequest[]) =>
-    request<ChatResponse[]>("/batch", {
-      method: "POST",
-      body: JSON.stringify(requests),
-    }),
+    request<ChatResponse[]>(
+      "/batch",
+      {
+        method: "POST",
+        body: JSON.stringify(requests),
+      },
+      CHAT_TIMEOUT_MS * 2,
+    ),
 
   getIntents: () => request<any>("/intents"),
 

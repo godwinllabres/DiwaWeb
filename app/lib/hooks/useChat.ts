@@ -18,6 +18,8 @@ export interface UseChatApi {
   apiError: string | null;
   pushMessage: (msg: Omit<Message, "id" | "timestamp"> & { timestamp?: string }) => number;
   sendMessage: (text: string) => Promise<void>;
+  /** Re-send the last message after a failure — no new user bubble is added. */
+  retryLast: () => void;
   resetMessages: () => void;
   clearTypingMessageId: () => void;
   setApiError: (err: string | null) => void;
@@ -51,8 +53,11 @@ export function useChat({
     []
   );
 
+  const lastSentRef = useRef<string | null>(null);
+
   const sendMessage = useCallback(
     async (text: string) => {
+      lastSentRef.current = text;
       setIsTyping(true);
       setApiError(null);
 
@@ -83,7 +88,8 @@ export function useChat({
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Network error";
         setApiError(message);
-        pushMessage({ text: FALLBACK_ERROR_MESSAGE, isBot: true });
+        // followUp: true — no feedback thumbs on the error bubble.
+        pushMessage({ text: FALLBACK_ERROR_MESSAGE, isBot: true, followUp: true });
         onError?.(error);
       } finally {
         setIsTyping(false);
@@ -91,6 +97,10 @@ export function useChat({
     },
     [userId, sessionId, pushMessage, onBotResponse, onError]
   );
+
+  const retryLast = useCallback(() => {
+    if (lastSentRef.current) void sendMessage(lastSentRef.current);
+  }, [sendMessage]);
 
   const resetMessages = useCallback(() => {
     setMessages((prev) => prev.slice(0, 1));
@@ -108,6 +118,7 @@ export function useChat({
     apiError,
     pushMessage,
     sendMessage,
+    retryLast,
     resetMessages,
     clearTypingMessageId,
     setApiError,

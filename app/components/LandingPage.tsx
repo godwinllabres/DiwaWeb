@@ -19,8 +19,8 @@ export function LandingPage() {
             <GraduationCap className="h-5 w-5 text-white sm:h-6 sm:w-6" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-green-900 sm:text-base">DIWA</p>
-            <p className="text-[11px] text-green-700/80 sm:text-xs">CvSU Digital Intelligent Web Assistant</p>
+            <p className="text-sm font-semibold text-green-900 sm:text-base">Sevi</p>
+            <p className="text-[11px] text-green-700/80 sm:text-xs">CvSU Virtual Assistant</p>
           </div>
         </div>
         <a
@@ -39,7 +39,7 @@ export function LandingPage() {
               Powered by Naive Bayes + Neural Network + Local LLM
             </p>
             <h1 className="mt-5 text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
-              Ask DIWA anything about Cavite State University.
+              Ask Sevi anything about Cavite State University.
             </h1>
             <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
               Admissions, enrollment, courses, scholarships, fees, campus facilities,

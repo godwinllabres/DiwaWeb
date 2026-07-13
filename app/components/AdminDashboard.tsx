@@ -54,7 +54,7 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
       <div className="flex flex-shrink-0 items-center justify-between bg-gradient-to-r from-green-600 to-green-700 px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex min-w-0 items-center gap-3">
           <BarChart3 className="h-5 w-5 flex-shrink-0 text-white sm:h-6 sm:w-6" />
-          <h2 className="truncate text-lg text-white sm:text-xl">DIWA Admin Dashboard</h2>
+          <h2 className="truncate text-lg text-white sm:text-xl">Sevi Admin Dashboard</h2>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
           <button
