@@ -90,11 +90,12 @@ export function SeviAvatar({ expression = "answering", className, title = "Sevi"
     <svg viewBox="0 0 400 400" className={cls} style={style} role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
       <ellipse cx="200" cy="366" rx="96" ry="18" fill="#073D28" opacity="0.22" />
 
-      {/* head + cream face */}
-      <circle cx="200" cy="228" r="118" fill="#0C6B45" stroke="#0A2417" strokeWidth="3" />
-      <circle cx="200" cy="232" r="93" fill="#FBF7EC" stroke="#0A2417" strokeWidth="2.4" />
-      <ellipse cx="158" cy="252" rx="13" ry="9" fill="#E8776B" opacity="0.45" />
-      <ellipse cx="242" cy="252" rx="13" ry="9" fill="#E8776B" opacity="0.45" />
+      {/* skin-tone head (ears behind), centered on x=200 — matches SeviBust */}
+      <circle cx="92" cy="232" r="24" fill="#F1CFA8" stroke="#BC844F" strokeWidth="3" />
+      <circle cx="308" cy="232" r="24" fill="#F1CFA8" stroke="#BC844F" strokeWidth="3" />
+      <circle cx="200" cy="228" r="118" fill="#F1CFA8" stroke="#BC844F" strokeWidth="3" />
+      <ellipse cx="150" cy="258" rx="17" ry="11" fill="#E8776B" opacity="0.4" />
+      <ellipse cx="250" cy="258" rx="17" ry="11" fill="#E8776B" opacity="0.4" />
       {face(expression)}
 
       {/* salakot: brim + cone + the real CvSU seal */}
