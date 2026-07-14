@@ -187,7 +187,7 @@ export function LandingPage() {
           <div className="text-left text-xs text-gray-500 sm:text-right">
             <a href="https://cvsu.edu.ph" className="font-medium text-green-700 hover:underline">cvsu.edu.ph</a>
             <p className="mt-1 inline-flex items-center gap-1.5">
-              <Phone className="h-3.5 w-3.5" /> Urgent concerns? Call CvSU: (046) 430-6332
+              <Phone className="h-3.5 w-3.5" /> Urgent concerns? Call CvSU trunkline: (046) 415-0010
             </p>
           </div>
         </footer>
