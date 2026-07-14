@@ -1,6 +1,6 @@
 import { MessageCircle, Sparkles, MapPin, Clock } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
-import { SeviHatCycle } from "./SeviHatCycle";
+import { SeviBust } from "./SeviBust";
 
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
@@ -42,7 +42,7 @@ export function LandingPage() {
               <h1 className="text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
                 Ask Sevi anything about Cavite State University.
               </h1>
-              <SeviHatCycle className="h-28 w-28 flex-shrink-0 sm:h-36 sm:w-36 lg:h-44 lg:w-44" />
+              <SeviBust className="h-28 w-28 flex-shrink-0 sm:h-36 sm:w-36 lg:h-44 lg:w-44" animated />
             </div>
             <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
               Admissions, enrollment, courses, scholarships, fees, campus facilities,

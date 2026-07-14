@@ -1,14 +1,15 @@
 import { useId } from "react";
 
 /**
- * Sevi's avatar — rendered from the official Sevi asset geometry
- * (sevi-asset/exports/states/*.svg): a CvSU-green head with a cream face-plate,
- * a mortarboard and a gold tassel. Four expressions map to how Sevi answers.
+ * Sevi's avatar — flat, geometric mark: a CvSU-green head with a cream face,
+ * a salakot bearing the real CvSU seal, and a small gold tassel. Four
+ * expressions map to how Sevi answers. The full uniformed portrait lives in
+ * `SeviBust`; this compact head is what appears inline (header, chat, typing).
  *
  * Inlined as SVG (rather than <img>) so the idle animation can move sub-parts:
  * the eyes live in `.sevi-eyes` (blink) and the tassel in `.sevi-tassel` (sway),
  * with the whole mark floating — see the `.sevi-animated` rules in index.css.
- * Gradient ids are per-instance so multiple avatars don't collide.
+ * The seal is a static asset (`/cvsu-seal.png`) so it isn't re-encoded per SVG.
  */
 
 export type SeviExpression = "answering" | "greeting" | "thinking" | "careful";
@@ -83,44 +84,31 @@ function delayFromId(id: string): string {
 
 export function SeviAvatar({ expression = "answering", className, title = "Sevi", animated = false }: SeviAvatarProps) {
   const gid = useId();
-  const hg = `sevi-hg-${gid}`;
-  const cg = `sevi-cg-${gid}`;
-  const fg = `sevi-fg-${gid}`;
   const cls = [animated ? "sevi-animated" : "", className].filter(Boolean).join(" ") || undefined;
   const style = animated ? ({ "--sevi-delay": delayFromId(gid) } as React.CSSProperties) : undefined;
   return (
     <svg viewBox="0 0 400 400" className={cls} style={style} role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id={hg} x1="0.2" y1="0" x2="0.85" y2="1">
-          <stop offset="0" stopColor="#1E8A5A" />
-          <stop offset="0.55" stopColor="#0C6B45" />
-          <stop offset="1" stopColor="#073D28" />
-        </linearGradient>
-        <linearGradient id={cg} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#123A26" />
-          <stop offset="1" stopColor="#08281A" />
-        </linearGradient>
-        <radialGradient id={fg} cx="0.42" cy="0.36" r="0.75">
-          <stop offset="0" stopColor="#FFFDF6" />
-          <stop offset="1" stopColor="#FBF7EC" />
-        </radialGradient>
-      </defs>
-      <ellipse cx="200" cy="366" rx="96" ry="18" fill="#073D28" opacity="0.28" />
-      <circle cx="200" cy="228" r="118" fill={`url(#${hg})`} />
-      <circle cx="200" cy="228" r="118" fill="none" stroke="#052A1C" strokeWidth="2" opacity="0.35" />
-      <circle cx="200" cy="232" r="93" fill={`url(#${fg})`} />
-      <ellipse cx="158" cy="252" rx="13" ry="9" fill="#EE9F97" opacity="0.55" />
-      <ellipse cx="242" cy="252" rx="13" ry="9" fill="#EE9F97" opacity="0.55" />
+      <ellipse cx="200" cy="366" rx="96" ry="18" fill="#073D28" opacity="0.22" />
+
+      {/* head + cream face */}
+      <circle cx="200" cy="228" r="118" fill="#0C6B45" stroke="#0A2417" strokeWidth="3" />
+      <circle cx="200" cy="232" r="93" fill="#FBF7EC" stroke="#0A2417" strokeWidth="2.4" />
+      <ellipse cx="158" cy="252" rx="13" ry="9" fill="#E8776B" opacity="0.45" />
+      <ellipse cx="242" cy="252" rx="13" ry="9" fill="#E8776B" opacity="0.45" />
       {face(expression)}
-      <path d="M148 122 Q 200 100 258 122 L 250 154 Q 200 168 152 154 Z" fill={`url(#${cg})`} />
-      <polygon points="110,112 214,84 300,114 196,144" fill={`url(#${cg})`} />
-      <polygon points="110,112 214,84 300,114 196,144" fill="none" stroke="#052A1C" strokeWidth="1.5" opacity="0.4" />
-      <circle cx="205" cy="114" r="6" fill="#E8B44A" />
+
+      {/* salakot: brim + cone + the real CvSU seal */}
+      <ellipse cx="200" cy="150" rx="132" ry="28" fill="#FBF7EC" stroke="#0A2417" strokeWidth="3" />
+      <path d="M200 58 L332 150 Q200 162 68 150 Z" fill="#FBF7EC" stroke="#0A2417" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M200 58 L268 128 M200 58 L132 128" stroke="#0E3A24" strokeWidth="3" opacity="0.4" fill="none" />
+      <image href="/cvsu-seal.png" x="151" y="75" width="98" height="87" />
+
+      {/* gold tassel — sways in idle */}
       <g className="sevi-tassel">
-        <path d="M205 114 L298 115 L298 172" fill="none" stroke="#E8B44A" strokeWidth="4.5" strokeLinecap="round" />
-        <path d="M298 172 l-6 22 M298 172 l0 24 M298 172 l6 22" stroke="#F4C95D" strokeWidth="4.5" strokeLinecap="round" fill="none" />
-        <circle cx="298" cy="171" r="5.5" fill="#F4C95D" />
-        <circle cx="298" cy="200" r="6.5" fill="#E8B44A" />
+        <path d="M300 150 L316 154 L322 196" fill="none" stroke="#E0A93C" strokeWidth="5" strokeLinecap="round" />
+        <path d="M322 196 l-6 22 M322 196 l0 24 M322 196 l6 22" stroke="#F4C95D" strokeWidth="5" strokeLinecap="round" fill="none" />
+        <circle cx="322" cy="195" r="6" fill="#F4C95D" />
+        <circle cx="322" cy="224" r="7" fill="#E0A93C" />
       </g>
     </svg>
   );
