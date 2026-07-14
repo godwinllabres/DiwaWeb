@@ -1,21 +1,24 @@
-import { MessageCircle, Sparkles, MapPin, Clock } from "lucide-react";
+import {
+  MessageCircle, Sparkles, Map, Languages, ClipboardList, Lock, ShieldCheck,
+  Zap, Network, Cpu, Phone, ExternalLink,
+} from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
 import { SeviBust } from "./SeviBust";
 
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
  * ?embed=1. The widget (loaded from index.html) drops a chat bubble in the
- * bottom-right; this page exists so the bubble isn't floating on a blank
- * canvas, and so stakeholders previewing the dev URL can see what the
- * cvsu.edu.ph integration will feel like.
+ * bottom-right; this page is the informative introduction to Sevi so the
+ * bubble isn't floating on a blank canvas, and so stakeholders previewing the
+ * dev URL understand what the cvsu.edu.ph integration will feel like.
  *
- * The chat itself never renders here — tapping the bubble opens the iframed
- * embed (?embed=1) on top.
+ * The chat itself never renders here — tapping the bubble (or "Open chat")
+ * opens the iframed embed (?embed=1) on top.
  */
 export function LandingPage() {
   return (
-    <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5 sm:py-7">
+    <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100 text-gray-900">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 sm:py-7">
         <div className="flex items-center gap-3">
           <SeviAvatar className="h-10 w-10 sm:h-12 sm:w-12" expression="greeting" title="Sevi" />
           <div>
@@ -25,13 +28,14 @@ export function LandingPage() {
         </div>
         <a
           href="https://cvsu.edu.ph"
-          className="rounded-full border border-green-300 px-3.5 py-1.5 text-xs font-medium text-green-800 hover:bg-green-50 sm:text-sm"
+          className="inline-flex items-center gap-1.5 rounded-full border border-green-300 px-3.5 py-1.5 text-xs font-medium text-green-800 hover:bg-green-50 sm:text-sm"
         >
-          cvsu.edu.ph
+          cvsu.edu.ph <ExternalLink className="h-3.5 w-3.5" />
         </a>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 pb-24">
+      <main className="mx-auto max-w-6xl px-6 pb-24">
+        {/* HERO */}
         <section className="mt-6 grid items-start gap-10 sm:mt-12 lg:grid-cols-[1.2fr_1fr]">
           <div>
             <p className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
@@ -47,7 +51,7 @@ export function LandingPage() {
             <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
               Admissions, enrollment, courses, scholarships, fees, campus facilities,
               walking directions on the Indang main campus — all in one chat. Available in
-              English, Filipino, or Taglish.
+              English, Filipino, or Taglish. No login, nothing personal stored.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <button
@@ -58,9 +62,12 @@ export function LandingPage() {
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 Open chat
               </button>
-              <span className="text-sm text-gray-500">
-                or tap the green bubble bottom-right.
-              </span>
+              <a
+                href="#how-sevi-thinks"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 sm:text-base"
+              >
+                How Sevi thinks
+              </a>
             </div>
           </div>
 
@@ -88,47 +95,150 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="mt-16 grid gap-5 sm:grid-cols-3">
-          <FeatureCard
-            icon={<MessageCircle className="h-5 w-5" />}
-            title="Three-tier intent routing"
-            body="Fast pattern matching → LSTM neural network → local LLM fallback. Most replies in under a second."
-          />
-          <FeatureCard
-            icon={<MapPin className="h-5 w-5" />}
-            title="Interactive campus map"
-            body="Pan and zoom the Indang main campus. Pick a From and To — the walking route draws itself."
-          />
-          <FeatureCard
-            icon={<Clock className="h-5 w-5" />}
-            title="Always-on, anonymous"
-            body="No login. No personal data stored. Just point a question at it and get a structured answer."
-          />
+        {/* STAT STRIP */}
+        <section className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-4 sm:gap-4">
+          <Stat value="3" label="reasoning tiers, one answer" />
+          <Stat value="<1s" label="for most replies" />
+          <Stat value="EN·FIL·TL" label="English · Filipino · Taglish" />
+          <Stat value="0" label="logins · anonymous by default" />
         </section>
 
-        <footer className="mt-16 text-center text-[11px] text-gray-400 sm:text-xs">
-          Urgent concerns? Call CvSU: (046) 430-6332
+        {/* ARCHITECTURE */}
+        <section id="how-sevi-thinks" className="mt-20 scroll-mt-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">How Sevi thinks</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            A hybrid brain, not one big model
+          </h2>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
+            Every question falls through three tiers. The cheap, instant layers answer what they can;
+            only genuinely open-ended questions reach the language model — which runs <b>locally</b>,
+            so nothing leaves CvSU&rsquo;s own infrastructure.
+          </p>
+          <div className="mt-7 grid gap-4 sm:grid-cols-3">
+            <Tier
+              n="Tier 01" icon={<Zap className="h-5 w-5" />}
+              title="Naïve Bayes pattern match"
+              body="Recognises common, well-worn intents instantly — with classic, explainable probability."
+              tag="instant · explainable"
+            />
+            <Tier
+              n="Tier 02" icon={<Network className="h-5 w-5" />}
+              title="Neural network (LSTM)"
+              body="Understands phrasing it hasn't seen word-for-word — the same question asked ten different ways, in three languages."
+              tag="generalises · multilingual"
+            />
+            <Tier
+              n="Tier 03" icon={<Cpu className="h-5 w-5" />}
+              title="Local LLM fallback"
+              body="For the long tail, a local large language model composes a natural, structured answer from CvSU's own content."
+              tag="on-prem · private"
+            />
+          </div>
+          <p className="mt-4 text-sm text-gray-500">
+            Fast pattern matching → LSTM neural network → local LLM fallback. Most replies land in under a second.
+          </p>
+        </section>
+
+        {/* FEATURES */}
+        <section className="mt-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">What Sevi does</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            Built for the CvSU community
+          </h2>
+          <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <Feature icon={<MessageCircle className="h-5 w-5" />} title="Three-tier intent routing"
+              body="Fast pattern matching, a neural net, then a local LLM fallback — most replies in under a second." />
+            <Feature icon={<Map className="h-5 w-5" />} title="Interactive campus map"
+              body="Pan and zoom the Indang main campus. Pick a From and To — the walking route draws itself." />
+            <Feature icon={<Languages className="h-5 w-5" />} title="English · Filipino · Taglish"
+              body="Ask however you speak. Sevi understands and replies in the language of the question." />
+            <Feature icon={<ClipboardList className="h-5 w-5" />} title="Structured, cited answers"
+              body="Programs, requirements, deadlines and fees come back organised — with links to the official CvSU pages." />
+            <Feature icon={<Lock className="h-5 w-5" />} title="Always-on, anonymous"
+              body="No login. No personal data stored. Just point a question at it and get a clear answer." />
+            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="Safe by design"
+              body="Messages are auto-screened for safety, and Sevi never asks for passwords in chat." />
+          </div>
+        </section>
+
+        {/* CHARACTER */}
+        <section className="mt-20 grid items-center gap-8 rounded-3xl border border-green-200 bg-white/70 p-8 sm:grid-cols-2 sm:p-10">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">The character</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              A face rooted in CvSU
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-gray-600">
+              Sevi wears a <b>salakot</b> bearing the real Cavite State University seal, over the
+              university green. Built from simple, flat shapes — friendly, unmistakably CvSU, and
+              instantly recognisable at any size, from a chat bubble to a banner.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <SeviBust className="h-52 w-52 sm:h-60 sm:w-60" animated />
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-green-200 pt-8 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-sm font-semibold text-green-900">Sevi · CvSU Virtual Assistant</p>
+            <p className="mt-1 text-xs text-gray-500">Powered by Naive Bayes + Neural Network + Local LLM</p>
+          </div>
+          <div className="text-left text-xs text-gray-500 sm:text-right">
+            <a href="https://cvsu.edu.ph" className="font-medium text-green-700 hover:underline">cvsu.edu.ph</a>
+            <p className="mt-1 inline-flex items-center gap-1.5">
+              <Phone className="h-3.5 w-3.5" /> Urgent concerns? Call CvSU: (046) 430-6332
+            </p>
+          </div>
         </footer>
       </main>
     </div>
   );
 }
 
-function FeatureCard({
-  icon,
-  title,
-  body,
+function Stat({ value, label }: { readonly value: string; readonly label: string }) {
+  return (
+    <div className="rounded-2xl border border-green-200 bg-white p-4 shadow-sm">
+      <div className="text-2xl font-bold tabular-nums text-green-700">{value}</div>
+      <div className="mt-0.5 text-xs text-gray-500">{label}</div>
+    </div>
+  );
+}
+
+function Tier({
+  n, icon, title, body, tag,
 }: {
-  readonly icon: React.ReactNode;
-  readonly title: string;
-  readonly body: string;
+  readonly n: string; readonly icon: React.ReactNode; readonly title: string;
+  readonly body: string; readonly tag: string;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-green-500 to-green-700" />
+      <div className="flex items-center gap-2 text-green-700">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100">{icon}</div>
+        <span className="text-xs font-bold uppercase tracking-wider text-amber-600">{n}</span>
+      </div>
+      <h3 className="mt-3 text-base font-bold text-gray-900">{title}</h3>
+      <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{body}</p>
+      <span className="mt-3 inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-[11px] font-semibold text-green-700">
+        {tag}
+      </span>
+    </div>
+  );
+}
+
+function Feature({
+  icon, title, body,
+}: {
+  readonly icon: React.ReactNode; readonly title: string; readonly body: string;
 }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-green-700">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-700">
         {icon}
       </div>
-      <h3 className="mt-3 text-sm font-semibold text-gray-900">{title}</h3>
+      <h3 className="mt-3 text-base font-semibold text-gray-900">{title}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{body}</p>
     </div>
   );
