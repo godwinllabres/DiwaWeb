@@ -3,7 +3,6 @@ import {
   Zap, Network, Cpu, Phone, ExternalLink,
 } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
-import { SeviBust } from "./SeviBust";
 
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
@@ -20,7 +19,7 @@ export function LandingPage() {
     <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100 text-gray-900">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 sm:py-7">
         <div className="flex items-center gap-3">
-          <SeviAvatar className="h-10 w-10 sm:h-12 sm:w-12" expression="greeting" title="Sevi" />
+          <SeviAvatar className="h-10 w-10 sm:h-12 sm:w-12" title="Sevi" />
           <div>
             <p className="text-sm font-semibold text-green-900 sm:text-base">Sevi</p>
             <p className="text-[11px] text-green-700/80 sm:text-xs">CvSU Virtual Assistant</p>
@@ -46,7 +45,7 @@ export function LandingPage() {
               <h1 className="text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
                 Ask Sevi anything about Cavite State University.
               </h1>
-              <SeviBust className="h-28 w-28 flex-shrink-0 sm:h-36 sm:w-36 lg:h-44 lg:w-44" animated />
+              <SeviAvatar className="h-28 w-28 flex-shrink-0 sm:h-36 sm:w-36 lg:h-44 lg:w-44" animated />
             </div>
             <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
               Admissions, enrollment, courses, scholarships, fees, campus facilities,
@@ -170,12 +169,12 @@ export function LandingPage() {
             </h2>
             <p className="mt-3 text-base leading-relaxed text-gray-600">
               Sevi wears a <b>salakot</b> bearing the real Cavite State University seal, over the
-              university green. Built from simple, flat shapes — friendly, unmistakably CvSU, and
-              instantly recognisable at any size, from a chat bubble to a banner.
+              university green — friendly, unmistakably CvSU, and instantly recognisable at any
+              size, from a chat bubble to a banner.
             </p>
           </div>
           <div className="flex justify-center">
-            <SeviBust className="h-52 w-52 sm:h-60 sm:w-60" animated />
+            <SeviAvatar className="h-52 w-52 sm:h-60 sm:w-60" animated />
           </div>
         </section>
 

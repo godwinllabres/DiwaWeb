@@ -105,7 +105,7 @@ export function TypingIndicator() {
       animate={{ opacity: 1, y: 0 }}
       className="mb-4 flex items-end justify-start gap-2 sm:gap-3"
     >
-      <SeviAvatar className="h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9" expression="thinking" title="Sevi is thinking" animated />
+      <SeviAvatar className="h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9" title="Sevi is thinking" animated />
       <div className="flex flex-col items-start gap-1">
         <div className="flex items-center gap-1 rounded-2xl bg-gray-100 px-3.5 py-2.5 sm:px-4 sm:py-3">
           {[0, 1, 2].map((i) => (
