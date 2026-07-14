@@ -165,6 +165,24 @@ export default function App() {
     void loadWaypoints();
   }, []);
 
+  // Admin entry point. The embed header is deliberately hidden (the host
+  // page on cvsu.edu.ph owns the frame), so there is intentionally no
+  // visible admin button in the chat UI; Ctrl/Cmd+Shift+A opens it instead.
+  // (The pre-rebrand build had a header button wired to this same handler —
+  // the landing-page rework dropped it; this restores an entry point without
+  // adding UI surface to the public widget.)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        handleAdminClick();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     api
       .getIntents()
