@@ -102,6 +102,29 @@ export function LandingPage() {
           <Stat value="0" label="logins · anonymous by default" />
         </section>
 
+        {/* SEE IT IN ACTION */}
+        <section className="mt-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">Getting started</p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            New here? Watch the quick tour
+          </h2>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
+            Open the chat, ask in any language, and get a clear answer — here&rsquo;s the whole flow in four steps.
+          </p>
+          <div className="mt-7 overflow-hidden rounded-3xl border border-green-200 shadow-lg ring-1 ring-black/5">
+            <video
+              className="block w-full"
+              src="/how-to-use-sevi.webm"
+              poster="/how-to-use-sevi-poster.png"
+              autoPlay
+              loop
+              muted
+              playsInline
+              aria-label="Animated tour: how to use Sevi"
+            />
+          </div>
+        </section>
+
         {/* ARCHITECTURE */}
         <section id="how-sevi-thinks" className="mt-20 scroll-mt-8">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">How Sevi thinks</p>
