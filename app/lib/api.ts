@@ -173,6 +173,45 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 // CPU) needs tens of seconds on hard questions.
 const CHAT_TIMEOUT_MS = 45_000;
 
+// ── Internal identity token (Desk embed) ───────────────────────────────────
+// When Sevi is embedded in the ERPNext Desk, the parent widget hands us a
+// short-lived JWT (minted by cvsu_web.sevi_web.api.sevi_token) so the API can
+// authenticate the internal user and unlock AIS/HR tools. It arrives via the
+// iframe URL hash (#sevi_token=…) and is refreshed by postMessage. Attached as
+// `Authorization: Bearer` on every call; absent for the anonymous public bot.
+let _internalToken: string | null = null;
+function _readHashToken(): string | null {
+  try {
+    return new URLSearchParams((location.hash || "").replace(/^#/, "")).get("sevi_token");
+  } catch {
+    return null;
+  }
+}
+if (typeof window !== "undefined") {
+  _internalToken = _readHashToken();
+  // Don't leave the token sitting in the address bar / referrer / logs.
+  if (_internalToken && location.hash.includes("sevi_token")) {
+    try {
+      history.replaceState(null, "", location.pathname + location.search);
+    } catch {
+      /* ignore */
+    }
+  }
+  window.addEventListener("message", (e: MessageEvent) => {
+    // Only accept a token from our embedding parent frame. The token is also
+    // signature-verified server-side, so this is defence-in-depth, not the gate.
+    if (e.source !== window.parent) return;
+    const d = e.data;
+    if (d?.type === "sevi:token" && typeof d.token === "string") _internalToken = d.token;
+  });
+  // Ask the parent for a (fresh) token — covers refresh + a missing hash.
+  try {
+    window.parent?.postMessage({ type: "sevi:need-token" }, "*");
+  } catch {
+    /* not embedded */
+  }
+}
+
 async function request<T>(
   path: string,
   init?: RequestInit,
@@ -185,8 +224,12 @@ async function request<T>(
       ...init,
       signal: controller.signal,
       // Merge headers so per-call headers (e.g. X-Admin-Pin) add to, rather than
-      // replace, the default Content-Type.
-      headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
+      // replace, the default Content-Type + the internal Bearer token.
+      headers: {
+        "Content-Type": "application/json",
+        ...(_internalToken ? { Authorization: `Bearer ${_internalToken}` } : {}),
+        ...(init?.headers || {}),
+      },
     });
     if (!res.ok) {
       throw new Error(`API ${path} failed: ${res.status}`);
