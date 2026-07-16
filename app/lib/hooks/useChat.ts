@@ -26,7 +26,7 @@ export interface UseChatApi {
 }
 
 const FALLBACK_ERROR_MESSAGE =
-  "I'm having trouble reaching the server right now. Please try again in a moment, or contact CvSU at (046) 415-0010.";
+  "I'm having trouble reaching the server right now. Please try again in a moment, or contact CvSU at 4839250.";
 
 export function useChat({
   userId,
