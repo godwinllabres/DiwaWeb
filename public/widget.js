@@ -71,6 +71,20 @@
 
   var EMBED_URL = BASE_URL.replace(/\/$/, "") + "/?embed=1";
 
+  // Internal identity token for the Desk embed. The host page (cvsu_web) sets
+  // window.__seviTokenProvider = async () => "<jwt>" (minted from the Desk
+  // session); or a static token via data-diwa-token. Passed into the iframe via
+  // the URL hash and refreshed by postMessage. Absent -> anonymous public bot.
+  var TOKEN_ATTR = (self && self.getAttribute("data-diwa-token")) || null;
+  function getToken() {
+    try {
+      if (typeof window.__seviTokenProvider === "function") {
+        return Promise.resolve(window.__seviTokenProvider()).catch(function () { return null; });
+      }
+    } catch (e) {}
+    return Promise.resolve(TOKEN_ATTR);
+  }
+
   // ── Z-index above most page chrome but below modals / toasts ───────────────
   var Z = 2147483600;
 
@@ -212,7 +226,19 @@
 
     iframe = document.createElement("iframe");
     iframe.title = "Sevi — CvSU Virtual Assistant";
-    iframe.src = EMBED_URL;
+    // Hand the internal token to the embedded app via the URL hash (not sent to
+    // the server / not logged), then refresh on request via postMessage.
+    getToken().then(function (tok) {
+      iframe.src = EMBED_URL + (tok ? "#sevi_token=" + encodeURIComponent(tok) : "");
+    });
+    window.addEventListener("message", function (e) {
+      if (!iframe || e.source !== iframe.contentWindow) return;
+      if (e.data && e.data.type === "sevi:need-token") {
+        getToken().then(function (tok) {
+          if (tok) e.source.postMessage({ type: "sevi:token", token: tok }, "*");
+        });
+      }
+    });
     iframe.setAttribute(
       "allow",
       "clipboard-write; clipboard-read; microphone *",
