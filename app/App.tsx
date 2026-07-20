@@ -18,6 +18,7 @@ import { QuickActionButton } from "./components/QuickActionButton";
 import { CategoryCard } from "./components/CategoryCard";
 import { TypingIndicator } from "./components/TypingIndicator";
 import { AdminDashboard } from "./components/AdminDashboard";
+import { ChatSidebar } from "./components/ChatSidebar";
 import { LandingPage } from "./components/LandingPage";
 import { api } from "@/lib/api";
 import { loadCoords } from "@/lib/coordsStore";
@@ -48,7 +49,7 @@ const PRIVACY_POLICY_URL =
   "https://cvsu.edu.ph/office-of-the-data-protection-officer/general-data-privacy-notice/";
 
 const WELCOME_TEXT =
-  "Welcome to Sevi, the CvSU Virtual Assistant! I'm here to help with information about admissions, enrollment, courses, facilities, and more. What can I help you with today?";
+  "Hi! I'm Sevi, the official chatbot of Cavite State University. I'm here to help you with admissions, enrollment, courses, scholarships, campus facilities, and more. What can I help you with today?";
 
 // Consent disclosure — the specific processing this assistant does, per the
 // Data Privacy Act (RA 10173) and docs/privacy_compliance.md §3.2. Copy is
@@ -299,8 +300,26 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-dvh w-full bg-white">
-      <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-white">
+    <div className="min-h-dvh w-full bg-white lg:bg-green-50/40">
+      <div className="relative mx-auto flex h-dvh w-full">
+        {/* Desktop conversation rail — hidden until lg, so the ≤420px widget
+            iframe keeps the single-column phone layout. */}
+        <ChatSidebar
+          className="hidden lg:flex"
+          topics={categories}
+          onStartOver={handleStartOver}
+          onTopic={handleQuickAction}
+        />
+        {/* Main column. On tablet/desktop the conversation, quick actions, and
+            composer center in a readable width instead of stretching edge-to-
+            edge; on phone this is a no-op. */}
+        <div className="relative flex h-dvh min-w-0 flex-1 flex-col overflow-hidden bg-white">
+          <div className="hidden items-center gap-3 border-b border-gray-100 px-6 py-3 lg:flex">
+            <span className="text-sm font-semibold text-gray-900">CvSU Virtual Assistant</span>
+            <span className="rounded-full border border-gray-200 px-2.5 py-0.5 text-[11px] font-medium text-gray-500">
+              Indang main campus
+            </span>
+          </div>
 
         <AnimatePresence>
           {(chat.apiError || (apiHealth === "offline" && !awaitingConsent)) && (
@@ -338,6 +357,7 @@ export default function App() {
           onScroll={scroll.onScroll}
           className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [-webkit-overflow-scrolling:touch] sm:px-6"
         >
+          <div className="mx-auto w-full md:max-w-2xl lg:max-w-3xl">
           <ChatMessage
             message={initialBotText}
             isBot={true}
@@ -420,6 +440,7 @@ export default function App() {
           </AnimatePresence>
 
           <div ref={scroll.endRef} className="h-2" />
+          </div>
         </div>
 
         <AnimatePresence>
@@ -440,7 +461,7 @@ export default function App() {
 
         {!showCategories && (
           <div className="border-t border-gray-100 bg-white px-4 py-2.5 sm:px-6">
-            <div className="flex gap-2 overflow-x-auto scrollbar-none pb-0.5">
+            <div className="mx-auto flex w-full gap-2 overflow-x-auto scrollbar-none pb-0.5 md:max-w-2xl lg:max-w-3xl">
               <QuickActionButton icon={Home} label="Start Over" onClick={handleStartOver} />
               <QuickActionButton
                 icon={FileText}
@@ -462,7 +483,7 @@ export default function App() {
         )}
 
         <div className="border-t border-gray-100 bg-white px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex-shrink-0 sm:px-6 sm:pt-4 sm:pb-5">
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="mx-auto flex w-full items-center gap-2 sm:gap-3 md:max-w-2xl lg:max-w-3xl">
             <div className="relative min-w-0 flex-1">
               <input
                 ref={inputRef}
@@ -484,6 +505,8 @@ export default function App() {
               <Send className="h-4 w-4 text-white sm:h-5 sm:w-5" />
             </button>
           </div>
+        </div>
+
         </div>
 
         <AnimatePresence>
