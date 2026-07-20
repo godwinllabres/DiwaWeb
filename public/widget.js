@@ -49,9 +49,13 @@
       return s[s.length - 1];
     })();
 
+  // Fallback host when the embed tag omits data-diwa-url. Points at the CURRENT
+  // Sevi deployment — NOT the old dev.godwincreates.net tunnel, which serves a
+  // stale build (that mismatch is why the widget lagged behind the full-screen
+  // app). Swap for the final domain (e.g. https://sevi.cvsu.edu.ph) once live.
   var BASE_URL =
     (self && self.getAttribute("data-diwa-url")) ||
-    "https://dev.godwincreates.net";
+    "https://godwincreates.net/diwa";
   var ACCENT =
     (self && self.getAttribute("data-diwa-color")) || "#16a34a";
   var POSITION =

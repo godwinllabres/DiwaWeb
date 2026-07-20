@@ -16,7 +16,7 @@ Config is read from `data-*` attributes on the script tag:
 
 | Attribute | Default | Purpose |
 |---|---|---|
-| `data-diwa-url` | `https://dev.godwincreates.net` | Where Sevi is hosted |
+| `data-diwa-url` | `https://godwincreates.net/diwa` | Where Sevi is hosted (current build; swap for the final domain e.g. `https://sevi.cvsu.edu.ph` once live) |
 | `data-diwa-color` | `#16a34a` | Bubble + header accent |
 | `data-diwa-position` | `bottom-right` | also `bottom-left`, `top-right`, `top-left` |
 | `data-diwa-label` | `Chat with Sevi` | button aria-label |
