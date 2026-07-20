@@ -233,7 +233,14 @@
     // Hand the internal token to the embedded app via the URL hash (not sent to
     // the server / not logged), then refresh on request via postMessage.
     getToken().then(function (tok) {
-      iframe.src = EMBED_URL + (tok ? "#sevi_token=" + encodeURIComponent(tok) : "");
+      // Cache-bust the entry document so the widget ALWAYS loads the current
+      // build and stays in lock-step with the full-screen app. Cloudflare pins
+      // index.html (max-age=600, overriding nginx no-cache), which otherwise
+      // leaves the embedded iframe showing a stale bundle. Hashed /assets are
+      // still cached normally, so this only re-fetches the tiny index.html.
+      var join = EMBED_URL.indexOf("?") === -1 ? "?" : "&";
+      var fresh = EMBED_URL + join + "_cb=" + Date.now();
+      iframe.src = fresh + (tok ? "#sevi_token=" + encodeURIComponent(tok) : "");
     });
     window.addEventListener("message", function (e) {
       if (!iframe || e.source !== iframe.contentWindow) return;
