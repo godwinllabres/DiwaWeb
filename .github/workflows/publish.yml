@@ -25,9 +25,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Lowercase owner for GHCR
+      - name: Image name (ghcr.io/<owner>/<repo>, lowercased)
         id: ns
-        run: echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+        # Name the image after the repo itself so GHCR auto-links the package to
+        # THIS repo — avoids the 403 from a pre-existing "sevi-web" package that a
+        # different repo already owns.
+        run: echo "img=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -45,8 +48,8 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ steps.ns.outputs.owner }}/sevi-web:latest
-            ghcr.io/${{ steps.ns.outputs.owner }}/sevi-web:${{ github.sha }}
+            ${{ steps.ns.outputs.img }}:latest
+            ${{ steps.ns.outputs.img }}:${{ github.sha }}
           cache-from: type=gha,scope=sevi-web
           cache-to: type=gha,mode=max,scope=sevi-web
 
@@ -55,6 +58,6 @@ jobs:
           {
             echo "### Published"
             echo '```'
-            echo "ghcr.io/${{ steps.ns.outputs.owner }}/sevi-web:latest  (+ :${{ github.sha }})"
+            echo "${{ steps.ns.outputs.img }}:latest  (+ :${{ github.sha }})"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
