@@ -20,6 +20,8 @@ import { TypingIndicator } from "./components/TypingIndicator";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { ChatSidebar } from "./components/ChatSidebar";
 import { LandingPage } from "./components/LandingPage";
+import { warmSeviStickers } from "./components/SeviSticker";
+import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { api } from "@/lib/api";
 import { loadCoords } from "@/lib/coordsStore";
 import { loadWaypoints } from "@/lib/waypointsStore";
@@ -44,6 +46,18 @@ import {
 const IS_EMBED =
   typeof window !== "undefined" &&
   new URLSearchParams(window.location.search).get("embed") === "1";
+
+// Fullscreen chat — a directly navigable entry to the same chat the widget
+// iframes, for desktop/tablet users who want it full-window: /chat under the
+// app base (nginx SPA fallback), or ?chat=1 anywhere (static hosts without a
+// fallback, e.g. GitHub Pages). Unlike ?embed=1 nothing is chrome-stripped,
+// so at lg widths the sidebar + header show like a real app.
+const APP_BASE = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? "/";
+const IS_CHAT_PAGE =
+  typeof window !== "undefined" &&
+  (new URLSearchParams(window.location.search).get("chat") === "1" ||
+    window.location.pathname === `${APP_BASE}chat` ||
+    window.location.pathname === `${APP_BASE}chat/`);
 
 const PRIVACY_POLICY_URL =
   "https://cvsu.edu.ph/office-of-the-data-protection-officer/general-data-privacy-notice/";
@@ -125,6 +139,7 @@ export default function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scroll = useSmartScroll();
+  const reducedMotion = usePrefersReducedMotion();
 
   const chat = useChat({
     userId,
@@ -143,6 +158,19 @@ export default function App() {
       }
     },
   });
+
+  // Warm the chat-critical stickers shortly after mount so the typing
+  // indicator or a mood swap never starts a ~700KB GIF download in the middle
+  // of the user's wait. Chat surfaces only — the landing page must not pay
+  // for chat assets. The delay keeps it off the initial-paint network burst.
+  useEffect(() => {
+    if (!IS_EMBED && !IS_CHAT_PAGE) return;
+    const t = window.setTimeout(
+      () => warmSeviStickers(["listening", "excited", "thinking", "confused"], reducedMotion),
+      1500,
+    );
+    return () => window.clearTimeout(t);
+  }, [reducedMotion]);
 
   // Auto-scroll only when a NEW message is appended — not on every parent
   // re-render. Keying on the last message id avoids re-firing on keystrokes
@@ -292,10 +320,11 @@ export default function App() {
     inputRef.current?.focus();
   };
 
-  // Outside of the iframed embed, render the marketing landing page instead
-  // of the full chat. The widget script (loaded from index.html) supplies the
-  // chat itself via a launcher bubble that opens an iframe of ?embed=1.
-  if (!IS_EMBED) {
+  // Outside of the iframed embed and the fullscreen /chat route, render the
+  // marketing landing page instead of the full chat. The widget script (loaded
+  // from index.html) supplies the chat itself via a launcher bubble that opens
+  // an iframe of ?embed=1.
+  if (!IS_EMBED && !IS_CHAT_PAGE) {
     return <LandingPage />;
   }
 
@@ -363,6 +392,9 @@ export default function App() {
             isBot={true}
             timestamp={initialBotTimestamp}
             isGrouped={false}
+            // Greeting Sevi: attentive while asking for consent, excited once
+            // the conversation can actually start.
+            mood={awaitingConsent ? "listening" : "excited"}
           />
 
           {awaitingConsent && (
@@ -505,6 +537,21 @@ export default function App() {
               <Send className="h-4 w-4 text-white sm:h-5 sm:w-5" />
             </button>
           </div>
+          {/* Always-visible accuracy disclosure — the in-reply disclaimer only
+              shows on intents most users never trigger. Low emphasis on
+              purpose: present on every turn, shouting on none. */}
+          <p className="mx-auto mt-2 w-full text-center text-[11px] leading-tight text-gray-400 md:max-w-2xl lg:max-w-3xl">
+            Sevi can make mistakes — verify important details with the official{" "}
+            <a
+              href="https://cvsu.edu.ph"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-gray-500"
+            >
+              CvSU website
+            </a>{" "}
+            or the office concerned.
+          </p>
         </div>
 
         </div>

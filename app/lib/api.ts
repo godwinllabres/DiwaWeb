@@ -24,6 +24,7 @@ export type ResponseSource =
   | "charter_rag"
   | "site_rag"
   | "intent_retrieval"
+  | "campus_directory"
   | "fallback"
   | "refusal";
 
