@@ -505,6 +505,21 @@ export default function App() {
               <Send className="h-4 w-4 text-white sm:h-5 sm:w-5" />
             </button>
           </div>
+          {/* Always-visible accuracy disclosure — the in-reply disclaimer only
+              shows on intents most users never trigger. Low emphasis on
+              purpose: present on every turn, shouting on none. */}
+          <p className="mx-auto mt-2 w-full text-center text-[11px] leading-tight text-gray-400 md:max-w-2xl lg:max-w-3xl">
+            Sevi can make mistakes — verify important details with the official{" "}
+            <a
+              href="https://cvsu.edu.ph"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-gray-500"
+            >
+              CvSU website
+            </a>{" "}
+            or the office concerned.
+          </p>
         </div>
 
         </div>
