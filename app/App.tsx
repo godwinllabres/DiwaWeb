@@ -47,6 +47,18 @@ const IS_EMBED =
   typeof window !== "undefined" &&
   new URLSearchParams(window.location.search).get("embed") === "1";
 
+// Fullscreen chat — a directly navigable entry to the same chat the widget
+// iframes, for desktop/tablet users who want it full-window: /chat under the
+// app base (nginx SPA fallback), or ?chat=1 anywhere (static hosts without a
+// fallback, e.g. GitHub Pages). Unlike ?embed=1 nothing is chrome-stripped,
+// so at lg widths the sidebar + header show like a real app.
+const APP_BASE = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? "/";
+const IS_CHAT_PAGE =
+  typeof window !== "undefined" &&
+  (new URLSearchParams(window.location.search).get("chat") === "1" ||
+    window.location.pathname === `${APP_BASE}chat` ||
+    window.location.pathname === `${APP_BASE}chat/`);
+
 const PRIVACY_POLICY_URL =
   "https://cvsu.edu.ph/office-of-the-data-protection-officer/general-data-privacy-notice/";
 
@@ -152,7 +164,7 @@ export default function App() {
   // of the user's wait. Chat surfaces only — the landing page must not pay
   // for chat assets. The delay keeps it off the initial-paint network burst.
   useEffect(() => {
-    if (!IS_EMBED) return;
+    if (!IS_EMBED && !IS_CHAT_PAGE) return;
     const t = window.setTimeout(
       () => warmSeviStickers(["listening", "excited", "thinking", "confused"], reducedMotion),
       1500,
@@ -308,10 +320,11 @@ export default function App() {
     inputRef.current?.focus();
   };
 
-  // Outside of the iframed embed, render the marketing landing page instead
-  // of the full chat. The widget script (loaded from index.html) supplies the
-  // chat itself via a launcher bubble that opens an iframe of ?embed=1.
-  if (!IS_EMBED) {
+  // Outside of the iframed embed and the fullscreen /chat route, render the
+  // marketing landing page instead of the full chat. The widget script (loaded
+  // from index.html) supplies the chat itself via a launcher bubble that opens
+  // an iframe of ?embed=1.
+  if (!IS_EMBED && !IS_CHAT_PAGE) {
     return <LandingPage />;
   }
 

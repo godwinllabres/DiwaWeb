@@ -31,12 +31,17 @@
   if (window.__diwaWidgetLoaded) { log("already loaded — skipping"); return; }
   window.__diwaWidgetLoaded = true;
 
-  // If the page itself is the embedded chat (loaded with ?embed=1 inside an
-  // iframe), don't mount a bubble — that would nest the widget inside itself.
+  // If the page itself is the chat (the ?embed=1 iframe, or the fullscreen
+  // /chat · ?chat=1 route), don't mount a bubble — that would nest the widget
+  // inside itself.
   try {
     var qs = new URLSearchParams(window.location.search);
-    if (qs.get("embed") === "1") {
-      log("embed=1 detected on host page — skipping bubble mount");
+    if (
+      qs.get("embed") === "1" ||
+      qs.get("chat") === "1" ||
+      /\/chat\/?$/.test(window.location.pathname)
+    ) {
+      log("chat surface detected on host page — skipping bubble mount");
       window.diwa = { open: function () {}, close: function () {}, toggle: function () {}, reset: function () {} };
       return;
     }
@@ -74,6 +79,10 @@
   var STORAGE_KEY = "diwa_widget_dismissed";
 
   var EMBED_URL = BASE_URL.replace(/\/$/, "") + "/?embed=1";
+  // Fullscreen chat entry — the same app full-window (App.tsx IS_CHAT_PAGE).
+  // Query form (not /chat) so it also works on static hosts without an SPA
+  // fallback, e.g. GitHub Pages.
+  var FULLSCREEN_URL = BASE_URL.replace(/\/$/, "") + "/?chat=1";
 
   // Internal identity token for the Desk embed. The host page (cvsu_web) sets
   // window.__seviTokenProvider = async () => "<jwt>" (minted from the Desk
@@ -225,8 +234,43 @@
     };
     closeBtn.onclick = closeWidget;
 
+    // Fullscreen link — desktop/tablet only (on phones the widget already
+    // fills the screen, so the extra tab would just be noise).
+    var actions = document.createElement("div");
+    actions.style.cssText = "display: flex; align-items: center; gap: 6px;";
+    var wantsFullscreen = false;
+    try {
+      wantsFullscreen = window.matchMedia("(min-width: 768px)").matches;
+    } catch (e) {}
+    if (wantsFullscreen) {
+      var expandBtn = document.createElement("a");
+      expandBtn.href = FULLSCREEN_URL;
+      expandBtn.target = "_blank";
+      expandBtn.rel = "noopener";
+      expandBtn.setAttribute("aria-label", "Open chat in fullscreen (new tab)");
+      expandBtn.title = "Open in fullscreen";
+      expandBtn.innerHTML =
+        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" ' +
+        'xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" ' +
+        'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" ' +
+        'stroke-linejoin="round"/></svg>';
+      expandBtn.style.cssText =
+        "width: 32px; height: 32px; border-radius: 50%; " +
+        "background: rgba(255,255,255,0.15); color: #ffffff; cursor: pointer; " +
+        "display: flex; align-items: center; justify-content: center; text-decoration: none;";
+      expandBtn.onmouseenter = function () {
+        expandBtn.style.background = "rgba(255,255,255,0.28)";
+      };
+      expandBtn.onmouseleave = function () {
+        expandBtn.style.background = "rgba(255,255,255,0.15)";
+      };
+      actions.appendChild(expandBtn);
+    }
+    actions.appendChild(closeBtn);
+
     header.appendChild(title);
-    header.appendChild(closeBtn);
+    header.appendChild(actions);
 
     iframe = document.createElement("iframe");
     iframe.title = "Sevi — CvSU Virtual Assistant";

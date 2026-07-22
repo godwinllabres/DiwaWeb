@@ -1,6 +1,6 @@
 import {
   MessageCircle, Sparkles, Map, Languages, ClipboardList, Lock, ShieldCheck,
-  Zap, Network, Cpu, Phone, ExternalLink,
+  Zap, Network, Cpu, Phone, ExternalLink, Maximize2,
 } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
 import { SeviMoodCycle } from "./SeviSticker";
@@ -62,6 +62,15 @@ export function LandingPage() {
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 Open chat
               </button>
+              <a
+                href="?chat=1"
+                target="_blank"
+                rel="noopener"
+                className="hidden items-center gap-2 rounded-xl border border-green-300 bg-white px-5 py-3 text-sm font-semibold text-green-700 hover:bg-green-50 sm:inline-flex sm:text-base"
+              >
+                <Maximize2 className="h-4 w-4" />
+                Fullscreen chat
+              </a>
               <a
                 href="#how-sevi-thinks"
                 className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 sm:text-base"
