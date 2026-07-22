@@ -20,6 +20,8 @@ import { TypingIndicator } from "./components/TypingIndicator";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { ChatSidebar } from "./components/ChatSidebar";
 import { LandingPage } from "./components/LandingPage";
+import { warmSeviStickers } from "./components/SeviSticker";
+import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { api } from "@/lib/api";
 import { loadCoords } from "@/lib/coordsStore";
 import { loadWaypoints } from "@/lib/waypointsStore";
@@ -125,6 +127,7 @@ export default function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scroll = useSmartScroll();
+  const reducedMotion = usePrefersReducedMotion();
 
   const chat = useChat({
     userId,
@@ -143,6 +146,19 @@ export default function App() {
       }
     },
   });
+
+  // Warm the chat-critical stickers shortly after mount so the typing
+  // indicator or a mood swap never starts a ~700KB GIF download in the middle
+  // of the user's wait. Chat surfaces only — the landing page must not pay
+  // for chat assets. The delay keeps it off the initial-paint network burst.
+  useEffect(() => {
+    if (!IS_EMBED) return;
+    const t = window.setTimeout(
+      () => warmSeviStickers(["listening", "excited", "thinking", "confused"], reducedMotion),
+      1500,
+    );
+    return () => window.clearTimeout(t);
+  }, [reducedMotion]);
 
   // Auto-scroll only when a NEW message is appended — not on every parent
   // re-render. Keying on the last message id avoids re-firing on keystrokes
@@ -363,6 +379,9 @@ export default function App() {
             isBot={true}
             timestamp={initialBotTimestamp}
             isGrouped={false}
+            // Greeting Sevi: attentive while asking for consent, excited once
+            // the conversation can actually start.
+            mood={awaitingConsent ? "listening" : "excited"}
           />
 
           {awaitingConsent && (

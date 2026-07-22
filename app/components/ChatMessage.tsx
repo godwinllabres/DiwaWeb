@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon, FileText, ExternalLink, ChevronUp, ArrowUpDown, Search, ArrowLeft } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
+import { SeviSticker, type SeviStickerKey } from "./SeviSticker";
 
 // Reason taxonomy — keep in sync with backend FEEDBACK_REASONS in api/app.py
 // and the /feedback/reasons endpoint. Inlined so the picker renders without
@@ -91,6 +92,9 @@ interface ChatMessageProps {
   readonly displayHint?: DisplayHint;
   readonly onSuggestion?: (text: string) => void | Promise<void>;
   readonly intent?: string;
+  /** Override the bot avatar with an animated sticker (e.g. "excited" on the
+      welcome message). Fallback answers get "confused" automatically. */
+  readonly mood?: SeviStickerKey;
   // Phase 2A Wave 2 — write actions on DV card.
   readonly writeEnabled?: boolean;
   readonly sessionId?: string;
@@ -835,8 +839,9 @@ function FeedbackReasonPanel({
 
 const AVATAR_SIZE = "h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9";
 
-function BotAvatar({ grouped }: { readonly grouped: boolean }) {
+function BotAvatar({ grouped, mood }: { readonly grouped: boolean; readonly mood?: SeviStickerKey }) {
   if (grouped) return <div className={AVATAR_SIZE} />;
+  if (mood) return <SeviSticker sticker={mood} className={AVATAR_SIZE} title="Sevi" />;
   return <SeviAvatar className={AVATAR_SIZE} title="Sevi" animated />;
 }
 
@@ -869,6 +874,7 @@ export function ChatMessage({
   sessionId,
   ais,
   source,
+  mood,
 }: ChatMessageProps) {
   // Pull each typed card out of the discriminated union. `findCard` keeps
   // the narrowed type so JSX below gets full IntelliSense. Directory is a
@@ -936,7 +942,14 @@ export function ChatMessage({
         isGrouped ? "mb-0.5 mt-0.5" : "mb-3"
       }`}
     >
-      {isBot && <BotAvatar grouped={isGrouped} />}
+      {isBot && (
+        <BotAvatar
+          grouped={isGrouped}
+          // A canned miss gets a visibly puzzled Sevi; explicit moods
+          // (welcome message) win over the derived one.
+          mood={mood ?? (source === "fallback" ? "confused" : undefined)}
+        />
+      )}
 
       <div
         className={`flex min-w-0 flex-col ${

@@ -3,6 +3,7 @@ import {
   Zap, Network, Cpu, Phone, ExternalLink,
 } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
+import { SeviMoodCycle } from "./SeviSticker";
 
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
@@ -196,8 +197,11 @@ export function LandingPage() {
               size, from a chat bubble to a banner.
             </p>
           </div>
-          <div className="flex justify-center">
-            <SeviAvatar className="h-52 w-52 sm:h-60 sm:w-60" animated />
+          <div className="flex flex-col items-center gap-3">
+            <SeviMoodCycle className="h-52 w-52 sm:h-60 sm:w-60" />
+            <p className="text-xs text-gray-500">
+              Sevi&rsquo;s animated moods — you&rsquo;ll meet them in chat.
+            </p>
           </div>
         </section>
 
