@@ -15,3 +15,7 @@ coverage/
 # Sevi design-asset source library (16MB of PNG/HTML exports; the runtime
 # SVGs the app uses live in public/sevi-professions/ and SeviAvatar.tsx)
 sevi-asset/
+
+# Raw v2 avatar/sticker exports (the shipped copies live in public/sevi-avatar.svg
+# and public/sevi-stickers/ — never commit the 7MB source drop)
+sevi gif final/
