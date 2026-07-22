@@ -69,6 +69,7 @@ const SOURCE_LABEL: Partial<Record<ResponseSource, string>> = {
   charter_rag: "Citizens' Charter",
   ais_mcp: "AIS live data",
   connectors_mcp: "Live lookup",
+  campus_directory: "Citizens' Charter directory",
 };
 
 interface ChatMessageProps {
