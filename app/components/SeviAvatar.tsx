@@ -1,12 +1,13 @@
 import { useId } from "react";
 
 /**
- * Sevi's avatar — the animated mascot GIF (public/sevi-avatar.gif), used
- * everywhere Sevi's likeness appears (header, chat, typing, landing hero).
+ * Sevi's avatar — the official "sevi v2" vector mark (public/sevi-avatar.svg),
+ * used everywhere Sevi's likeness appears (header, chat, landing hero).
+ * Expressive moments (typing, fallback, landing showcase) use the animated
+ * sticker set instead — see SeviSticker.
  *
- * `.sevi-animated` (see index.css) adds idle floating motion on top of the
- * GIF's own built-in loop; it's the same rule the old hand-drawn SVG used,
- * so it still respects prefers-reduced-motion.
+ * `.sevi-animated` (see index.css) adds idle floating motion; it respects
+ * prefers-reduced-motion.
  */
 
 const BASE_URL = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? "/";
@@ -31,7 +32,7 @@ export function SeviAvatar({ className, title = "Sevi", animated = false }: Sevi
   const style = animated ? ({ "--sevi-delay": delayFromId(gid) } as React.CSSProperties) : undefined;
   return (
     <img
-      src={`${BASE_URL}sevi-avatar.gif`}
+      src={`${BASE_URL}sevi-avatar.svg`}
       alt={title}
       className={cls}
       style={style}
