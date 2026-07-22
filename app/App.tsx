@@ -268,10 +268,12 @@ export default function App() {
 
   const handleFeedback = async (
     intent: string | undefined,
+    messageId: number | undefined,
     submission: FeedbackSubmission,
   ) => {
     try {
       await api.submitFeedback({
+        message_id: messageId,
         user_id: userId,
         session_id: sessionId,
         intent,
@@ -423,7 +425,7 @@ export default function App() {
                 onFeedback={
                   message.isBot && !message.followUp
                     ? (submission) =>
-                        handleFeedback(message.intent, submission)
+                        handleFeedback(message.intent, message.messageId, submission)
                     : undefined
                 }
                 typing={message.id === chat.typingMessageId}
