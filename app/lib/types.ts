@@ -4,6 +4,7 @@ export type {
   ChatCard,
   ChatContext,
   ChatResponse,
+  ContentBlock,
   DisplayHint,
   DirectoryCard,
   DvCard,
@@ -19,6 +20,7 @@ export type {
 import type {
   ChatCard,
   ChatContext,
+  ContentBlock,
   DisplayHint,
   RefusalReason,
   ResponseSource,
@@ -35,6 +37,7 @@ export interface MapData {
 export interface Message {
   id: number;
   text: string;            // full response body
+  blocks?: ContentBlock[]; // typed structure for `text`, as sent by the API
   summary?: string | null; // short lead-in, used when collapsed
   isBot: boolean;
   timestamp: string;

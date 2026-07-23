@@ -52,16 +52,16 @@ describe("parseBlocks", () => {
   it("nests bullets under the preceding numbered step", () => {
     const blocks = parseBlocks("1. PREPARE THESE DOCUMENTS:\n- Report card\n- Good moral");
     expect(blocks).toHaveLength(1);
-    expect(blocks[0].kind).toBe("ol");
-    const ol = blocks[0] as Extract<ReturnType<typeof parseBlocks>[number], { kind: "ol" }>;
+    expect(blocks[0].kind).toBe("ordered_list");
+    const ol = blocks[0] as Extract<ReturnType<typeof parseBlocks>[number], { kind: "ordered_list" }>;
     expect(ol.items).toHaveLength(1);
     expect(ol.items[0].subs).toEqual(["Report card", "Good moral"]);
   });
 
   it("keeps a standalone bullet list flat when no numbered step precedes it", () => {
     const blocks = parseBlocks("Requirements:\n- A\n- B");
-    const ul = blocks.find((b) => b.kind === "ul") as
-      | Extract<ReturnType<typeof parseBlocks>[number], { kind: "ul" }>
+    const ul = blocks.find((b) => b.kind === "bullet_list") as
+      | Extract<ReturnType<typeof parseBlocks>[number], { kind: "bullet_list" }>
       | undefined;
     expect(ul).toBeDefined();
     expect(ul!.items).toEqual(["A", "B"]);
@@ -70,14 +70,31 @@ describe("parseBlocks", () => {
   it("detects an ALL-CAPS line as a heading", () => {
     const blocks = parseBlocks("GENERAL ELIGIBILITY:\n\nSome text.");
     expect(blocks[0].kind).toBe("heading");
-    expect(blocks[1].kind).toBe("p");
+    expect(blocks[1].kind).toBe("paragraph");
   });
 
   it("keeps consecutive numbered steps in one ordered list", () => {
     const blocks = parseBlocks("1. First step\n2. Second step\n3. Third step");
     expect(blocks).toHaveLength(1);
-    const ol = blocks[0] as Extract<ReturnType<typeof parseBlocks>[number], { kind: "ol" }>;
+    const ol = blocks[0] as Extract<ReturnType<typeof parseBlocks>[number], { kind: "ordered_list" }>;
     expect(ol.items.map((i) => i.text)).toEqual(["First step", "Second step", "Third step"]);
     expect(ol.start).toBe(1);
+  });
+
+  it("splits the appended provenance line into a note block", () => {
+    const blocks = parseBlocks("Body text.\n\n\u{1F4D6} Source: Citizens' Charter, p. 1694");
+    const note = blocks.find((b) => b.kind === "note") as
+      | Extract<ReturnType<typeof parseBlocks>[number], { kind: "note" }>
+      | undefined;
+    expect(note).toBeDefined();
+    expect(note!.text).toBe("Source: Citizens' Charter, p. 1694");
+  });
+
+  it("does not strand the marker of an already-numbered list", () => {
+    // Regression: a server-side prettifier used to split on the "1. " marker,
+    // emitting "1." as its own paragraph above the step text.
+    const blocks = parseBlocks("1. FILE THE APPLICATION at https://a.co/b\n2. PRINT the form.");
+    expect(blocks).toHaveLength(1);
+    expect(blocks.some((b) => b.kind === "paragraph")).toBe(false);
   });
 });

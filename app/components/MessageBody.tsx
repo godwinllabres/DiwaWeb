@@ -11,6 +11,8 @@
 // Keeping this out of ChatMessage guarantees the widget and full-screen views
 // can never drift apart, and lets the pure helpers be unit-tested directly.
 
+import type { ContentBlock } from "@/lib/api";
+
 // ── inline text formatting ────────────────────────────────────────────────────
 
 type SegKind = "text" | "url" | "bold" | "code" | "path" | "mdlink";
@@ -190,33 +192,41 @@ function FormattedText({
 // short ALL-CAPS headings so the bubble doesn't read like a wall of text.
 // Inline content (URLs, bold, code) is still handled by FormattedText.
 
-interface OlItem { text: string; subs: string[] }
-type Block =
-  | { kind: "heading"; text: string }
-  | { kind: "ol"; items: OlItem[]; start: number }
-  | { kind: "ul"; items: string[] }
-  | { kind: "p"; text: string };
+// The block kinds are the server's `ChatResponse.blocks` DTO (SeviAI
+// api/response_blocks.py). When the API sends blocks we render them directly;
+// parseBlocks is the local fallback, used for older payloads and — because the
+// typewriter feeds this a growing prefix of the text — for partial reveals.
+type Block = ContentBlock;
 
-const OL_LINE_RE = /^\s*(\d+)\.\s+(.*)$/;
+const OL_LINE_RE = /^\s*(\d{1,3})[.)]\s+(.*)$/;
 const UL_LINE_RE = /^\s*[-*•]\s+(.*)$/;
-const HEADING_RE = /^[A-Z0-9][A-Z0-9 ,()\/&'’.-]{2,}:?$/;
+const HEADING_RE = /^[A-Z0-9][A-Z0-9 ,()\/&'’.:–—-]{2,}$/;
+const NOTE_PREFIX_RE = /^(📖|ℹ️|⚠️|📌)\s*/;
 
 export function parseBlocks(raw: string): Block[] {
   const lines = raw.split("\n");
   const blocks: Block[] = [];
   let paraBuf: string[] = [];
-  let listBuf: Extract<Block, { kind: "ol" }> | Extract<Block, { kind: "ul" }> | null = null;
+  let listBuf:
+    | Extract<Block, { kind: "ordered_list" }>
+    | Extract<Block, { kind: "bullet_list" }>
+    | null = null;
 
   const flushPara = () => {
     if (!paraBuf.length) return;
     const text = paraBuf.join("\n").trim();
     paraBuf = [];
     if (!text) return;
+    const note = NOTE_PREFIX_RE.exec(text);
+    if (note) {
+      blocks.push({ kind: "note", text: text.slice(note[0].length).trim(), icon: note[1] });
+      return;
+    }
     // Treat a single short ALL-CAPS line as a heading.
     if (!text.includes("\n") && text.length < 80 && HEADING_RE.test(text.replace(/:$/, ""))) {
-      blocks.push({ kind: "heading", text });
+      blocks.push({ kind: "heading", text: text.replace(/:$/, "").trim() });
     } else {
-      blocks.push({ kind: "p", text });
+      blocks.push({ kind: "paragraph", text });
     }
   };
   const flushList = () => {
@@ -231,17 +241,20 @@ export function parseBlocks(raw: string): Block[] {
     if (ol) {
       flushPara();
       const n = parseInt(ol[1], 10);
-      if (listBuf?.kind !== "ol") { flushList(); listBuf = { kind: "ol", items: [], start: n }; }
-      listBuf.items.push({ text: ol[2], subs: [] });
+      if (listBuf?.kind !== "ordered_list") {
+        flushList();
+        listBuf = { kind: "ordered_list", items: [], start: n };
+      }
+      listBuf.items.push({ text: ol[2].trim(), subs: [] });
     } else if (ul) {
       flushPara();
-      if (listBuf?.kind === "ol" && listBuf.items.length > 0) {
+      if (listBuf?.kind === "ordered_list" && listBuf.items.length > 0) {
         // A bullet directly under a numbered step nests inside it, instead of
         // detaching into its own flush-left list.
-        listBuf.items[listBuf.items.length - 1].subs.push(ul[1]);
+        listBuf.items[listBuf.items.length - 1].subs.push(ul[1].trim());
       } else {
-        if (listBuf?.kind !== "ul") { flushList(); listBuf = { kind: "ul", items: [] }; }
-        listBuf.items.push(ul[1]);
+        if (listBuf?.kind !== "bullet_list") { flushList(); listBuf = { kind: "bullet_list", items: [] }; }
+        listBuf.items.push(ul[1].trim());
       }
     } else {
       flushList();
@@ -257,12 +270,17 @@ export function MessageBody({
   text,
   done,
   isBot,
+  blocks: serverBlocks,
 }: {
   readonly text: string;
   readonly done: boolean;
   readonly isBot: boolean;
+  /** Structure as decided by the API (`ChatResponse.blocks`). Preferred once
+   *  the reveal has finished; mid-typewriter we still parse the prefix so the
+   *  text appears progressively rather than all at once. */
+  readonly blocks?: ContentBlock[];
 }) {
-  const blocks = parseBlocks(text);
+  const blocks = done && serverBlocks?.length ? serverBlocks : parseBlocks(text);
   // Bot answers carry the ALL-CAPS pseudo-formatting from the knowledge base;
   // calm it. User messages are shown verbatim.
   const tx = isBot ? deshout : (s: string) => s;
@@ -289,7 +307,7 @@ export function MessageBody({
                 </span>
               </p>
             );
-          case "ol":
+          case "ordered_list":
             return (
               <ol key={i} className="my-1.5 space-y-1.5 list-none pl-0">
                 {b.items.map((it, j) => {
@@ -337,7 +355,7 @@ export function MessageBody({
                 })}
               </ol>
             );
-          case "ul":
+          case "bullet_list":
             return (
               <ul key={i} className="my-1.5 space-y-1 list-none pl-1">
                 {b.items.map((it, j) => (
@@ -356,6 +374,21 @@ export function MessageBody({
                   </li>
                 ))}
               </ul>
+            );
+          case "note":
+            // Provenance / advisory footnote — same content as before, set
+            // apart from the answer body rather than reading as another
+            // paragraph of it.
+            return (
+              <p
+                key={i}
+                className={`${i === 0 ? "mt-0" : "mt-2.5"} text-[0.85em] ${
+                  isBot ? "text-gray-500" : "text-white/70"
+                } break-words`}
+              >
+                {b.icon && <span aria-hidden="true" className="mr-1">{b.icon}</span>}
+                <FormattedText text={tx(b.text)} done={cursorDone} isBot={isBot} />
+              </p>
             );
           default:
             return (

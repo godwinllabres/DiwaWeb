@@ -70,6 +70,7 @@ export function useChat({
 
         const botId = pushMessage({
           text: res.text,
+          blocks: res.blocks,
           summary: res.summary ?? undefined,
           isBot: true,
           intent: res.intent,

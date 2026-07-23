@@ -103,6 +103,23 @@ export interface ChatContext {
   report?: string | null;
 }
 
+// ── reply body structure ──────────────────────────────────────────────────────
+// Mirrors SeviAI api/response_blocks.py. `text` remains the raw body; `blocks`
+// is the same content already parsed into structure, so the renderer no longer
+// has to infer headings and lists from punctuation.
+
+export interface ListItem {
+  text: string;
+  subs: string[];
+}
+
+export type ContentBlock =
+  | { kind: "heading"; text: string }
+  | { kind: "paragraph"; text: string }
+  | { kind: "ordered_list"; start: number; items: ListItem[] }
+  | { kind: "bullet_list"; items: string[] }
+  | { kind: "note"; text: string; icon?: string | null };
+
 export interface ChatResponse {
   // Identity
   message_id: number;
@@ -111,6 +128,7 @@ export interface ChatResponse {
 
   // Content
   text: string;
+  blocks?: ContentBlock[];
   summary?: string | null;
 
   // Classification + provenance

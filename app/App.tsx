@@ -418,6 +418,7 @@ export default function App() {
               <ChatMessage
                 key={message.id}
                 message={message.text}
+                blocks={message.blocks}
                 isBot={message.isBot}
                 timestamp={message.timestamp}
                 isGrouped={isGrouped}

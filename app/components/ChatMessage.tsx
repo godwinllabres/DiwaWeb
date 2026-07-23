@@ -42,6 +42,7 @@ import { findCard } from "@/lib/api";
 import type {
   ChatCard,
   ChatContext,
+  ContentBlock,
   DisplayHint,
   DirectoryCard as DirectoryCardData,
   DvCard as DvCardData,
@@ -84,6 +85,8 @@ interface ChatMessageProps {
   readonly typing?: boolean;
   readonly onTypingDone?: () => void;
   // v2 envelope
+  /** Typed structure for `message`, as decided by the API. */
+  readonly blocks?: ContentBlock[];
   readonly cards?: ChatCard[];
   readonly context?: ChatContext | null;
   readonly suggestions?: string[];
@@ -864,6 +867,7 @@ export function ChatMessage({
   onFeedback,
   typing = false,
   onTypingDone,
+  blocks,
   cards,
   context,
   suggestions,
@@ -968,7 +972,7 @@ export function ChatMessage({
         {!(done && isBot && table) && (
           <div className={`px-3.5 py-2.5 sm:px-4 sm:py-3 ${bubbleColors} ${bubbleRounding}`}>
             <div className="text-sm leading-relaxed break-words">
-              <MessageBody text={displayed} done={done} isBot={isBot} />
+              <MessageBody text={displayed} blocks={blocks} done={done} isBot={isBot} />
             </div>
           </div>
         )}
