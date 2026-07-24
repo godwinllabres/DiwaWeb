@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { api, type ChatResponse } from "@/lib/api";
+import { api, BusyError, type ChatResponse } from "@/lib/api";
 import type { Message } from "@/lib/types";
 import { timeNow } from "@/lib/time";
 
@@ -37,6 +37,12 @@ const FALLBACK_ERROR_MESSAGE =
  * is lost for debugging; only the wording the user reads changes.
  */
 function plainApiError(error: unknown): string {
+  // Already phrased for a student, and already retried once by api.request —
+  // checked before the status regexes below, whose 5xx branch would otherwise
+  // claim something went wrong when the server is simply busy.
+  if (error instanceof BusyError) {
+    return error.message;
+  }
   const raw = error instanceof Error ? error.message : "";
   if (/timed out/i.test(raw)) {
     return "Sevi took too long to answer. Please try again.";
