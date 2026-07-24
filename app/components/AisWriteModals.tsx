@@ -220,8 +220,12 @@ export function ConfirmWriteModal({
       if (action === "cancel_dv") body.reason = reason.trim();
       if (action === "set_dv_status" && newStatus) body.new_status = newStatus;
 
+      // The financial write is authorized by the httpOnly AIS session cookie
+      // (minted server-side at login), not by an id this page could read or
+      // choose. `credentials` is what attaches it.
       const res = await fetch(`${API_BASE_URL}/ais/write`, {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });

@@ -75,58 +75,70 @@ export interface CustomMarkersResponse {
   markers: Record<string, CustomMarker>;
 }
 
-/** Admin endpoints require the X-Admin-Pin header (matches DASHBOARD_PIN). */
-function adminRequest<T>(path: string, pin: string, init?: RequestInit): Promise<T> {
-  return request<T>(path, {
-    ...init,
-    headers: { "X-Admin-Pin": pin, ...(init?.headers || {}) },
-  });
-}
-
-/** PIN read back from the tab's session, set by the admin app's unlock screen. */
-function pin(): string {
-  try {
-    return sessionStorage.getItem("admin_pin") || "";
-  } catch {
-    return "";
-  }
+/**
+ * Admin endpoints authenticate with the httpOnly session cookie that
+ * /admin/verify sets. The PIN is presented exactly once, at unlock, and is
+ * never stored or re-sent: it used to sit in sessionStorage and ride every
+ * admin request, so one XSS on this origin lifted the shared secret itself.
+ *
+ * `credentials: "same-origin"` is what actually attaches the cookie — the admin
+ * app is served from the same origin as /api (nginx in production, the Vite
+ * proxy in dev), so no CORS credentials are involved.
+ *
+ * The `pin` parameter is retained on the exported signatures for compatibility
+ * with existing callers and is ignored.
+ */
+function adminRequest<T>(path: string, _pin?: string, init?: RequestInit): Promise<T> {
+  return request<T>(path, { ...init, credentials: "same-origin" });
 }
 
 export const adminApi = {
   // ── Unlock ──────────────────────────────────────────────────────────────
+  /** Exchange the PIN for the httpOnly admin session cookie. The only call
+   *  that ever sees the PIN — nothing stores it afterwards. */
   verifyPin: (value: string) =>
-    request<{ status: string }>("/admin/verify", {
+    request<{ status: string; expires_in: number }>("/admin/verify", {
       method: "POST",
+      credentials: "same-origin",
       body: JSON.stringify({ pin: value }),
     }),
 
+  /** Revoke this browser's admin session server-side and clear the cookie. */
+  logout: () =>
+    request<{ status: string }>("/admin/logout", {
+      method: "POST",
+      credentials: "same-origin",
+    }),
+
   // ── System panel ────────────────────────────────────────────────────────
-  getAdminStatus: (p: string = pin()) => adminRequest<AdminStatus>("/admin/status", p),
+  // `p` is accepted for call-site compatibility and ignored: the cookie
+  // authenticates these now.
+  getAdminStatus: (p?: string) => adminRequest<AdminStatus>("/admin/status", p),
 
-  getModeration: (p: string = pin()) => adminRequest<ModerationSnapshot>("/admin/moderation", p),
+  getModeration: (p?: string) => adminRequest<ModerationSnapshot>("/admin/moderation", p),
 
-  getLlmConfig: (p: string = pin()) => adminRequest<LlmConfig>("/admin/llm", p),
+  getLlmConfig: (p?: string) => adminRequest<LlmConfig>("/admin/llm", p),
 
-  setLlmConfig: (p: string, body: { provider: string; model?: string }) =>
+  setLlmConfig: (p: string | undefined, body: { provider: string; model?: string }) =>
     adminRequest<LlmConfig>("/admin/llm", p, {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
   // ── Dashboard reads ─────────────────────────────────────────────────────
-  getTodayStats: () => adminRequest<any>("/logs/today", pin()),
+  getTodayStats: () => adminRequest<any>("/logs/today"),
 
-  getIntentLogs: () => adminRequest<any>("/logs/intents", pin()),
+  getIntentLogs: () => adminRequest<any>("/logs/intents"),
 
-  getFallbacks: (limit = 100) => adminRequest<any>(`/logs/fallbacks?limit=${limit}`, pin()),
+  getFallbacks: (limit = 100) => adminRequest<any>(`/logs/fallbacks?limit=${limit}`),
 
-  getFeedbackStats: () => adminRequest<any>("/feedback/stats", pin()),
+  getFeedbackStats: () => adminRequest<any>("/feedback/stats"),
 
   getConversation: (userId: string) =>
-    adminRequest<any>(`/conversation/${encodeURIComponent(userId)}`, pin()),
+    adminRequest<any>(`/conversation/${encodeURIComponent(userId)}`),
 
   clearConversation: (userId: string) =>
-    adminRequest<any>(`/conversation/${encodeURIComponent(userId)}`, pin(), {
+    adminRequest<any>(`/conversation/${encodeURIComponent(userId)}`, undefined, {
       method: "DELETE",
     }),
 
@@ -144,7 +156,7 @@ export const adminApi = {
         message: string;
         detail?: Record<string, any> | null;
       }>;
-    }>("/admin/intents/sanitize", pin(), {
+    }>("/admin/intents/sanitize", undefined, {
       method: "POST",
       body: JSON.stringify(body),
     }),
@@ -159,7 +171,7 @@ export const adminApi = {
       warnings: boolean;
       report: any;
       next_step: string;
-    }>(`/admin/intents${options.force ? "?force=true" : ""}`, pin(), {
+    }>(`/admin/intents${options.force ? "?force=true" : ""}`, undefined, {
       method: "POST",
       body: JSON.stringify(body),
     }),
@@ -168,38 +180,38 @@ export const adminApi = {
   getMapCoords: () => request<MapCoordsResponse>("/map/coords"),
 
   saveMapCoords: (body: MapCoordsUpdate) =>
-    adminRequest<any>("/map/coords", pin(), {
+    adminRequest<any>("/map/coords", undefined, {
       method: "PUT",
       body: JSON.stringify(body),
     }),
 
-  resetMapCoords: () => adminRequest<any>("/map/coords", pin(), { method: "DELETE" }),
+  resetMapCoords: () => adminRequest<any>("/map/coords", undefined, { method: "DELETE" }),
 
   getMapWaypoints: () => request<MapWaypointsResponse>("/map/waypoints"),
 
   saveMapWaypoints: (body: MapWaypointsUpdate | MapCoordsUpdate) =>
-    adminRequest<any>("/map/waypoints", pin(), {
+    adminRequest<any>("/map/waypoints", undefined, {
       method: "PUT",
       body: JSON.stringify(body),
     }),
 
   deleteMapWaypoint: (waypointId: string) =>
-    adminRequest<any>(`/map/waypoints/${encodeURIComponent(waypointId)}`, pin(), {
+    adminRequest<any>(`/map/waypoints/${encodeURIComponent(waypointId)}`, undefined, {
       method: "DELETE",
     }),
 
-  resetMapWaypoints: () => adminRequest<any>("/map/waypoints", pin(), { method: "DELETE" }),
+  resetMapWaypoints: () => adminRequest<any>("/map/waypoints", undefined, { method: "DELETE" }),
 
-  getCustomMarkers: () => adminRequest<CustomMarkersResponse>("/map/custom_markers", pin()),
+  getCustomMarkers: () => adminRequest<CustomMarkersResponse>("/map/custom_markers"),
 
   saveCustomMarker: (body: CustomMarker) =>
-    adminRequest<any>("/map/custom_markers", pin(), {
+    adminRequest<any>("/map/custom_markers", undefined, {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
   deleteCustomMarker: (markerId: string) =>
-    adminRequest<any>(`/map/custom_markers/${encodeURIComponent(markerId)}`, pin(), {
+    adminRequest<any>(`/map/custom_markers/${encodeURIComponent(markerId)}`, undefined, {
       method: "DELETE",
     }),
 };

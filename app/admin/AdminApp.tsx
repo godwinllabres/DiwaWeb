@@ -33,9 +33,14 @@ export default function AdminApp() {
     setLoading(true);
     setError("");
     try {
+      // Exchanges the PIN for an httpOnly session cookie. Deliberately does
+      // NOT keep the PIN: it used to live in sessionStorage and ride every
+      // admin request, so one XSS here lifted the shared secret. Only the
+      // "am I unlocked?" flag is stored, and it grants nothing on its own —
+      // the server checks the cookie.
       await adminApi.verifyPin(value);
       sessionStorage.setItem("admin_authed", "1");
-      sessionStorage.setItem("admin_pin", value);
+      setPin("");
       setAuthed(true);
     } catch {
       setError("That PIN didn't work. Check it and try again.");
@@ -45,8 +50,11 @@ export default function AdminApp() {
   };
 
   const signOut = () => {
+    // Revoke server-side too — clearing local state alone would leave the
+    // session token valid for anyone who still holds the cookie.
+    void adminApi.logout().catch(() => {});
     sessionStorage.removeItem("admin_authed");
-    sessionStorage.removeItem("admin_pin");
+    sessionStorage.removeItem("admin_pin"); // legacy key from before the cookie
     setPin("");
     setAuthed(false);
   };

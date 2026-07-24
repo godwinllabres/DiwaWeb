@@ -55,7 +55,11 @@ export function useAuth(sessionId: string): UseAuthApi {
         // session_id is a bearer capability for the cached AIS token, so it
         // goes in a header — never the URL query string, which the tunnel/nginx
         // access log would capture (CWE-598). Server reads X-Sevi-Session.
+        // The AIS session is an httpOnly cookie minted server-side at login,
+        // so it rides along automatically; the header is a fallback for
+        // non-cookie callers. Neither value is readable by this script.
         const res = await fetch(`${API_BASE_URL}/auth/whoami`, {
+          credentials: "same-origin",
           headers: { "X-Sevi-Session": sessionId },
         });
         if (!res.ok) return;
@@ -81,10 +85,14 @@ export function useAuth(sessionId: string): UseAuthApi {
       setBusy(true);
       setError(null);
       try {
+        // The server mints the AIS session id and returns it as an httpOnly
+        // cookie — the response body carries identity only. Nothing here can
+        // read or choose the value that authorizes an /ais/write.
         const res = await fetch(`${API_BASE_URL}/auth/login`, {
           method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session_id: sessionId, username, password }),
+          body: JSON.stringify({ username, password }),
         });
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
@@ -117,6 +125,7 @@ export function useAuth(sessionId: string): UseAuthApi {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionId }),
       });
