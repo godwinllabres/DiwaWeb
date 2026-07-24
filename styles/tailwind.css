@@ -2,3 +2,11 @@
 @source '../**/*.{js,ts,jsx,tsx}';
 
 @import 'tw-animate-css';
+
+/* `short:` — the viewport a student gets the moment they rotate their phone,
+   and the one every phone gets once the on-screen keyboard is up. Tailwind
+   ships `landscape:`, but that matches every desktop monitor too; the thing
+   that actually breaks a stacked chat layout is HEIGHT. 560px clears every
+   phone in landscape (932x430 on the largest) and stays under tablet
+   landscape (768px), so tablets keep the roomy portrait treatment. */
+@custom-variant short (@media (max-height: 560px));

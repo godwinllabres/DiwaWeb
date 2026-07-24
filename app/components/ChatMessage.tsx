@@ -209,9 +209,13 @@ function MapAccordion({
         // — the floating X confused users into thinking it closed the chat
         // widget itself, since the widget's own close X is at the same screen
         // position when embedded).
-        className="!grid !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !inset-0 !rounded-none !p-0 !gap-0 !border-0 grid-rows-[auto_1fr] h-[100dvh] w-screen overflow-hidden sm:!inset-auto sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!rounded-2xl sm:!max-w-[min(900px,95vw)] sm:!h-[min(900px,90dvh)] [&>button.absolute]:hidden"
+        // The sm: block turns the sheet into a centered modal, which a phone in
+        // landscape also matches on width — and 90dvh of a 390px-tall screen is
+        // a 351px window with a map in it. The short: block hands that case back
+        // to the fullscreen treatment, which is the only way the map gets room.
+        className="!grid !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !inset-0 !rounded-none !p-0 !gap-0 !border-0 grid-rows-[auto_1fr] h-[100dvh] w-screen overflow-hidden sm:!inset-auto sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!rounded-2xl sm:!max-w-[min(900px,95vw)] sm:!h-[min(900px,90dvh)] short:!inset-0 short:!top-0 short:!left-0 short:!translate-x-0 short:!translate-y-0 short:!rounded-none short:!max-w-none short:!h-[100dvh] [&>button.absolute]:hidden"
       >
-        <DialogHeader className="flex flex-row items-center gap-3 border-b border-gray-200 bg-white px-3 py-2.5 sm:rounded-t-2xl sm:px-4 sm:py-3">
+        <DialogHeader className="flex flex-row items-center gap-3 border-b border-gray-200 bg-white px-3 py-2.5 sm:rounded-t-2xl sm:px-4 sm:py-3 short:py-1">
           <button
             type="button"
             onClick={() => setOpen(false)}
@@ -231,7 +235,9 @@ function MapAccordion({
             </DialogDescription>
           </div>
         </DialogHeader>
-        <div className="overflow-y-auto">
+        {/* Portrait scrolls the whole sheet; landscape hands scrolling to
+            CampusMap's own rail so the map pane beside it stays put. */}
+        <div className="overflow-y-auto short:overflow-hidden">
           <CampusMap place_id={mapData.place_id} label={mapData.label} editableTarget zoomable />
         </div>
       </DialogContent>
