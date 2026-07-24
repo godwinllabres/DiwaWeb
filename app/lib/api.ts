@@ -13,6 +13,12 @@ export interface ChatRequest {
   message: string;
   user_id?: string;
   session_id?: string;
+  /** Stable per-browser id from getDeviceId() — lets the logs count distinct
+   *  devices rather than distinct sessions. */
+  device_id?: string;
+  /** Form factor + orientation at send time, e.g. "phone/landscape". The API
+   *  allowlists the values in lib/ids.ts DeviceClass. */
+  device_class?: string;
 }
 
 // ─── ChatResponse v2 ─────────────────────────────────────────────────────────

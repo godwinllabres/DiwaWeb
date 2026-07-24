@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon, Plus, Server } from "lucide-react";
+import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon, Plus, Server, Smartphone } from "lucide-react";
 import { adminApi as api } from "../lib/adminApi";
 import { AdminMapEditor } from "./AdminMapEditor";
 import { IntentOnboarding } from "./IntentOnboarding";
@@ -14,6 +14,7 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
   const [today, setToday] = useState<any>(null);
   const [feedbackStats, setFeedbackStats] = useState<any>(null);
   const [fallbacks, setFallbacks] = useState<any[]>([]);
+  const [devices, setDevices] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showMapEditor, setShowMapEditor] = useState(false);
@@ -24,15 +25,17 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
     let cancelled = false;
     (async () => {
       try {
-        const [t, f, fb] = await Promise.all([
+        const [t, f, fb, dv] = await Promise.all([
           api.getTodayStats().catch(() => null),
           api.getFeedbackStats().catch(() => null),
           api.getFallbacks(20).catch(() => null),
+          api.getDeviceStats(30).catch(() => null),
         ]);
         if (cancelled) return;
         setToday(t);
         setFeedbackStats(f);
         setFallbacks(Array.isArray(fb) ? fb : fb?.fallbacks ?? []);
+        setDevices(dv);
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? "Failed to load");
       } finally {
@@ -137,6 +140,52 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
               />
             </section>
 
+            {devices?.by_class?.length > 0 && (
+              <section>
+                <h3 className="mb-2 flex items-center gap-2 text-sm text-gray-700">
+                  <Smartphone className="h-4 w-4 text-green-600" />
+                  Device usage (last {devices.days} days)
+                </h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+                  <StatCard
+                    icon={Smartphone}
+                    label="Unique Devices"
+                    value={devices.unique_devices ?? "-"}
+                  />
+                  <StatCard
+                    icon={Smartphone}
+                    label="On a Phone"
+                    value={pct(devices.by_form_factor?.phone, devices.turns_with_device)}
+                  />
+                  <StatCard
+                    icon={Smartphone}
+                    label="In Landscape"
+                    value={pct(devices.by_orientation?.landscape, devices.turns_with_device)}
+                  />
+                </div>
+                <div className="mt-2 space-y-1">
+                  {devices.by_class.map((row: any) => (
+                    <div
+                      key={row.device_class}
+                      className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
+                    >
+                      <span className="text-gray-800">{row.device_class}</span>
+                      <span className="text-xs text-gray-600">
+                        {row.turns} turns | {row.devices} devices
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {devices.turns_without_device > 0 && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    {devices.turns_without_device} of {devices.total_turns} turns carry no
+                    device id (older clients, or the API called directly) and are excluded
+                    from the percentages above.
+                  </p>
+                )}
+              </section>
+            )}
+
             {feedbackStats?.low_rated_intents?.length > 0 && (
               <section>
                 <h3 className="mb-2 text-sm text-gray-700">Low-Rated Intents</h3>
@@ -197,6 +246,13 @@ export function AdminDashboard({ onClose }: AdminDashboardProps) {
       </div>
     </motion.div>
   );
+}
+
+/** Share of `total` as a whole-number percent, or "-" when there is nothing
+ *  to divide by (an empty window would otherwise read as a confident 0%). */
+function pct(part: number | undefined, total: number | undefined): string {
+  if (!total || part === undefined) return "-";
+  return `${Math.round((part / total) * 100)}%`;
 }
 
 function StatCard({
