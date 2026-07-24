@@ -17,20 +17,16 @@ export default defineConfig(({ mode }) => {
   // admin.html (deploy/nginx.conf). Without this the dev server's SPA fallback
   // answers /admin/ with index.html — i.e. the public chat app — which looks
   // like the admin entry is broken locally when it isn't.
+  const rewriteAdmin = (req: any, _res: any, next: any) => {
+    // Match on the pathname so a query string (?foo=1) still resolves.
+    const [pathname] = String(req.url || "").split("?");
+    if (pathname === "/admin" || pathname === "/admin/") req.url = "/admin/index.html";
+    next();
+  };
   const adminPathParity = {
     name: "admin-path-parity",
-    configureServer(server: any) {
-      server.middlewares.use((req: any, _res: any, next: any) => {
-        if (req.url === "/admin/" || req.url === "/admin") req.url = "/admin.html";
-        next();
-      });
-    },
-    configurePreviewServer(server: any) {
-      server.middlewares.use((req: any, _res: any, next: any) => {
-        if (req.url === "/admin/" || req.url === "/admin") req.url = "/admin.html";
-        next();
-      });
-    },
+    configureServer(server: any) { server.middlewares.use(rewriteAdmin); },
+    configurePreviewServer(server: any) { server.middlewares.use(rewriteAdmin); },
   };
 
   return {
@@ -46,9 +42,15 @@ export default defineConfig(({ mode }) => {
         // Two independent entries. The admin app is NOT a chunk of the chat
         // app — it has its own HTML entry and its own bundle, so the public
         // chat bundle ships zero admin code. See app/admin/main.tsx.
+        // The admin entry lives at admin/index.html, NOT admin.html, so the
+        // build emits dist/admin/index.html. A static host (GitHub Pages)
+        // resolves /admin/ to that directory index on its own; emitting
+        // admin.html at the root instead meant /admin/ 404'd there — and since
+        // the Pages workflow serves index.html as its 404 page, the operator
+        // silently landed back on the public chat app.
         input: {
           main: path.resolve(__dirname, "index.html"),
-          admin: path.resolve(__dirname, "admin.html"),
+          admin: path.resolve(__dirname, "admin/index.html"),
         },
       },
     },

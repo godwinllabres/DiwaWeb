@@ -15,9 +15,11 @@
  *
  * The backend is stubbed at the network layer, so no Sevi API is needed.
  *
- * NOTE ON PATHS: `vite preview` serves the built pages by filename, so the
- * admin entry is /admin.html here. In production nginx maps /admin/ →
- * admin.html (see deploy/nginx.conf).
+ * NOTE ON PATHS: the admin entry is built to dist/admin/index.html, so /admin/
+ * resolves on any static host (GitHub Pages) as a directory index, and nginx
+ * serves the same path (deploy/nginx.conf). This test hits /admin/ — the URL
+ * the app actually links to — rather than the emitted filename, because the
+ * mismatch between the two is exactly the bug it needs to catch.
  */
 const { chromium } = require("playwright");
 const { spawn, spawnSync } = require("child_process");
@@ -138,7 +140,7 @@ function scanLoadedBundles(urls) {
     const admPage = await context.newPage();
     const admJs = [];
     admPage.on("request", (r) => { if (/\.js(\?|$)/.test(r.url())) admJs.push(r.url()); });
-    await admPage.goto(`${BASE}/admin.html`, { waitUntil: "networkidle" });
+    await admPage.goto(`${BASE}/admin/`, { waitUntil: "networkidle" });
     await admPage.waitForSelector("#admin-pin", { timeout: 8000 });
     const lockedVisible = await admPage.isVisible("#admin-pin");
     await admPage.screenshot({ path: path.join(SHOTS, "02-admin-locked.png") });
@@ -168,7 +170,7 @@ function scanLoadedBundles(urls) {
     console.log(`     admin bundle:          ${m1}  ${pubAdminEntry.length === 0 ? "not requested" : "REQUESTED"}`);
     console.log(`     admin fingerprints:    ${m2}  ${pub.hits.length === 0 ? "none in any loaded bundle" : JSON.stringify(pub.hits)}`);
     console.log(`        checked for:        ${ADMIN_FINGERPRINTS.map((s) => `"${s}"`).join(", ")}`);
-    console.log(`\n  PHASE B   GET /admin.html  → admin app (locked)`);
+    console.log(`\n  PHASE B   GET /admin/      → admin app (locked)`);
     console.log(`     own bundle loaded:     ${m3}  ${admEntry.map((u) => path.basename(u)).join(", ") || "—"}`);
     console.log(`     PIN gate rendered:     ${m4}`);
     console.log(`\n  PHASE C   submit PIN       → dashboard`);

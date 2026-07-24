@@ -26,7 +26,7 @@ at the network layer).
 | Phase | Request | Expectation |
 |-------|---------|-------------|
 | A | `GET /` (public chat) | the admin bundle is **not** requested, and none of the loaded bundles contain any admin fingerprint |
-| B | `GET /admin.html` | the admin app loads **its own** bundle and renders the PIN gate |
+| B | `GET /admin/` | the admin app loads **its own** bundle and renders the PIN gate |
 | C | submit the PIN | the dashboard opens |
 
 Phase A greps every JS bundle the public page actually requested for these
@@ -47,7 +47,7 @@ Exit code `0` = pass. Screenshots land in `tests/e2e/screenshots/`
 ## Paths
 
 `vite preview` serves built pages by filename, so the admin entry is
-`/admin.html` here. In production nginx maps `/admin/` → `admin.html` — see
+`/admin/` here. In production nginx maps `/admin/` → `admin.html` — see
 `deploy/nginx.conf`. The old `?admin=1` deep link on the chat app redirects to
 `/admin/`, so existing bookmarks keep working.
 
@@ -57,7 +57,7 @@ Exit code `0` = pass. Screenshots land in `tests/e2e/screenshots/`
 
   ```
   PHASE A   GET /            admin bundle: not requested ✓  fingerprints: none ✓
-  PHASE B   GET /admin.html  own bundle: admin-*.js ✓      PIN gate ✓
+  PHASE B   GET /admin/  own bundle: admin-*.js ✓      PIN gate ✓
   PHASE C   submit PIN       dashboard opened ✓
   RESULT: PASS ✓
   ```
