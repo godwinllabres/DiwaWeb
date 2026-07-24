@@ -11,7 +11,7 @@ import {
   Info,
   Loader2,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import { adminApi as api } from "@/lib/adminApi";
 
 interface IntentOnboardingProps {
   readonly onClose: () => void;

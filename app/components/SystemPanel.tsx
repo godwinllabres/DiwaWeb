@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { X, RefreshCw, Cpu, ShieldAlert, Activity, Server } from "lucide-react";
-import { api, type AdminStatus, type LlmConfig, type ModerationSnapshot } from "../lib/api";
+import {
+  adminApi as api,
+  type AdminStatus,
+  type LlmConfig,
+  type ModerationSnapshot,
+} from "../lib/adminApi";
 
 interface SystemPanelProps {
   onClose: () => void;
 }
 
-// Reuse the pin the dashboard already stored on successful /admin/verify, so
-// opening System doesn't re-prompt.
-const PIN_KEY = "admin_pin";
+// The dashboard's unlock already established an httpOnly admin session cookie,
+// so this panel loads straight away — no PIN is stored or re-prompted.
 
 /**
  * Operational panel for the admin dashboard: live subsystem status, the
@@ -18,7 +22,9 @@ const PIN_KEY = "admin_pin";
  * the dashboard threading the admin pin.
  */
 export function SystemPanel({ onClose }: SystemPanelProps) {
-  const [pin, setPin] = useState<string>(() => sessionStorage.getItem(PIN_KEY) ?? "");
+  // Empty by default: admin calls now authenticate with the httpOnly session
+  // cookie set at unlock, so this panel no longer needs (or keeps) the PIN.
+  const [pin, setPin] = useState<string>("");
   const [authed, setAuthed] = useState(false);
   const [status, setStatus] = useState<AdminStatus | null>(null);
   const [llm, setLlm] = useState<LlmConfig | null>(null);
@@ -40,7 +46,6 @@ export function SystemPanel({ onClose }: SystemPanelProps) {
         setLlm(l);
         setModeration(m);
         setAuthed(true);
-        sessionStorage.setItem(PIN_KEY, usePin);
       } catch (e: any) {
         setError(
           e?.message?.includes("401")
@@ -58,7 +63,7 @@ export function SystemPanel({ onClose }: SystemPanelProps) {
   );
 
   useEffect(() => {
-    if (pin) load(pin);
+    void load("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -114,23 +119,18 @@ export function SystemPanel({ onClose }: SystemPanelProps) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (pin) load(pin);
+              void load("");
             }}
             className="mx-auto mt-8 flex max-w-sm flex-col gap-3"
           >
-            <label className="text-sm text-gray-700">Admin PIN</label>
-            <input
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              autoFocus
-              className="rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
-              placeholder="Enter admin PIN"
-            />
+            <p className="text-sm text-gray-700">
+              Couldn't load system status — your admin session may have expired.
+              Retry, or sign out and unlock again.
+            </p>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
-              disabled={busy || !pin}
+              disabled={busy}
               className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
             >
               {busy ? "Checking…" : "Unlock"}

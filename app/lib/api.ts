@@ -2,6 +2,10 @@
 // local SeviAI server (see vite.config.ts), so this works both locally and
 // when the web UI is shared via a tunnel — no separate API tunnel needed.
 // Override with VITE_API_URL to point at a different backend.
+//
+// PUBLIC surface only. Everything that requires the admin PIN lives in
+// ./adminApi.ts so the admin route names and the X-Admin-Pin header never
+// ship in the public chat bundle (Phase 2 of the admin decoupling).
 const API_BASE_URL =
   (import.meta as any).env?.VITE_API_URL || "/api";
 
@@ -167,9 +171,32 @@ export interface IntentSummary {
   responses?: string[];
 }
 
+export interface MapCoordsResponse {
+  coords: Record<string, { x: number; y: number }>;
+  overrides: Record<string, { x: number; y: number }>;
+}
+
+export interface MapCoordsUpdate {
+  coords: Record<string, { x: number; y: number }>;
+}
+
+export interface WaypointOverride {
+  x: number;
+  y: number;
+  neighbors?: string[];
+}
+
+export interface MapWaypointsResponse {
+  overrides: Record<string, WaypointOverride>;
+}
+
+export interface MapWaypointsUpdate {
+  coords: Record<string, WaypointOverride>;
+}
+
 // An unreachable host otherwise hangs until the browser's TCP timeout
 // (60s+), leaving the typing indicator spinning forever.
-const DEFAULT_TIMEOUT_MS = 15_000;
+export const DEFAULT_TIMEOUT_MS = 15_000;
 // Chat replies can legitimately take longer — the LLM fallback (Ollama on
 // CPU) needs tens of seconds on hard questions.
 const CHAT_TIMEOUT_MS = 45_000;
@@ -213,7 +240,9 @@ if (typeof window !== "undefined") {
   }
 }
 
-async function request<T>(
+// Exported so app/lib/adminApi.ts can reuse the same fetch/timeout plumbing
+// without the admin route names living in this (public-bundle) module.
+export async function request<T>(
   path: string,
   init?: RequestInit,
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
@@ -244,85 +273,6 @@ async function request<T>(
   } finally {
     clearTimeout(timer);
   }
-}
-
-/** Admin endpoints require the X-Admin-Pin header (matches DASHBOARD_PIN). */
-function adminRequest<T>(path: string, pin: string, init?: RequestInit): Promise<T> {
-  return request<T>(path, {
-    ...init,
-    headers: { "X-Admin-Pin": pin, ...(init?.headers || {}) },
-  });
-}
-
-export interface AdminStatus {
-  service: string;
-  uptime_seconds: number;
-  brain: {
-    classifier_ready: boolean;
-    neural_net_ready: boolean;
-    charter_rag: { available?: boolean; chunks?: number };
-    usage: Record<string, number>;
-  };
-  llm: { provider: string; model: string | null; available: boolean; second_opinion: boolean };
-  moderation: Record<string, number>;
-  connectors_bridge: Record<string, any>;
-  ais_bridge: Record<string, any>;
-  campus_context: Record<string, number>;
-}
-
-export interface LlmConfig {
-  provider: string;
-  model: string | null;
-  available: boolean;
-  ollama_models?: string[];
-}
-
-export interface ModerationSnapshot {
-  counts: Record<string, number>;
-  recent: Array<{
-    at: string;
-    category: string;
-    severity?: number | null;
-    message: string;
-    session_id?: string | null;
-  }>;
-  lexicon: { loaded: boolean; version?: string | null; entries?: number; forms?: number };
-}
-
-export interface MapCoordsResponse {
-  coords: Record<string, { x: number; y: number }>;
-  overrides: Record<string, { x: number; y: number }>;
-}
-
-export interface MapCoordsUpdate {
-  coords: Record<string, { x: number; y: number }>;
-}
-
-export interface WaypointOverride {
-  x: number;
-  y: number;
-  neighbors?: string[];
-}
-
-export interface MapWaypointsResponse {
-  overrides: Record<string, WaypointOverride>;
-}
-
-export interface MapWaypointsUpdate {
-  coords: Record<string, WaypointOverride>;
-}
-
-export interface CustomMarker {
-  id: string;
-  name: string;
-  abbr: string;
-  x: number;
-  y: number;
-  num?: number;
-}
-
-export interface CustomMarkersResponse {
-  markers: Record<string, CustomMarker>;
 }
 
 export const api = {
@@ -360,39 +310,6 @@ export const api = {
       tags: string[];
     }>("/topics/recommended"),
 
-  sanitizeCandidateIntent: (body: { tag: string; patterns: string[]; responses: string[] }) =>
-    request<{
-      candidate_tag: string;
-      pattern_count: number;
-      response_count: number;
-      has_errors: boolean;
-      has_warnings: boolean;
-      findings: Array<{
-        severity: "error" | "warning" | "info";
-        code: string;
-        message: string;
-        detail?: Record<string, any> | null;
-      }>;
-    }>("/admin/intents/sanitize", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  createIntent: (
-    body: { tag: string; patterns: string[]; responses: string[] },
-    options: { force?: boolean } = {},
-  ) =>
-    request<{
-      status: string;
-      tag: string;
-      warnings: boolean;
-      report: any;
-      next_step: string;
-    }>(`/admin/intents${options.force ? "?force=true" : ""}`, {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
   getIntent: (tag: string) =>
     request<any>(`/intents/${encodeURIComponent(tag)}`),
 
@@ -404,83 +321,11 @@ export const api = {
 
   getFeedbackReasons: () => request<FeedbackReasonsResponse>("/feedback/reasons"),
 
-  getFeedbackStats: () => request<any>("/feedback/stats"),
-
-  getConversation: (userId: string) =>
-    request<any>(`/conversation/${encodeURIComponent(userId)}`),
-
-  clearConversation: (userId: string) =>
-    request<any>(`/conversation/${encodeURIComponent(userId)}`, {
-      method: "DELETE",
-    }),
-
-  getTodayStats: () => request<any>("/logs/today"),
-
-  getFallbacks: (limit = 100) =>
-    request<any>(`/logs/fallbacks?limit=${limit}`),
-
-  getIntentLogs: () => request<any>("/logs/intents"),
-
   getModelInfo: () => request<any>("/model/info"),
 
   getMap: () => request<any>("/map"),
 
   getMapCoords: () => request<MapCoordsResponse>("/map/coords"),
 
-  saveMapCoords: (body: MapCoordsUpdate) =>
-    request<any>("/map/coords", {
-      method: "PUT",
-      body: JSON.stringify(body),
-    }),
-
-  resetMapCoords: () =>
-    request<any>("/map/coords", { method: "DELETE" }),
-
   getMapWaypoints: () => request<MapWaypointsResponse>("/map/waypoints"),
-
-  saveMapWaypoints: (body: MapWaypointsUpdate | MapCoordsUpdate) =>
-    request<any>("/map/waypoints", {
-      method: "PUT",
-      body: JSON.stringify(body),
-    }),
-
-  deleteMapWaypoint: (waypointId: string) =>
-    request<any>(`/map/waypoints/${encodeURIComponent(waypointId)}`, {
-      method: "DELETE",
-    }),
-
-  resetMapWaypoints: () =>
-    request<any>("/map/waypoints", { method: "DELETE" }),
-
-  getCustomMarkers: () => request<CustomMarkersResponse>("/map/custom_markers"),
-
-  saveCustomMarker: (body: CustomMarker) =>
-    request<any>("/map/custom_markers", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  deleteCustomMarker: (markerId: string) =>
-    request<any>(`/map/custom_markers/${encodeURIComponent(markerId)}`, {
-      method: "DELETE",
-    }),
-
-  verifyPin: (pin: string) =>
-    request<{ status: string }>("/admin/verify", {
-      method: "POST",
-      body: JSON.stringify({ pin }),
-    }),
-
-  // ── System panel (admin-pin gated) ──────────────────────────────────────
-  getAdminStatus: (pin: string) => adminRequest<AdminStatus>("/admin/status", pin),
-
-  getModeration: (pin: string) => adminRequest<ModerationSnapshot>("/admin/moderation", pin),
-
-  getLlmConfig: (pin: string) => adminRequest<LlmConfig>("/admin/llm", pin),
-
-  setLlmConfig: (pin: string, body: { provider: string; model?: string }) =>
-    adminRequest<LlmConfig>("/admin/llm", pin, {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
 };
