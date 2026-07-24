@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sevi Admin</title>
+
+    <!--
+      Dedicated admin entry — a SEPARATE Vite entry from index.html, so the
+      admin bundle and the public chat bundle share no entry chunk. The public
+      app contains no admin code at all (Phase 2 of the admin decoupling).
+
+      Deliberately excluded vs index.html: the chat widget script, Open Graph /
+      Twitter cards, and the marketing description. This page is an operator
+      tool, not a shareable surface.
+    -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="same-origin" />
+
+    <link rel="icon" type="image/svg+xml" href="https://godwincreates.net/diwa/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://godwincreates.net/diwa/favicon-32.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/app/admin/main.tsx"></script>
+  </body>
+</html>

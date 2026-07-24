@@ -52,9 +52,12 @@ export function useAuth(sessionId: string): UseAuthApi {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/auth/whoami?session_id=${encodeURIComponent(sessionId)}`,
-        );
+        // session_id is a bearer capability for the cached AIS token, so it
+        // goes in a header — never the URL query string, which the tunnel/nginx
+        // access log would capture (CWE-598). Server reads X-Sevi-Session.
+        const res = await fetch(`${API_BASE_URL}/auth/whoami`, {
+          headers: { "X-Sevi-Session": sessionId },
+        });
         if (!res.ok) return;
         const data = await res.json();
         if (cancelled) return;

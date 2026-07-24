@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { api } from "@/lib/api";
+// Admin-only calls moved to the admin client so they stay out of the public
+// bundle (Phase 2 admin decoupling); they share the same request() plumbing.
+import { adminApi } from "@/lib/adminApi";
 
 describe("api client", () => {
   const fetchMock = vi.fn();
@@ -94,7 +97,7 @@ describe("api client", () => {
 
   it("encodes URL components in path params", async () => {
     mockJson({});
-    await api.getConversation("user with spaces");
+    await adminApi.getConversation("user with spaces");
     const [url] = fetchMock.mock.calls[0];
     expect(url).toContain(encodeURIComponent("user with spaces"));
   });
@@ -106,7 +109,7 @@ describe("api client", () => {
 
   it("getFallbacks() includes the limit query param", async () => {
     mockJson([]);
-    await api.getFallbacks(25);
+    await adminApi.getFallbacks(25);
     const [url] = fetchMock.mock.calls[0];
     expect(url).toContain("limit=25");
   });

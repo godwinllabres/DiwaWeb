@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { X, RefreshCw, Cpu, ShieldAlert, Activity, Server } from "lucide-react";
-import { api, type AdminStatus, type LlmConfig, type ModerationSnapshot } from "../lib/api";
+import {
+  adminApi as api,
+  type AdminStatus,
+  type LlmConfig,
+  type ModerationSnapshot,
+} from "../lib/adminApi";
 
 interface SystemPanelProps {
   onClose: () => void;
