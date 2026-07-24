@@ -88,7 +88,47 @@ export interface CustomMarkersResponse {
  * The `pin` parameter is retained on the exported signatures for compatibility
  * with existing callers and is ignored.
  */
-function adminRequest<T>(path: string, _pin?: string, init?: RequestInit): Promise<T> {
+/**
+ * True when the API lives on a DIFFERENT origin than this page — the GitHub
+ * Pages build, where VITE_API_URL points at the Render API.
+ *
+ * A cookie cannot work there: it would be cross-site, the API sends
+ * `allow_credentials=False`, and the cookie is SameSite=Strict. So that
+ * deployment keeps the original X-Admin-Pin header path. It is strictly the
+ * pre-existing behaviour, not a new weakness — and the deployment that actually
+ * matters (the tunnel/nginx stack, where /api is same-origin) gets the cookie
+ * and never stores the PIN.
+ */
+const API_IS_CROSS_ORIGIN = (() => {
+  const base = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_API_URL;
+  if (!base || base.startsWith("/")) return false;
+  try {
+    return new URL(base, window.location.href).origin !== window.location.origin;
+  } catch {
+    return false;
+  }
+})();
+
+/** Legacy PIN, only read on a cross-origin deployment (see above). */
+function legacyPin(): string {
+  try {
+    return sessionStorage.getItem("admin_pin") || "";
+  } catch {
+    return "";
+  }
+}
+
+/** True when this deployment must fall back to the PIN header. */
+export const adminUsesPinHeader = API_IS_CROSS_ORIGIN;
+
+function adminRequest<T>(path: string, pin?: string, init?: RequestInit): Promise<T> {
+  if (API_IS_CROSS_ORIGIN) {
+    const value = pin || legacyPin();
+    return request<T>(path, {
+      ...init,
+      headers: { "X-Admin-Pin": value, ...(init?.headers || {}) },
+    });
+  }
   return request<T>(path, { ...init, credentials: "same-origin" });
 }
 

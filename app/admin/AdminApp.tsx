@@ -9,10 +9,10 @@
  * key to the server-side gate — `require_admin` on the API is the actual
  * authorization boundary, and every admin request carries X-Admin-Pin.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { AdminDashboard } from "../components/AdminDashboard";
-import { adminApi } from "@/lib/adminApi";
+import { adminApi, adminUsesPinHeader } from "@/lib/adminApi";
 
 // `import.meta.env` cast the same way api.ts / useAuth.ts do — this project
 // doesn't pull in vite/client's ambient types.
@@ -27,6 +27,28 @@ export default function AdminApp() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // The "unlocked" flag outlives the session it stands for: the admin cookie
+  // expires after an hour, and trusting the flag alone would drop the operator
+  // into a dashboard whose every request 401s, with no way back to the PIN
+  // prompt. Probe the session once on mount and fall back to locked if it is
+  // gone.
+  useEffect(() => {
+    if (!authed) return;
+    let cancelled = false;
+    void adminApi
+      .getTodayStats()
+      .catch(() => {
+        if (cancelled) return;
+        sessionStorage.removeItem("admin_authed");
+        sessionStorage.removeItem("admin_pin");
+        setAuthed(false);
+        setError("Your admin session expired. Enter the PIN again.");
+      });
+    return () => { cancelled = true; };
+    // Mount-only: re-probing on every state change would spam the endpoint.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const submit = async () => {
     const value = pin.trim();
     if (!value) return;
@@ -40,6 +62,10 @@ export default function AdminApp() {
       // the server checks the cookie.
       await adminApi.verifyPin(value);
       sessionStorage.setItem("admin_authed", "1");
+      // Only a cross-origin deployment (GitHub Pages -> Render) still needs the
+      // PIN, because a cookie cannot cross origins there. The same-origin stack
+      // stores nothing and relies on the httpOnly cookie.
+      if (adminUsesPinHeader) sessionStorage.setItem("admin_pin", value);
       setPin("");
       setAuthed(true);
     } catch {

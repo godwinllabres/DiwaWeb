@@ -65,12 +65,12 @@ import { MessageBody } from "./MessageBody";
 // tiers (naive_bayes/neural_network) and fallback/refusal show nothing; only
 // answers that came from an AI model, live data, or the charter are labeled.
 const SOURCE_LABEL: Partial<Record<ResponseSource, string>> = {
-  llm_local: "AI · on-campus model",
-  llm_claude: "AI assistant",
-  charter_rag: "Citizens' Charter",
-  ais_mcp: "AIS live data",
-  connectors_mcp: "Live lookup",
-  campus_directory: "Citizens' Charter directory",
+  llm_local: "AI answer · on CvSU servers",
+  llm_claude: "AI answer",
+  charter_rag: "CvSU Citizens' Charter",
+  ais_mcp: "Live CvSU record",
+  connectors_mcp: "Live CvSU lookup",
+  campus_directory: "CvSU office directory",
 };
 
 interface ChatMessageProps {
@@ -641,7 +641,7 @@ function TableCard({ table }: { readonly table: TableCardData }) {
       )}
       {filter && (
         <p className="mt-2 px-1 text-[11px] text-gray-500">
-          Showing {sortedRows.length} of {table.rows.length} loaded row(s).
+          Showing {sortedRows.length} of {table.rows.length} on this list.
         </p>
       )}
     </div>

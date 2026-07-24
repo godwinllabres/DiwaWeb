@@ -26,7 +26,29 @@ export interface UseChatApi {
 }
 
 const FALLBACK_ERROR_MESSAGE =
-  "I'm having trouble reaching the server right now. Please try again in a moment, or contact CvSU at 4839250.";
+  "I'm having trouble connecting right now. Please try again in a moment, or call CvSU at 4839250.";
+
+/**
+ * Turn a raw transport failure into a sentence a student can act on.
+ *
+ * `api.request` throws developer-facing text ("API /chat failed: 500",
+ * "API /chat timed out after 45s") — useful in a console, meaningless in a
+ * banner. The raw error still reaches `onError` and the console, so nothing
+ * is lost for debugging; only the wording the user reads changes.
+ */
+function plainApiError(error: unknown): string {
+  const raw = error instanceof Error ? error.message : "";
+  if (/timed out/i.test(raw)) {
+    return "Sevi took too long to answer. Please try again.";
+  }
+  if (/\b429\b/.test(raw)) {
+    return "That's a lot of questions at once — please wait a moment, then try again.";
+  }
+  if (/\b5\d\d\b/.test(raw)) {
+    return "Something went wrong on the CvSU side. Please try again in a moment.";
+  }
+  return "Sevi couldn't connect. Please check your internet and try again.";
+}
 
 export function useChat({
   userId,
@@ -86,8 +108,10 @@ export function useChat({
 
         onBotResponse?.(res, text);
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Network error";
-        setApiError(message);
+        // Keep the technical detail where developers look for it; the banner
+        // gets the plain-language version.
+        console.warn("chat request failed", error);
+        setApiError(plainApiError(error));
         // followUp: true — no feedback thumbs on the error bubble.
         pushMessage({ text: FALLBACK_ERROR_MESSAGE, isBot: true, followUp: true });
         onError?.(error);

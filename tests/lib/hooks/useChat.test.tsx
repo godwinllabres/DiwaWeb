@@ -101,10 +101,33 @@ describe("useChat", () => {
       await result.current.sendMessage("hi");
     });
 
-    expect(result.current.apiError).toBe("net fail");
+    // The banner shows plain language, never the raw transport error — the
+    // technical detail is handed to onError instead.
+    expect(result.current.apiError).toBe(
+      "Sevi couldn't connect. Please check your internet and try again."
+    );
+    expect(result.current.apiError).not.toMatch(/net fail/);
     const last = result.current.messages[result.current.messages.length - 1];
-    expect(last?.text).toMatch(/trouble reaching the server/i);
-    expect(onError).toHaveBeenCalled();
+    expect(last?.text).toMatch(/trouble connecting/i);
+    expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: "net fail" }));
+  });
+
+  it.each([
+    ["API /chat timed out after 45s", /took too long/i],
+    ["API /chat failed: 429", /wait a moment/i],
+    ["API /chat failed: 503", /CvSU side/i],
+  ])("rewrites %s into plain language", async (raw, expected) => {
+    fetchMock.mockRejectedValueOnce(new Error(raw));
+
+    const { result } = renderHook(() =>
+      useChat({ userId: "u", sessionId: "s", initialMessages: initial })
+    );
+
+    await act(async () => {
+      await result.current.sendMessage("hi");
+    });
+
+    expect(result.current.apiError).toMatch(expected);
   });
 
   it("resetMessages keeps only the first message", () => {

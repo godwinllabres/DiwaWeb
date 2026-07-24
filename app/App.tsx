@@ -295,7 +295,7 @@ export default function App() {
   } else if (chat.isTyping) {
     inputPlaceholder = "Sevi is replying…";
   } else if (apiHealth === "offline") {
-    inputPlaceholder = "Server unreachable — you can still try sending…";
+    inputPlaceholder = "Can't connect right now — you can still try sending…";
   }
 
   const handleAcceptConsent = () => {
@@ -345,9 +345,8 @@ export default function App() {
               <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-start gap-2 text-xs text-amber-800 sm:px-6 sm:items-center">
                 <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5 sm:mt-0" />
                 <span className="min-w-0 flex-1">
-                  {chat.apiError
-                    ? `Sevi couldn't get a reply (${chat.apiError}).`
-                    : "Can't reach the CvSU server right now — replies may fail."}
+                  {chat.apiError ??
+                    "Sevi can't connect to CvSU right now — replies may not come through."}
                 </span>
                 {chat.apiError && (
                   <button

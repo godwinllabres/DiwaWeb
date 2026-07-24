@@ -40,7 +40,7 @@ export function LandingPage() {
           <div>
             <p className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
               <Sparkles className="h-3 w-3" />
-              Powered by Naive Bayes + Neural Network + Local LLM
+              Most answers in under a second — English, Filipino, or Taglish
             </p>
             <div className="mt-5 flex items-start gap-4 sm:gap-6">
               <h1 className="text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
@@ -106,7 +106,7 @@ export function LandingPage() {
 
         {/* STAT STRIP */}
         <section className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-4 sm:gap-4">
-          <Stat value="3" label="reasoning tiers, one answer" />
+          <Stat value="3" label="ways it works out your answer" />
           <Stat value="<1s" label="for most replies" />
           <Stat value="EN·FIL·TL" label="English · Filipino · Taglish" />
           <Stat value="0" label="logins · anonymous by default" />
@@ -139,35 +139,36 @@ export function LandingPage() {
         <section id="how-sevi-thinks" className="mt-20 scroll-mt-8">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">How Sevi thinks</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            A hybrid brain, not one big model
+            Three ways to answer, not one
           </h2>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
-            Every question falls through three tiers. The cheap, instant layers answer what they can;
-            only genuinely open-ended questions reach the language model — which runs <b>locally</b>,
-            so nothing leaves CvSU&rsquo;s own infrastructure.
+            Every question gets three tries. The quick ones handle what they can; only genuinely
+            open-ended questions reach the part that writes a full answer &mdash; and that runs on
+            CvSU&rsquo;s <b>own servers</b>, so nothing leaves the university.
           </p>
           <div className="mt-7 grid gap-4 sm:grid-cols-3">
             <Tier
-              n="Tier 01" icon={<Zap className="h-5 w-5" />}
-              title="Naïve Bayes pattern match"
-              body="Recognises common, well-worn intents instantly — with classic, explainable probability."
-              tag="instant · explainable"
+              n="First try" icon={<Zap className="h-5 w-5" />}
+              title="Instant answers"
+              body="Recognises the questions students ask most, and replies right away."
+              tag="instant"
             />
             <Tier
-              n="Tier 02" icon={<Network className="h-5 w-5" />}
-              title="Neural network (LSTM)"
-              body="Understands phrasing it hasn't seen word-for-word — the same question asked ten different ways, in three languages."
-              tag="generalises · multilingual"
+              n="Second try" icon={<Network className="h-5 w-5" />}
+              title="However you phrase it"
+              body="Catches the same question asked ten different ways — in English, Filipino, or Taglish."
+              tag="flexible · multilingual"
             />
             <Tier
-              n="Tier 03" icon={<Cpu className="h-5 w-5" />}
-              title="Local LLM fallback"
-              body="For the long tail, a local large language model composes a natural, structured answer from CvSU's own content."
-              tag="on-prem · private"
+              n="If needed" icon={<Cpu className="h-5 w-5" />}
+              title="A fuller answer, kept on campus"
+              body="For anything unusual, Sevi writes a clear answer from CvSU's own pages, on CvSU's own servers."
+              tag="private · on campus"
             />
           </div>
           <p className="mt-4 text-sm text-gray-500">
-            Fast pattern matching → LSTM neural network → local LLM fallback. Most replies land in under a second.
+            Under the hood: Na&iuml;ve Bayes pattern matching &rarr; an LSTM neural network &rarr; a
+            locally hosted large language model. Most replies land in under a second.
           </p>
         </section>
 
@@ -178,8 +179,8 @@ export function LandingPage() {
             Built for the CvSU community
           </h2>
           <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            <Feature icon={<MessageCircle className="h-5 w-5" />} title="Three-tier intent routing"
-              body="Fast pattern matching, a neural net, then a local LLM fallback — most replies in under a second." />
+            <Feature icon={<MessageCircle className="h-5 w-5" />} title="Fast by default"
+              body="Most questions come back in under a second. Only the unusual ones take a little longer." />
             <Feature icon={<Map className="h-5 w-5" />} title="Interactive campus map"
               body="Pan and zoom the Indang main campus. Pick a From and To — the walking route draws itself." />
             <Feature icon={<Languages className="h-5 w-5" />} title="English · Filipino · Taglish"
@@ -218,7 +219,7 @@ export function LandingPage() {
         <footer className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-green-200 pt-8 sm:flex-row sm:items-center">
           <div>
             <p className="text-sm font-semibold text-green-900">Sevi · CvSU Virtual Assistant</p>
-            <p className="mt-1 text-xs text-gray-500">Powered by Naive Bayes + Neural Network + Local LLM</p>
+            <p className="mt-1 text-xs text-gray-500">Built for Cavite State University · Runs on CvSU&rsquo;s own servers</p>
           </div>
           <div className="text-left text-xs text-gray-500 sm:text-right">
             <a href="https://cvsu.edu.ph" className="font-medium text-green-700 hover:underline">cvsu.edu.ph</a>
