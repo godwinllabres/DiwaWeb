@@ -13,6 +13,12 @@ export interface ChatRequest {
   message: string;
   user_id?: string;
   session_id?: string;
+  /** Stable per-browser id from getDeviceId() — lets the logs count distinct
+   *  devices rather than distinct sessions. */
+  device_id?: string;
+  /** Form factor + orientation at send time, e.g. "phone/landscape". The API
+   *  allowlists the values in lib/ids.ts DeviceClass. */
+  device_class?: string;
 }
 
 // ─── ChatResponse v2 ─────────────────────────────────────────────────────────
@@ -240,38 +246,91 @@ if (typeof window !== "undefined") {
   }
 }
 
+// ── Backpressure ────────────────────────────────────────────────────────────
+// The API sheds load rather than queueing it: 503 + Retry-After when its turn
+// gate is saturated, 429 when a rate limit trips. Both mean "ask again shortly",
+// not "this failed" — so the chat path retries once instead of surfacing an
+// error whose only remedy is the user pressing send again.
+//
+// The jitter is the load-bearing part. Retry-After is the same number for every
+// shed client, so honouring it exactly makes them all re-arrive in the same
+// instant — reproducing the spike that caused the shedding. Spreading arrivals
+// over a couple of seconds is what turns a retry storm into a queue.
+const BUSY_STATUSES = new Set([429, 503]);
+const MAX_RETRY_WAIT_MS = 15_000;
+const RETRY_JITTER_MS = 2_000;
+
+/** Thrown when the API is shedding load and a retry has already been spent. */
+export class BusyError extends Error {
+  readonly status: number;
+  constructor(status: number) {
+    super("Sevi is helping a lot of students right now. Please try again in a moment.");
+    this.name = "BusyError";
+    this.status = status;
+  }
+}
+
+function busyRetryDelayMs(res: Response): number {
+  const header = Number(res.headers.get("Retry-After"));
+  const base = Number.isFinite(header) && header > 0 ? header * 1000 : 1_000;
+  return Math.min(base, MAX_RETRY_WAIT_MS) + Math.random() * RETRY_JITTER_MS;
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export interface RequestOptions {
+  /** Retry once, after Retry-After + jitter, on a 429/503. Chat opts in. */
+  retryOnBusy?: boolean;
+}
+
 // Exported so app/lib/adminApi.ts can reuse the same fetch/timeout plumbing
 // without the admin route names living in this (public-bundle) module.
 export async function request<T>(
   path: string,
   init?: RequestInit,
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  options: RequestOptions = {},
 ): Promise<T> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(`${API_BASE_URL}${path}`, {
-      ...init,
-      signal: controller.signal,
-      // Merge headers so per-call headers (e.g. X-Admin-Pin) add to, rather than
-      // replace, the default Content-Type + the internal Bearer token.
-      headers: {
-        "Content-Type": "application/json",
-        ...(_internalToken ? { Authorization: `Bearer ${_internalToken}` } : {}),
-        ...(init?.headers || {}),
-      },
-    });
-    if (!res.ok) {
-      throw new Error(`API ${path} failed: ${res.status}`);
+  const maxAttempts = options.retryOnBusy ? 2 : 1;
+
+  for (let attempt = 1; ; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(`${API_BASE_URL}${path}`, {
+        ...init,
+        signal: controller.signal,
+        // Merge headers so per-call headers (e.g. X-Admin-Pin) add to, rather than
+        // replace, the default Content-Type + the internal Bearer token.
+        headers: {
+          "Content-Type": "application/json",
+          ...(_internalToken ? { Authorization: `Bearer ${_internalToken}` } : {}),
+          ...(init?.headers || {}),
+        },
+      });
+      if (!res.ok) {
+        // Only callers that opted into the backpressure contract get BusyError.
+        // Its wording is chat-specific, and a 429 on an admin route is the PIN
+        // brute-force lockout — telling that admin we're "helping a lot of
+        // students" would replace a security message with a load message.
+        if (options.retryOnBusy && BUSY_STATUSES.has(res.status)) {
+          if (attempt < maxAttempts) {
+            await sleep(busyRetryDelayMs(res));
+            continue;
+          }
+          throw new BusyError(res.status);
+        }
+        throw new Error(`API ${path} failed: ${res.status}`);
+      }
+      return (await res.json()) as T;
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new Error(`API ${path} timed out after ${Math.round(timeoutMs / 1000)}s`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
     }
-    return (await res.json()) as T;
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") {
-      throw new Error(`API ${path} timed out after ${Math.round(timeoutMs / 1000)}s`);
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
   }
 }
 
@@ -287,6 +346,10 @@ export const api = {
         body: JSON.stringify(body),
       },
       CHAT_TIMEOUT_MS,
+      // Chat is the one path worth retrying automatically: a shed turn is a
+      // transient queue state, and the student has no way to know that a second
+      // press is all it needs.
+      { retryOnBusy: true },
     ),
 
   batchChat: (requests: ChatRequest[]) =>

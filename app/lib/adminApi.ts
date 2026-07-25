@@ -170,6 +170,9 @@ export const adminApi = {
 
   getIntentLogs: () => adminRequest<any>("/logs/intents"),
 
+  /** Device-usage rollup — distinct devices, form factor, orientation. */
+  getDeviceStats: (days = 30) => adminRequest<any>(`/logs/devices?days=${days}`),
+
   getFallbacks: (limit = 100) => adminRequest<any>(`/logs/fallbacks?limit=${limit}`),
 
   getFeedbackStats: () => adminRequest<any>("/feedback/stats"),

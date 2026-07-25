@@ -101,6 +101,31 @@
   // ── Z-index above most page chrome but below modals / toasts ───────────────
   var Z = 2147483600;
 
+  // ── Layout queries ────────────────────────────────────────────────────────
+  // The floating bottom-right panel is only worth showing when there is room
+  // for it in BOTH axes. Width alone used to decide this, which meant a phone
+  // in landscape (e.g. 844x390) read as "desktop" and got a 420px panel whose
+  // height collapsed to min(720px, 100dvh - 100px) = 290px — a conversation in
+  // a letterbox. Anything shorter than 600px now gets the fullscreen
+  // treatment, which is exactly the space a rotated phone has to give.
+  var PANEL_MQ = "(min-width: 640px) and (min-height: 600px)";
+  // Short viewport: every phone in landscape (932x430 on the largest) sits
+  // under this, every tablet in landscape (768+) sits above it.
+  var shortMq = window.matchMedia("(max-height: 560px)");
+
+  function onMediaChange(mql, handler) {
+    if (mql.addEventListener) mql.addEventListener("change", handler);
+    else if (mql.addListener) mql.addListener(handler);
+  }
+
+  function isPanelLayout() {
+    try {
+      return window.matchMedia(PANEL_MQ).matches;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // ── Build the launcher button ─────────────────────────────────────────────
   var btn = document.createElement("button");
   btn.type = "button";
@@ -175,7 +200,7 @@
     // On desktop the widget is NON-modal: the backdrop is transparent and
     // click-through (pointer-events: none) so the page behind stays usable
     // while chatting. Mobile keeps the fullscreen modal treatment.
-    var mq = window.matchMedia("(min-width: 640px)");
+    var mq = window.matchMedia(PANEL_MQ);
     function applySize() {
       if (mq.matches) {
         panel.style.width = "420px";
@@ -194,11 +219,16 @@
         overlay.style.background = "rgba(0, 0, 0, 0.45)";
         overlay.style.pointerEvents = "auto";
       }
+      // `header` is built further down and is undefined on this first call;
+      // it gets its size from the same helper right after it is created.
+      if (header) applyHeaderSize();
     }
     applySize();
-    mq.addEventListener
-      ? mq.addEventListener("change", applySize)
-      : mq.addListener && mq.addListener(applySize);
+    onMediaChange(mq, applySize);
+    // Rotating a phone crosses PANEL_MQ too, but a device that is short in
+    // BOTH orientations (or a resized desktop window) would not — watch the
+    // height on its own so the header always matches the space available.
+    onMediaChange(shortMq, applySize);
 
     // Header bar — gives the close X its own space ABOVE the iframe so it
     // never overlaps with content rendered inside the iframe (e.g. the map
@@ -209,6 +239,22 @@
       "flex: 0 0 auto; height: 44px; background: " + ACCENT + "; color: #ffffff; " +
       "display: flex; align-items: center; justify-content: space-between; " +
       "padding: 0 12px 0 16px; font: 600 14px system-ui, -apple-system, sans-serif;";
+
+    // A landscape phone has ~390px of height to spend in total, so a 44px
+    // chrome bar is more than a tenth of the conversation. Trim it (and the
+    // close button with it) whenever the viewport is short.
+    function applyHeaderSize() {
+      var short = shortMq.matches;
+      header.style.height = short ? "34px" : "44px";
+      header.style.fontSize = short ? "13px" : "14px";
+      var btnSize = short ? "26px" : "32px";
+      closeBtn.style.width = btnSize;
+      closeBtn.style.height = btnSize;
+      if (expandBtn) {
+        expandBtn.style.width = btnSize;
+        expandBtn.style.height = btnSize;
+      }
+    }
 
     var title = document.createElement("span");
     title.textContent = "Sevi";
@@ -240,7 +286,8 @@
     actions.style.cssText = "display: flex; align-items: center; gap: 6px;";
     var wantsFullscreen = false;
     try {
-      wantsFullscreen = window.matchMedia("(min-width: 768px)").matches;
+      wantsFullscreen =
+        window.matchMedia("(min-width: 768px)").matches && !shortMq.matches;
     } catch (e) {}
     if (wantsFullscreen) {
       var expandBtn = document.createElement("a");
@@ -271,6 +318,7 @@
 
     header.appendChild(title);
     header.appendChild(actions);
+    applyHeaderSize();
 
     iframe = document.createElement("iframe");
     iframe.title = "Sevi — CvSU Virtual Assistant";
@@ -314,7 +362,7 @@
     isOpen = true;
     // Lock page scroll only for the fullscreen (mobile) treatment — the
     // desktop panel is non-modal and the page should keep scrolling.
-    if (!window.matchMedia("(min-width: 640px)").matches) {
+    if (!isPanelLayout()) {
       document.documentElement.style.overflow = "hidden";
     }
   }

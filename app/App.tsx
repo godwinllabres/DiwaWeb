@@ -25,11 +25,12 @@ import { api } from "@/lib/api";
 import { loadCoords } from "@/lib/coordsStore";
 import { loadWaypoints } from "@/lib/waypointsStore";
 import { useConsent } from "@/lib/hooks/useConsent";
-import { getUserId, getSessionId } from "@/lib/ids";
+import { getUserId, getSessionId, getDeviceId } from "@/lib/ids";
 import { timeNow } from "@/lib/time";
 import { pickIcon } from "@/lib/iconMap";
 import { useChat } from "@/lib/hooks/useChat";
 import { useSmartScroll } from "@/lib/hooks/useSmartScroll";
+import { useVisualViewportHeight } from "@/lib/hooks/useViewport";
 import { useApiHealth } from "@/lib/hooks/useApiHealth";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
@@ -96,6 +97,9 @@ const AIS_WRITE_ENABLED =
 export default function App() {
   const userId = useMemo(() => getUserId(), []);
   const sessionId = useMemo(() => getSessionId(), []);
+  // Stable per-device id, kept apart from userId so device-usage counts survive
+  // a user-id reset (and vice versa). See getDeviceId() in lib/ids.ts.
+  const deviceId = useMemo(() => getDeviceId(), []);
   // Single source of truth for AIS auth state across all chat bubbles.
   // useAuth runs whoami on mount so a page refresh in the middle of an
   // active session restores the logged-in identity without a new login.
@@ -120,10 +124,14 @@ export default function App() {
 
   const scroll = useSmartScroll();
   const reducedMotion = usePrefersReducedMotion();
+  // Publishes --sevi-vh so the shell below can size to the space the on-screen
+  // keyboard leaves behind (see the shell's h-[var(--sevi-vh,100dvh)]).
+  useVisualViewportHeight();
 
   const chat = useChat({
     userId,
     sessionId,
+    deviceId,
     initialMessages: [],
     onBotResponse: (res, userInput) => {
       // Only apologize on a genuine miss — the static canned fallback
@@ -313,8 +321,12 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-dvh w-full bg-white lg:bg-green-50/40">
-      <div className="relative mx-auto flex h-dvh w-full">
+    // --sevi-vh is the visual-viewport height published by
+    // useVisualViewportHeight(); it collapses when the on-screen keyboard
+    // opens so the composer never ends up behind the keys. Falls back to
+    // 100dvh wherever visualViewport is unavailable.
+    <div className="min-h-[var(--sevi-vh,100dvh)] w-full bg-white lg:bg-green-50/40">
+      <div className="relative mx-auto flex h-[var(--sevi-vh,100dvh)] w-full">
         {/* Desktop conversation rail — hidden until lg, so the ≤420px widget
             iframe keeps the single-column phone layout. */}
         <ChatSidebar
@@ -326,7 +338,7 @@ export default function App() {
         {/* Main column. On tablet/desktop the conversation, quick actions, and
             composer center in a readable width instead of stretching edge-to-
             edge; on phone this is a no-op. */}
-        <div className="relative flex h-dvh min-w-0 flex-1 flex-col overflow-hidden bg-white">
+        <div className="relative flex h-[var(--sevi-vh,100dvh)] min-w-0 flex-1 flex-col overflow-hidden bg-white">
           <div className="hidden items-center gap-3 border-b border-gray-100 px-6 py-3 lg:flex">
             <span className="text-sm font-semibold text-gray-900">CvSU Virtual Assistant</span>
             <span className="rounded-full border border-gray-200 px-2.5 py-0.5 text-[11px] font-medium text-gray-500">
@@ -367,7 +379,7 @@ export default function App() {
         <div
           ref={scroll.containerRef}
           onScroll={scroll.onScroll}
-          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [-webkit-overflow-scrolling:touch] sm:px-6"
+          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [-webkit-overflow-scrolling:touch] sm:px-6 short:py-2"
         >
           <div className="mx-auto w-full md:max-w-2xl lg:max-w-3xl">
           <ChatMessage
@@ -466,7 +478,7 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.8, y: 8 }}
               transition={{ duration: 0.15 }}
               onClick={() => scroll.scrollToBottom(true)}
-              className="absolute bottom-[140px] right-4 z-10 flex items-center gap-1.5 rounded-full bg-white pl-3 pr-3.5 py-2 shadow-lg border border-gray-200 text-sm font-medium text-gray-700 active:bg-gray-50 sm:bottom-[160px] sm:right-6"
+              className="absolute bottom-[140px] right-4 z-10 flex items-center gap-1.5 rounded-full bg-white pl-3 pr-3.5 py-2 shadow-lg border border-gray-200 text-sm font-medium text-gray-700 active:bg-gray-50 sm:bottom-[160px] sm:right-6 short:bottom-[104px]"
             >
               <ChevronDown className="h-4 w-4 text-gray-500" />
               {scroll.hasNewMessage && <span className="text-green-600 text-xs">New message</span>}
@@ -475,7 +487,7 @@ export default function App() {
         </AnimatePresence>
 
         {!showCategories && (
-          <div className="border-t border-gray-100 bg-white px-4 py-2.5 sm:px-6">
+          <div className="border-t border-gray-100 bg-white px-4 py-2.5 sm:px-6 short:py-1.5">
             <div className="mx-auto flex w-full gap-2 overflow-x-auto scrollbar-none pb-0.5 md:max-w-2xl lg:max-w-3xl">
               <QuickActionButton icon={Home} label="Start Over" onClick={handleStartOver} />
               <QuickActionButton
@@ -497,7 +509,10 @@ export default function App() {
           </div>
         )}
 
-        <div className="border-t border-gray-100 bg-white px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex-shrink-0 sm:px-6 sm:pt-4 sm:pb-5">
+        {/* Composer. On a short viewport (landscape phone, or any phone with
+            the keyboard up) the vertical padding is the first thing to go —
+            every row saved here is a row of conversation kept on screen. */}
+        <div className="border-t border-gray-100 bg-white px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex-shrink-0 sm:px-6 sm:pt-4 sm:pb-5 short:pt-1.5 short:pb-[calc(0.375rem+env(safe-area-inset-bottom))]">
           <div className="mx-auto flex w-full items-center gap-2 sm:gap-3 md:max-w-2xl lg:max-w-3xl">
             <div className="relative min-w-0 flex-1">
               <input
@@ -508,13 +523,13 @@ export default function App() {
                 onKeyDown={handleKeyPress}
                 disabled={awaitingConsent}
                 placeholder={inputPlaceholder}
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-tight focus:outline-none focus:border-green-500 focus:bg-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 sm:text-base"
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-tight focus:outline-none focus:border-green-500 focus:bg-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 sm:text-base short:py-2"
               />
             </div>
             <button
               onClick={handleSend}
               disabled={sendDisabled}
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-600 transition-colors active:bg-green-800 disabled:bg-gray-200 sm:h-12 sm:w-12"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-600 transition-colors active:bg-green-800 disabled:bg-gray-200 sm:h-12 sm:w-12 short:h-10 short:w-10"
               aria-label="Send message"
             >
               <Send className="h-4 w-4 text-white sm:h-5 sm:w-5" />
@@ -523,7 +538,7 @@ export default function App() {
           {/* Always-visible accuracy disclosure — the in-reply disclaimer only
               shows on intents most users never trigger. Low emphasis on
               purpose: present on every turn, shouting on none. */}
-          <p className="mx-auto mt-2 w-full text-center text-[11px] leading-tight text-gray-400 md:max-w-2xl lg:max-w-3xl">
+          <p className="mx-auto mt-2 w-full text-center text-[11px] leading-tight text-gray-400 md:max-w-2xl lg:max-w-3xl short:mt-1 short:text-[10px]">
             Sevi can make mistakes — verify important details with the official{" "}
             <a
               href="https://cvsu.edu.ph"
