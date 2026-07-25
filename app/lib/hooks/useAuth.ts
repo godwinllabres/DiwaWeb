@@ -9,7 +9,7 @@
  * a fresh login. This matches the threat model: a shared workstation
  * should not leave AIS credentials accessible to the next user.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const API_BASE_URL = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_API_URL || "/api";
 
@@ -147,5 +147,11 @@ export function useAuth(sessionId: string): UseAuthApi {
     [identity],
   );
 
-  return { identity, busy, error, login, logout, hasAnyRole };
+  // Memoized because this object is passed straight down to every ChatMessage,
+  // which is memoized: a fresh literal each render would make that comparison
+  // fail every time and quietly undo it.
+  return useMemo(
+    () => ({ identity, busy, error, login, logout, hasAnyRole }),
+    [identity, busy, error, login, logout, hasAnyRole],
+  );
 }
