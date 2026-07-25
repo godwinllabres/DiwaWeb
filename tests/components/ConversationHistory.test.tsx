@@ -27,6 +27,17 @@ function setup(over: Partial<React.ComponentProps<typeof ConversationHistory>> =
   return props;
 }
 
+describe("the switch", () => {
+  // It carried only an aria-label, so a sighted user saw a bare toggle with
+  // no indication of what it controlled.
+  it("takes its accessible name from visible text", () => {
+    setup({ enabled: false });
+    expect(
+      screen.getByRole("switch", { name: /save chats on this device/i }),
+    ).toBeInTheDocument();
+  });
+});
+
 describe("when saving is off", () => {
   it("shows the switch unchecked and no conversations", () => {
     setup({ enabled: false });

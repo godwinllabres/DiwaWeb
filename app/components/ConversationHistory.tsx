@@ -37,29 +37,38 @@ export function ConversationHistory({
 }: ConversationHistoryProps) {
   return (
     <div className={className}>
-      <div className="flex items-start justify-between gap-3 px-2">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-            Saved chats
-          </p>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={enabled}
-          aria-label="Save my chats on this device"
-          onClick={() => onToggle(!enabled)}
-          className={`relative mt-0.5 h-5 w-9 flex-shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 ${
+      {/* The whole row is the switch: the visible text is the control's
+          accessible name (it previously had only an aria-label, leaving
+          sighted users to infer what the bare toggle did), and a full-width
+          hit area is easier to land on a phone. */}
+      <button
+        type="button"
+        role="switch"
+        aria-checked={enabled}
+        onClick={() => onToggle(!enabled)}
+        className="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/70 focus:outline-none focus:ring-2 focus:ring-green-400"
+      >
+        <span className="text-[13px] font-medium text-gray-700">
+          Save chats on this device
+        </span>
+        {/* Track and knob are laid out with flex + padding rather than
+            absolute positioning. A <button> centres its content and Tailwind's
+            preflight does not reset that, so an absolutely positioned knob
+            with no `left` starts from the middle of the track — and the
+            translate then pushed it out through the right-hand edge. */}
+        <span
+          aria-hidden="true"
+          className={`inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full p-0.5 transition-colors ${
             enabled ? "bg-green-600" : "bg-gray-300"
           }`}
         >
           <span
-            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-              enabled ? "translate-x-4" : "translate-x-0.5"
+            className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
+              enabled ? "translate-x-4" : "translate-x-0"
             }`}
           />
-        </button>
-      </div>
+        </span>
+      </button>
 
       {!enabled && (
         <p className="mt-1.5 px-2 text-[11px] leading-snug text-gray-500">
