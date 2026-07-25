@@ -11,6 +11,56 @@
 // Keeping this out of ChatMessage guarantees the widget and full-screen views
 // can never drift apart, and lets the pure helpers be unit-tested directly.
 
+import type { CSSProperties, ReactNode } from "react";
+
+// ── word reveal ───────────────────────────────────────────────────────────────
+
+/**
+ * Reading-order counter for the fade-in reveal.
+ *
+ * Mutable on purpose. React renders synchronously and depth-first, so
+ * incrementing as each unit is emitted numbers them in the order they appear
+ * on screen — across paragraphs, list items and nested bullets alike, which a
+ * per-block index could not do. Created fresh per MessageBody render and never
+ * read after it, so nothing outlives the pass.
+ */
+interface Reveal {
+  n: number;
+}
+
+/** Marks one animation unit and claims the next index. Inline spans (links,
+ *  `code`, bold) fade as a single unit — a URL revealing letter-group by
+ *  letter-group would read as a glitch. */
+function unit(reveal: Reveal | undefined, cls?: string): {
+  className?: string;
+  style?: CSSProperties;
+} {
+  if (!reveal) return cls ? { className: cls } : {};
+  return {
+    className: cls ? `${cls} sevi-word` : "sevi-word",
+    style: { "--i": reveal.n++ } as CSSProperties,
+  };
+}
+
+/**
+ * Split plain text into per-word units, keeping whitespace as bare text nodes.
+ *
+ * Whitespace stays outside the spans so it is never itself animated, and so
+ * the character stream is byte-for-byte what it was — `whitespace-pre-wrap`
+ * paragraphs keep their newlines.
+ */
+function revealWords(text: string, reveal: Reveal, keyBase: number): ReactNode[] {
+  return text.split(/(\s+)/).map((part, i) => {
+    if (!part) return null;
+    if (/^\s+$/.test(part)) return part;
+    return (
+      <span key={`${keyBase}:${i}`} {...unit(reveal)}>
+        {part}
+      </span>
+    );
+  });
+}
+
 // ── inline text formatting ────────────────────────────────────────────────────
 
 type SegKind = "text" | "url" | "bold" | "code" | "path" | "mdlink";
@@ -129,12 +179,12 @@ export function deshout(text: string): string {
 
 function FormattedText({
   text,
-  done,
   isBot,
+  reveal,
 }: {
   readonly text: string;
-  readonly done: boolean;
   readonly isBot: boolean;
+  readonly reveal?: Reveal;
 }) {
   const segs = parseSegments(text);
   const linkCls = isBot
@@ -158,29 +208,32 @@ function FormattedText({
         switch (seg.k) {
           case "url":
             return (
-              <a key={seg.id} href={seg.v} target="_blank" rel="noopener noreferrer" className={linkCls}>
+              <a key={seg.id} href={seg.v} target="_blank" rel="noopener noreferrer" {...unit(reveal, linkCls)}>
                 {seg.v}
               </a>
             );
           case "mdlink":
             return (
-              <a key={seg.id} href={seg.href} target="_blank" rel="noopener noreferrer" className={mdLinkCls}>
+              <a key={seg.id} href={seg.href} target="_blank" rel="noopener noreferrer" {...unit(reveal, mdLinkCls)}>
                 {seg.v}
               </a>
             );
           case "bold":
-            return <strong key={seg.id} className="font-semibold">{seg.v}</strong>;
+            return <strong key={seg.id} {...unit(reveal, "font-semibold")}>{seg.v}</strong>;
           case "code":
-            return <code key={seg.id} className={codeCls}>{seg.v}</code>;
+            return <code key={seg.id} {...unit(reveal, codeCls)}>{seg.v}</code>;
           case "path":
-            return <span key={seg.id} className={pathCls}>{seg.v}</span>;
+            return <span key={seg.id} {...unit(reveal, pathCls)}>{seg.v}</span>;
           default:
-            return <span key={seg.id}>{seg.v}</span>;
+            // Plain prose is the only kind that splits — everything above is a
+            // single atom.
+            return reveal ? (
+              <span key={seg.id}>{revealWords(seg.v, reveal, seg.id)}</span>
+            ) : (
+              <span key={seg.id}>{seg.v}</span>
+            );
         }
       })}
-      {!done && (
-        <span className="inline-block w-0.5 h-3.5 ml-0.5 bg-gray-500 align-middle animate-pulse" />
-      )}
     </>
   );
 }
@@ -255,24 +308,30 @@ export function parseBlocks(raw: string): Block[] {
 
 export function MessageBody({
   text,
-  done,
   isBot,
+  reveal = false,
 }: {
   readonly text: string;
-  readonly done: boolean;
   readonly isBot: boolean;
+  /**
+   * Wrap each word so the CSS reveal can stagger it. Off for user messages,
+   * restored transcripts, and reduced motion.
+   *
+   * The matching `.sevi-reveal` class and `--sevi-stagger` value go on the
+   * bubble in ChatMessage rather than a wrapper here: a `<span>` cannot
+   * legally contain the `<p>`/`<ol>`/`<ul>` this renders, and the bubble is an
+   * element that already exists.
+   */
+  readonly reveal?: boolean;
 }) {
   const blocks = parseBlocks(text);
   // Bot answers carry the ALL-CAPS pseudo-formatting from the knowledge base;
   // calm it. User messages are shown verbatim.
   const tx = isBot ? deshout : (s: string) => s;
-  const lastIdx = blocks.length - 1;
-  return (
+  const counter: Reveal | undefined = reveal ? { n: 0 } : undefined;
+  const body = (
     <>
       {blocks.map((b, i) => {
-        const isLast = i === lastIdx;
-        // Only the trailing block carries the typewriter cursor.
-        const cursorDone = done || !isLast;
         switch (b.kind) {
           case "heading":
             return (
@@ -285,7 +344,7 @@ export function MessageBody({
                   className={`mt-1 inline-block h-3.5 w-1 flex-shrink-0 rounded-full ${isBot ? "bg-green-500" : "bg-white/60"}`}
                 />
                 <span className="min-w-0">
-                  <FormattedText text={tx(b.text.replace(/:$/, ""))} done={cursorDone} isBot={isBot} />
+                  <FormattedText text={tx(b.text.replace(/:$/, ""))} isBot={isBot} reveal={counter} />
                 </span>
               </p>
             );
@@ -293,7 +352,6 @@ export function MessageBody({
             return (
               <ol key={i} className="my-1.5 space-y-1.5 list-none pl-0">
                 {b.items.map((it, j) => {
-                  const itemLast = j === b.items.length - 1;
                   const hasSubs = it.subs.length > 0;
                   return (
                     <li key={j} className="relative pl-7">
@@ -305,14 +363,7 @@ export function MessageBody({
                       >
                         {b.start + j}
                       </span>
-                      <FormattedText
-                        text={tx(it.text)}
-                        // Cursor sits on the last visible text node only: skip
-                        // this item if it isn't last, or if its sub-bullets
-                        // will carry the cursor instead.
-                        done={cursorDone || !itemLast || hasSubs}
-                        isBot={isBot}
-                      />
+                      <FormattedText text={tx(it.text)} isBot={isBot} reveal={counter} />
                       {hasSubs && (
                         <ul className="mt-1 space-y-1 list-none pl-1">
                           {it.subs.map((s, k) => (
@@ -323,11 +374,7 @@ export function MessageBody({
                                   isBot ? "bg-green-500" : "bg-white/70"
                                 }`}
                               />
-                              <FormattedText
-                                text={tx(s)}
-                                done={cursorDone || !itemLast || k !== it.subs.length - 1}
-                                isBot={isBot}
-                              />
+                              <FormattedText text={tx(s)} isBot={isBot} reveal={counter} />
                             </li>
                           ))}
                         </ul>
@@ -348,11 +395,7 @@ export function MessageBody({
                         isBot ? "bg-green-500" : "bg-white/70"
                       }`}
                     />
-                    <FormattedText
-                      text={tx(it)}
-                      done={cursorDone || j !== b.items.length - 1}
-                      isBot={isBot}
-                    />
+                    <FormattedText text={tx(it)} isBot={isBot} reveal={counter} />
                   </li>
                 ))}
               </ul>
@@ -363,11 +406,13 @@ export function MessageBody({
                 key={i}
                 className={`${i === 0 ? "mt-0" : "mt-2"} whitespace-pre-wrap break-words`}
               >
-                <FormattedText text={tx(b.text)} done={cursorDone} isBot={isBot} />
+                <FormattedText text={tx(b.text)} isBot={isBot} reveal={counter} />
               </p>
             );
         }
       })}
     </>
   );
+
+  return body;
 }

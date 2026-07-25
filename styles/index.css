@@ -48,3 +48,27 @@
   from { opacity: 0; transform: scale(0.94); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* Bot-reply reveal (MessageBody). Each word carries its reading-order index in
+   --i; useWordReveal publishes --sevi-stagger, derived from the word count so
+   the whole reveal lands inside a fixed budget however long the answer runs.
+
+   Opacity only, on plain inline spans, and that is the entire point. Opacity
+   does not affect layout, so the bubble is at its final size from the first
+   frame: nothing reflows, the scroll container has nothing to chase, and text
+   wraps exactly as it would without the animation. (transform would need
+   inline-block, which changes wrapping — hence opacity alone.)
+
+   What this replaced was a setInterval typewriter that grew the string and
+   re-parsed the markdown ~55 times a second, so bold and links visibly
+   snapped into place mid-reveal. This costs one parse, total. */
+@media (prefers-reduced-motion: no-preference) {
+  .sevi-reveal .sevi-word {
+    animation: sevi-word-in 240ms ease-out both;
+    animation-delay: calc(var(--i, 0) * var(--sevi-stagger, 22ms));
+  }
+}
+@keyframes sevi-word-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

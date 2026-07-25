@@ -50,8 +50,11 @@ describe("useChat", () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       status: 200,
+      // v2 envelope — the reply body is `text`. This mock still said
+      // `response` from the v1 shape, so the assertions below were comparing
+      // undefined and the test had been failing silently against main.
       json: async () => ({
-        response: "hello back",
+        text: "hello back",
         intent: "greeting",
         confidence: 0.9,
         message_id: 42,
@@ -79,7 +82,7 @@ describe("useChat", () => {
     expect(last?.isBot).toBe(true);
     expect(result.current.typingMessageId).toBe(last?.id);
     expect(onBotResponse).toHaveBeenCalledWith(
-      expect.objectContaining({ response: "hello back" }),
+      expect.objectContaining({ text: "hello back" }),
       "hi"
     );
   });
@@ -130,7 +133,10 @@ describe("useChat", () => {
     expect(result.current.apiError).toMatch(expected);
   });
 
-  it("resetMessages keeps only the first message", () => {
+  // "Start Over" means an empty chat. It used to keep messages[0], which was
+  // correct only while the welcome bubble lived in this array; App renders it
+  // separately now, so keeping one left the user's own first question on screen.
+  it("resetMessages clears the transcript and restarts the id counter", () => {
     const { result } = renderHook(() =>
       useChat({ userId: "u", sessionId: "s", initialMessages: initial })
     );
@@ -142,13 +148,41 @@ describe("useChat", () => {
     expect(result.current.messages.length).toBe(3);
 
     act(() => result.current.resetMessages());
-    expect(result.current.messages).toEqual(initial);
+    expect(result.current.messages).toEqual([]);
+
+    let nextId = 0;
+    act(() => {
+      nextId = result.current.pushMessage({ text: "fresh", isBot: false });
+    });
+    expect(nextId).toBe(1);
+  });
+
+  it("replaceMessages swaps the transcript and continues ids after it", () => {
+    const { result } = renderHook(() =>
+      useChat({ userId: "u", sessionId: "s", initialMessages: initial })
+    );
+
+    // Shape a restored conversation takes: renumbered from 1 by historyStore.
+    const restored: Message[] = [
+      { id: 1, text: "how do I enroll", isBot: false, timestamp: "09:00" },
+      { id: 2, text: "here is how", isBot: true, timestamp: "09:00" },
+    ];
+
+    act(() => result.current.replaceMessages(restored));
+    expect(result.current.messages).toEqual(restored);
+
+    let nextId = 0;
+    act(() => {
+      nextId = result.current.pushMessage({ text: "thanks", isBot: false });
+    });
+    // Must not collide with a restored id, or React renders duplicate keys.
+    expect(nextId).toBe(3);
   });
 
   it("clearTypingMessageId nulls the value", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ response: "x", intent: "i", confidence: 1, message_id: 1 }),
+      json: async () => ({ text: "x", intent: "i", confidence: 1, message_id: 1 }),
     } as Response);
 
     const { result } = renderHook(() =>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState, type CSSProperties } from "react";
 import { motion } from "motion/react";
 import { User, ThumbsUp, ThumbsDown, Check, X, MapPin, Mail, Phone, Clock, Building2, ChevronDown, Map as MapIcon, FileText, ExternalLink, ChevronUp, ArrowUpDown, Search, ArrowLeft } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
@@ -28,7 +28,7 @@ export interface FeedbackSubmission {
   readonly reason?: string;
   readonly comment?: string;
 }
-import { useTypewriter } from "@/lib/hooks/useTypewriter";
+import { useWordReveal } from "@/lib/hooks/useWordReveal";
 import { CampusMap } from "@/components/CampusMap";
 import {
   Dialog,
@@ -80,7 +80,21 @@ interface ChatMessageProps {
   readonly confidence?: number;
   readonly messageId?: number;
   readonly isGrouped?: boolean;
-  readonly onFeedback?: (submission: FeedbackSubmission) => void;
+  /**
+   * Takes the message's own intent and id alongside the submission so the
+   * parent can pass one stable callback for every bubble. Building the
+   * closure at the call site instead (`(s) => submit(intent, id, s)`) mints a
+   * new function on every App render, which silently defeats the memo below —
+   * and re-rendering 30 bubbles on every keystroke is what that memo exists to
+   * prevent.
+   */
+  readonly onFeedback?: (
+    submission: FeedbackSubmission,
+    intent: string | undefined,
+    messageId: number | undefined,
+  ) => void;
+  /** Follow-up bubbles ("I may have missed your question") carry no thumbs. */
+  readonly followUp?: boolean;
   readonly typing?: boolean;
   readonly onTypingDone?: () => void;
   // v2 envelope
@@ -860,7 +874,7 @@ function UserAvatar({ grouped }: { readonly grouped: boolean }) {
   );
 }
 
-export function ChatMessage({
+function ChatMessageImpl({
   message,
   isBot,
   timestamp,
@@ -868,6 +882,7 @@ export function ChatMessage({
   messageId,
   isGrouped = false,
   onFeedback,
+  followUp = false,
   typing = false,
   onTypingDone,
   cards,
@@ -896,7 +911,7 @@ export function ChatMessage({
   const [submitted, setSubmitted] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [comment, setComment] = useState("");
-  const { displayed, done } = useTypewriter(message, typing, onTypingDone);
+  const { done, staggerMs, animate } = useWordReveal(message, typing, onTypingDone);
   const hasSuggestions = done && isBot && !!suggestions?.length && !!onSuggestion;
 
   const handleThumb = (helpful: boolean) => {
@@ -907,18 +922,22 @@ export function ChatMessage({
 
   const handleSubmit = () => {
     if (thumb === null || submitted) return;
-    onFeedback?.({
-      helpful: thumb,
-      reason: selectedReason ?? undefined,
-      comment: comment.trim() ? comment.trim() : undefined,
-    });
+    onFeedback?.(
+      {
+        helpful: thumb,
+        reason: selectedReason ?? undefined,
+        comment: comment.trim() ? comment.trim() : undefined,
+      },
+      intent,
+      messageId,
+    );
     setSubmitted(true);
   };
 
   const handleSkip = () => {
     if (thumb === null || submitted) return;
     // Bare thumb signal, no reason/comment.
-    onFeedback?.({ helpful: thumb });
+    onFeedback?.({ helpful: thumb }, intent, messageId);
     setSubmitted(true);
   };
 
@@ -929,7 +948,10 @@ export function ChatMessage({
     setComment("");
   };
 
-  const showFeedback = done && isBot && messageId !== undefined && !!onFeedback;
+  // `followUp` moved in from the call site, where App used to suppress the
+  // thumbs by passing `onFeedback={undefined}` — a conditional that rebuilt the
+  // prop every render.
+  const showFeedback = done && isBot && !followUp && messageId !== undefined && !!onFeedback;
   const showReasonPanel = showFeedback && thumb !== null && !submitted;
   const showHint = done && isBot && confidence !== undefined && confidence < 0.5;
 
@@ -968,13 +990,20 @@ export function ChatMessage({
         }`}
       >
         {/* When a structured table is available, render it in place of the
-            monospace text bubble — the title carries the same lead-in. Text
-            still renders during typewriter so the user sees something
-            immediately while the table waits for `done`. */}
+            text bubble — the title carries the same lead-in. Text still
+            renders during the reveal so the user sees something immediately
+            while the table waits for `done`. */}
         {!(done && isBot && table) && (
           <div className={`px-3.5 py-2.5 sm:px-4 sm:py-3 ${bubbleColors} ${bubbleRounding}`}>
-            <div className="text-sm leading-relaxed break-words">
-              <MessageBody text={displayed} done={done} isBot={isBot} />
+            {/* `.sevi-reveal` scopes the word animation and carries the stagger
+                for every span MessageBody emits below it (styles/index.css).
+                It lives on this existing element rather than a wrapper inside
+                MessageBody, which renders block content a <span> cannot hold. */}
+            <div
+              className={`text-sm leading-relaxed break-words ${animate ? "sevi-reveal" : ""}`}
+              style={animate ? ({ "--sevi-stagger": `${staggerMs}ms` } as CSSProperties) : undefined}
+            >
+              <MessageBody text={message} isBot={isBot} reveal={animate} />
             </div>
           </div>
         )}
@@ -1074,3 +1103,20 @@ export function ChatMessage({
     </motion.div>
   );
 }
+
+/**
+ * Memoized because the transcript re-renders far more often than it changes.
+ *
+ * `inputValue` is App state and the message list renders in the same
+ * component, so without this every keystroke in the composer re-ran this
+ * function for every bubble on screen — and each run re-parses the reply's
+ * markdown (parseBlocks + a regex scan per block in MessageBody). Thirty
+ * messages deep on a phone that is a full re-parse of the conversation per
+ * character typed, at exactly the moment the user needs the main thread.
+ *
+ * This only holds while the props stay referentially stable, which is why
+ * `onFeedback` takes intent/messageId as arguments and App memoizes the
+ * handlers it passes. A new inline arrow at the call site turns this back into
+ * a plain component with extra steps.
+ */
+export const ChatMessage = memo(ChatMessageImpl);

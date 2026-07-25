@@ -24,6 +24,10 @@ export interface UseChatApi {
   sendMessage: (text: string) => Promise<void>;
   /** Re-send the last message after a failure — no new user bubble is added. */
   retryLast: () => void;
+  /** Swap the whole transcript, e.g. when a saved conversation is reopened
+   *  from the history rail. Renumbers the id counter to match. */
+  replaceMessages: (next: readonly Message[]) => void;
+  /** Clear the transcript back to empty — what "Start Over" means. */
   resetMessages: () => void;
   clearTypingMessageId: () => void;
   setApiError: (err: string | null) => void;
@@ -142,12 +146,21 @@ export function useChat({
     if (lastSentRef.current) void sendMessage(lastSentRef.current);
   }, [sendMessage]);
 
-  const resetMessages = useCallback(() => {
-    setMessages((prev) => prev.slice(0, 1));
-    idCounterRef.current = 2;
+  /**
+   * The id counter is reseeded from the incoming length because ids are render
+   * keys, not identities: restored messages are renumbered 1..n by
+   * historyStore, so the next push has to continue from n+1 or React sees two
+   * bubbles claiming the same key.
+   */
+  const replaceMessages = useCallback((next: readonly Message[]) => {
+    setMessages([...next]);
+    idCounterRef.current = next.length + 1;
     setApiError(null);
     setTypingMessageId(null);
+    lastSentRef.current = null;
   }, []);
+
+  const resetMessages = useCallback(() => replaceMessages([]), [replaceMessages]);
 
   const clearTypingMessageId = useCallback(() => setTypingMessageId(null), []);
 
@@ -159,6 +172,7 @@ export function useChat({
     pushMessage,
     sendMessage,
     retryLast,
+    replaceMessages,
     resetMessages,
     clearTypingMessageId,
     setApiError,
