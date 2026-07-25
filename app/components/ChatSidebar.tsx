@@ -1,6 +1,8 @@
 import { Plus, Lock } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
+import { ConversationHistory } from "./ConversationHistory";
 import { pickIcon } from "@/lib/iconMap";
+import type { ConversationMeta } from "@/lib/historyStore";
 import type { TopicCard } from "@/lib/topicCatalog";
 
 interface ChatSidebarProps {
@@ -8,6 +10,12 @@ interface ChatSidebarProps {
   readonly topics: TopicCard[];
   readonly onStartOver: () => void;
   readonly onTopic: (topic: TopicCard) => void;
+  readonly conversations: ConversationMeta[];
+  readonly historyEnabled: boolean;
+  readonly onToggleHistory: (on: boolean) => void;
+  readonly onOpenConversation: (id: string) => void;
+  readonly onDeleteConversation: (id: string) => void;
+  readonly onClearHistory: () => void;
 }
 
 // Desktop-only conversation rail (shown at ≥ lg via the parent's `hidden
@@ -16,7 +24,18 @@ interface ChatSidebarProps {
 // chat. Mirrors the ChatGPT/Claude shell: brand, a fresh-start action, quick
 // topics, and a privacy footer — all wired to the same handlers the phone
 // widget already uses.
-export function ChatSidebar({ className = "", topics, onStartOver, onTopic }: ChatSidebarProps) {
+export function ChatSidebar({
+  className = "",
+  topics,
+  onStartOver,
+  onTopic,
+  conversations,
+  historyEnabled,
+  onToggleHistory,
+  onOpenConversation,
+  onDeleteConversation,
+  onClearHistory,
+}: ChatSidebarProps) {
   return (
     <aside className={`w-64 flex-shrink-0 flex-col border-r border-green-100 bg-green-50/40 ${className}`}>
       <div className="flex items-center gap-2.5 px-4 pb-3 pt-4">
@@ -55,12 +74,24 @@ export function ChatSidebar({ className = "", topics, onStartOver, onTopic }: Ch
             );
           })}
         </div>
+
+        <ConversationHistory
+          className="mt-5"
+          conversations={conversations}
+          enabled={historyEnabled}
+          onToggle={onToggleHistory}
+          onOpen={onOpenConversation}
+          onDelete={onDeleteConversation}
+          onClearAll={onClearHistory}
+        />
       </nav>
 
       <div className="mt-auto border-t border-gray-200 px-4 py-3 text-[11px] text-gray-500">
         <p className="font-medium text-gray-600">Language · EN · FIL · Taglish</p>
         <p className="mt-1 flex items-center gap-1.5">
           <Lock className="h-3 w-3" />
+          {/* Stays accurate either way: with saved chats on, the transcript is
+              on this device only — it is still not an account. */}
           No login · anonymous by default
         </p>
       </div>

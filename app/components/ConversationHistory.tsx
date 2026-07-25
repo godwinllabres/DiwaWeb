@@ -1,0 +1,124 @@
+import { MessageSquareText, Trash2, X } from "lucide-react";
+import type { ConversationMeta } from "@/lib/historyStore";
+import { RETENTION_DAYS } from "@/lib/historyStore";
+import { relativeDay } from "@/lib/time";
+
+interface ConversationHistoryProps {
+  readonly conversations: ConversationMeta[];
+  readonly enabled: boolean;
+  readonly onToggle: (on: boolean) => void;
+  readonly onOpen: (id: string) => void;
+  readonly onDelete: (id: string) => void;
+  readonly onClearAll: () => void;
+  readonly className?: string;
+}
+
+/**
+ * The saved-conversations surface: opt-in switch, the list, and the way out.
+ *
+ * Presentational and shared — the desktop rail renders it inline, the phone
+ * layout renders it in an overlay. Both need the same guarantee that the
+ * switch and "Delete all" sit next to the list rather than behind a settings
+ * screen the student has to go looking for.
+ *
+ * Written with plain markup and a role="switch" button instead of the Radix
+ * primitive in components/ui: this ships in the public chat bundle, the
+ * surrounding rail is plain Tailwind already, and a toggle is not worth a
+ * dependency.
+ */
+export function ConversationHistory({
+  conversations,
+  enabled,
+  onToggle,
+  onOpen,
+  onDelete,
+  onClearAll,
+  className = "",
+}: ConversationHistoryProps) {
+  return (
+    <div className={className}>
+      <div className="flex items-start justify-between gap-3 px-2">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+            Saved chats
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          aria-label="Save my chats on this device"
+          onClick={() => onToggle(!enabled)}
+          className={`relative mt-0.5 h-5 w-9 flex-shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 ${
+            enabled ? "bg-green-600" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+              enabled ? "translate-x-4" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+      </div>
+
+      {!enabled && (
+        <p className="mt-1.5 px-2 text-[11px] leading-snug text-gray-500">
+          Off. Turn this on to keep your chats in this browser so you can read them
+          later. Please leave it off on shared or library computers — anyone using
+          this device afterwards would be able to read them.
+        </p>
+      )}
+
+      {enabled && conversations.length === 0 && (
+        <p className="mt-1.5 px-2 text-[11px] leading-snug text-gray-500">
+          Your chats are kept in this browser only — never on another device — and
+          are removed after {RETENTION_DAYS} days.
+        </p>
+      )}
+
+      {enabled && conversations.length > 0 && (
+        <>
+          <ul className="mt-1.5 flex flex-col gap-0.5">
+            {conversations.map((c) => (
+              <li key={c.id} className="group relative">
+                <button
+                  type="button"
+                  onClick={() => onOpen(c.id)}
+                  className="flex w-full items-center gap-2.5 rounded-lg py-2 pl-2.5 pr-8 text-left transition-colors hover:bg-white"
+                >
+                  <MessageSquareText className="h-4 w-4 flex-shrink-0 text-green-600" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm text-gray-700 group-hover:text-gray-900">
+                      {c.title}
+                    </span>
+                    <span className="block text-[11px] text-gray-400">
+                      {relativeDay(c.updatedAt)}
+                    </span>
+                  </span>
+                </button>
+                {/* Always present for touch, which has no hover to reveal it. */}
+                <button
+                  type="button"
+                  onClick={() => onDelete(c.id)}
+                  aria-label={`Delete chat: ${c.title}`}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            type="button"
+            onClick={onClearAll}
+            className="mt-2 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-700"
+          >
+            <Trash2 className="h-3.5 w-3.5 flex-shrink-0" />
+            Delete all chats on this device
+          </button>
+        </>
+      )}
+    </div>
+  );
+}

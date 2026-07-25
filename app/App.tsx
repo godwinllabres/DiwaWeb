@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Send,
   GraduationCap,
@@ -10,6 +10,8 @@ import {
   AlertCircle,
   ChevronDown,
   ShieldCheck,
+  History,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -18,17 +20,27 @@ import { QuickActionButton } from "./components/QuickActionButton";
 import { CategoryCard } from "./components/CategoryCard";
 import { TypingIndicator } from "./components/TypingIndicator";
 import { ChatSidebar } from "./components/ChatSidebar";
+import { ConversationHistory } from "./components/ConversationHistory";
 import { LandingPage } from "./components/LandingPage";
 import { warmSeviStickers } from "./components/SeviSticker";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
-import { api } from "@/lib/api";
+import { api, type ChatResponse } from "@/lib/api";
 import { loadCoords } from "@/lib/coordsStore";
 import { loadWaypoints } from "@/lib/waypointsStore";
 import { useConsent } from "@/lib/hooks/useConsent";
-import { getUserId, getSessionId, getDeviceId } from "@/lib/ids";
+import {
+  getUserId,
+  getSessionId,
+  getDeviceId,
+  getConversationId,
+  newConversationId,
+  setConversationId,
+} from "@/lib/ids";
+import { isHistoryEnabled, loadConversation } from "@/lib/historyStore";
+import { useConversationHistory } from "@/lib/hooks/useConversationHistory";
 import { timeNow } from "@/lib/time";
 import { pickIcon } from "@/lib/iconMap";
-import { useChat } from "@/lib/hooks/useChat";
+import { useChat, type UseChatApi } from "@/lib/hooks/useChat";
 import { useSmartScroll } from "@/lib/hooks/useSmartScroll";
 import { useVisualViewportHeight } from "@/lib/hooks/useViewport";
 import { useApiHealth } from "@/lib/hooks/useApiHealth";
@@ -81,6 +93,8 @@ const CONSENT_PROMPT_TEXT =
   `Before we begin: your messages are logged to improve this service, automatically screened for safety, ` +
   `and may be used to make Sevi's answers better. For live records (documents, tickets, accounts) I look ` +
   `them up from the relevant CvSU system under your own access — I never ask for passwords in chat. ` +
+  `Our chats are not kept on this device unless you switch on **Saved chats** yourself; if you do, ` +
+  `they stay in this browser only and you can delete them at any time. ` +
   `Full details are in our [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
   `If you agree, kindly click the **I Agree** button below.`;
 
@@ -100,6 +114,19 @@ export default function App() {
   // Stable per-device id, kept apart from userId so device-usage counts survive
   // a user-id reset (and vice versa). See getDeviceId() in lib/ids.ts.
   const deviceId = useMemo(() => getDeviceId(), []);
+  // Which saved conversation is on screen. Separate from sessionId on purpose —
+  // that one is a bearer capability for the AIS token (see lib/ids.ts), so it
+  // is not something to write into localStorage as an archive key.
+  const [conversationId, setActiveConversation] = useState(() => getConversationId());
+  // Read once, synchronously, before first paint: localStorage is a sync API,
+  // so a restored conversation renders in the first frame instead of flashing
+  // an empty chat. Reopening a *different* conversation later goes through
+  // chat.replaceMessages, which is why this deliberately has no deps.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const restoredMessages = useMemo(
+    () => (isHistoryEnabled() ? loadConversation(deviceId, conversationId) : []),
+    [],
+  );
   // Single source of truth for AIS auth state across all chat bubbles.
   // useAuth runs whoami on mount so a page refresh in the middle of an
   // active session restores the logged-in identity without a new login.
@@ -108,7 +135,12 @@ export default function App() {
   const consent = useConsent();
   const apiHealth = useApiHealth();
   const [inputValue, setInputValue] = useState("");
-  const [showCategories, setShowCategories] = useState(true);
+  // The topic cards are a starting point, so they stay hidden when the student
+  // has come back to a conversation already in progress.
+  const [showCategories, setShowCategories] = useState(restoredMessages.length === 0);
+  // Below lg the sidebar is not rendered at all, so the saved-chats surface
+  // becomes an overlay reached from the quick-actions strip.
+  const [showHistory, setShowHistory] = useState(false);
   // The old `?admin=1` deep link now forwards to the standalone admin app so
   // existing bookmarks keep working.
   useEffect(() => {
@@ -128,23 +160,48 @@ export default function App() {
   // keyboard leaves behind (see the shell's h-[var(--sevi-vh,100dvh)]).
   useVisualViewportHeight();
 
-  const chat = useChat({
-    userId,
-    sessionId,
-    deviceId,
-    initialMessages: [],
-    onBotResponse: (res, userInput) => {
+  // useCallback so chat.sendMessage keeps a stable identity — it is passed to
+  // every memoized ChatMessage as onSuggestion, and an inline arrow here would
+  // change sendMessage's identity on every render and defeat that memo.
+  const chatRef = useRef<UseChatApi | null>(null);
+  const handleBotResponse = useCallback(
+    (res: ChatResponse, userInput: string) => {
       // Only apologize on a genuine miss — the static canned fallback
       // (source === "fallback"). When the local/Claude LLM actually answered
       // (still tagged intent nlu_fallback, but source llm_local/llm_claude),
       // the reply is real, so don't append "I may have missed your question".
-      if (res.source === "fallback") {
-        chat.pushMessage({ text: FOLLOWUP_LOW_CONFIDENCE, isBot: true, followUp: true });
-        setCategoriesHeading("Try one of these topics");
-        setCategories(rankRelevantTopicCards(userInput, res.intent, availableIntentTags));
-        setShowCategories(true);
-      }
+      if (res.source !== "fallback") return;
+      chatRef.current?.pushMessage({
+        text: FOLLOWUP_LOW_CONFIDENCE,
+        isBot: true,
+        followUp: true,
+      });
+      setCategoriesHeading("Try one of these topics");
+      setCategories(rankRelevantTopicCards(userInput, res.intent, availableIntentTags));
+      setShowCategories(true);
     },
+    [availableIntentTags],
+  );
+
+  const chat = useChat({
+    userId,
+    sessionId,
+    deviceId,
+    initialMessages: restoredMessages,
+    onBotResponse: handleBotResponse,
+  });
+  // The callback above runs after `chat` exists but is defined before it, so it
+  // reaches pushMessage through this rather than closing over it.
+  chatRef.current = chat;
+
+  // On-device transcript archive. Off unless the student switches it on, and
+  // never written before privacy consent — see lib/historyStore.ts for why the
+  // default is off on shared campus machines.
+  const history = useConversationHistory({
+    deviceId,
+    conversationId,
+    messages: chat.messages,
+    canPersist: consent.consented,
   });
 
   // Warm the chat-critical stickers shortly after mount so the typing
@@ -256,33 +313,66 @@ export default function App() {
     void chat.sendMessage(topic.prompt);
   };
 
-  const handleFeedback = async (
-    intent: string | undefined,
-    messageId: number | undefined,
-    submission: FeedbackSubmission,
-  ) => {
-    try {
-      await api.submitFeedback({
-        message_id: messageId,
-        user_id: userId,
-        session_id: sessionId,
-        intent,
-        helpful: submission.helpful,
-        rating: submission.helpful ? 5 : 2,
-        reason: submission.reason,
-        comment: submission.comment,
-      });
-    } catch {
-      /* ignore feedback errors silently */
-    }
-  };
+  // One stable callback shared by every bubble — ChatMessage hands back the
+  // intent and message id it already holds, so this needs no per-message
+  // closure and the memo on ChatMessage keeps holding.
+  const handleFeedback = useCallback(
+    async (
+      submission: FeedbackSubmission,
+      intent: string | undefined,
+      messageId: number | undefined,
+    ) => {
+      try {
+        await api.submitFeedback({
+          message_id: messageId,
+          user_id: userId,
+          session_id: sessionId,
+          intent,
+          helpful: submission.helpful,
+          rating: submission.helpful ? 5 : 2,
+          reason: submission.reason,
+          comment: submission.comment,
+        });
+      } catch {
+        /* ignore feedback errors silently */
+      }
+    },
+    [userId, sessionId],
+  );
 
+  // A new conversation, not a new session: rotating the session id would drop
+  // the AIS login it keys, which is a sign-out, not a fresh chat. The old
+  // transcript keeps its own id and stays in the history rail.
   const handleStartOver = () => {
+    setActiveConversation(newConversationId());
     chat.resetMessages();
     setShowCategories(true);
     setInputValue("");
     resetCategories();
     scroll.scrollToBottom(true);
+  };
+
+  const handleOpenConversation = (id: string) => {
+    const restored = history.restore(id);
+    setConversationId(id);
+    setActiveConversation(id);
+    chat.replaceMessages(restored);
+    setShowCategories(restored.length === 0);
+    setInputValue("");
+    resetCategories();
+    scroll.scrollToBottom(true);
+  };
+
+  // Clearing the conversation on screen has to clear the screen too, otherwise
+  // "delete" leaves the transcript visibly sitting there.
+  const handleDeleteConversation = (id: string) => {
+    history.remove(id);
+    if (id === conversationId) handleStartOver();
+  };
+
+  const handleClearHistory = () => {
+    history.clearAll();
+    handleStartOver();
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -334,6 +424,12 @@ export default function App() {
           topics={categories}
           onStartOver={handleStartOver}
           onTopic={handleQuickAction}
+          conversations={history.conversations}
+          historyEnabled={history.enabled}
+          onToggleHistory={history.setEnabled}
+          onOpenConversation={handleOpenConversation}
+          onDeleteConversation={handleDeleteConversation}
+          onClearHistory={handleClearHistory}
         />
         {/* Main column. On tablet/desktop the conversation, quick actions, and
             composer center in a readable width instead of stretching edge-to-
@@ -415,12 +511,8 @@ export default function App() {
                 timestamp={message.timestamp}
                 isGrouped={isGrouped}
                 messageId={message.messageId}
-                onFeedback={
-                  message.isBot && !message.followUp
-                    ? (submission) =>
-                        handleFeedback(message.intent, message.messageId, submission)
-                    : undefined
-                }
+                onFeedback={handleFeedback}
+                followUp={message.followUp}
                 typing={message.id === chat.typingMessageId}
                 onTypingDone={chat.clearTypingMessageId}
                 cards={message.cards}
@@ -490,6 +582,17 @@ export default function App() {
           <div className="border-t border-gray-100 bg-white px-4 py-2.5 sm:px-6 short:py-1.5">
             <div className="mx-auto flex w-full gap-2 overflow-x-auto scrollbar-none pb-0.5 md:max-w-2xl lg:max-w-3xl">
               <QuickActionButton icon={Home} label="Start Over" onClick={handleStartOver} />
+              {/* Below lg there is no sidebar, so this is the only way to the
+                  saved-chats switch. It appears once a conversation has
+                  started, which is also the first moment there is anything to
+                  save or decide about. */}
+              <span className="contents lg:hidden">
+                <QuickActionButton
+                  icon={History}
+                  label="Saved chats"
+                  onClick={() => setShowHistory(true)}
+                />
+              </span>
               <QuickActionButton
                 icon={FileText}
                 label="Admissions"
@@ -553,6 +656,60 @@ export default function App() {
         </div>
 
         </div>
+
+        {/* Saved-chats overlay — the below-lg counterpart to the sidebar rail.
+            Hidden outright at lg so the two can never both be on screen. */}
+        <AnimatePresence>
+          {showHistory && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="absolute inset-0 z-20 flex flex-col bg-black/30 lg:hidden"
+            >
+              <button
+                type="button"
+                aria-label="Close saved chats"
+                className="flex-1"
+                onClick={() => setShowHistory(false)}
+              />
+              <motion.div
+                initial={{ y: reducedMotion ? 0 : "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: reducedMotion ? 0 : "100%" }}
+                transition={{ duration: 0.2 }}
+                className="max-h-[70%] overflow-y-auto rounded-t-2xl bg-green-50/95 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-2xl backdrop-blur"
+              >
+                <div className="mb-1 flex items-center justify-between px-2">
+                  <span className="text-sm font-semibold text-gray-900">Saved chats</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowHistory(false)}
+                    aria-label="Close saved chats"
+                    className="rounded-md p-1.5 text-gray-500 hover:bg-white hover:text-gray-800"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <ConversationHistory
+                  conversations={history.conversations}
+                  enabled={history.enabled}
+                  onToggle={history.setEnabled}
+                  onOpen={(id) => {
+                    handleOpenConversation(id);
+                    setShowHistory(false);
+                  }}
+                  onDelete={handleDeleteConversation}
+                  onClearAll={() => {
+                    handleClearHistory();
+                    setShowHistory(false);
+                  }}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>
