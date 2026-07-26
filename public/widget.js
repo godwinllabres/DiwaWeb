@@ -6,7 +6,7 @@
  *
  *   <script src="https://dev.godwincreates.net/widget.js"
  *           data-diwa-url="https://dev.godwincreates.net"
- *           data-diwa-color="#16a34a"
+ *           data-diwa-color="#16803c"
  *           data-diwa-position="bottom-right"
  *           async></script>
  *
@@ -62,7 +62,7 @@
     (self && self.getAttribute("data-diwa-url")) ||
     "https://godwincreates.net/diwa";
   var ACCENT =
-    (self && self.getAttribute("data-diwa-color")) || "#16a34a";
+    (self && self.getAttribute("data-diwa-color")) || "#16803c";
   var POSITION =
     (self && self.getAttribute("data-diwa-position")) || "bottom-right";
   var BTN_LABEL =
