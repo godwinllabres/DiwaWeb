@@ -230,12 +230,18 @@
      institutional voice belongs. h3/h4 stay on the sans — a serif at 16–18px
      inside a card reads as decoration, not as prestige. Optical tightening
      only kicks in at display sizes, which is exactly where these are used. */
+  /* `text-wrap: balance` is what stops a display serif from breaking one word
+     onto its own last line — the browser evens the ragged edge across the
+     whole heading instead. It is capped at a few lines by spec, which is
+     exactly the range headings live in. Where it isn't supported the heading
+     just wraps normally. */
   h1 {
     font-family: var(--font-display);
     font-size: var(--text-2xl);
     font-weight: 600;
     line-height: 1.15;
     letter-spacing: -0.015em;
+    text-wrap: balance;
   }
 
   h2 {
@@ -244,6 +250,7 @@
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: -0.01em;
+    text-wrap: balance;
   }
 
   h3 {
@@ -286,6 +293,23 @@
     /* Prose leading floor for the whole app. Tailwind's leading-* utilities
        still override it wherever a component needs tighter setting. */
     line-height: 1.6;
+  }
+
+  /* `pretty` only polices the last line — no orphaned single word at the end
+     of a paragraph — so unlike `balance` it stays cheap on long copy and is
+     safe to apply to every paragraph in the app, chat replies included. */
+  p {
+    text-wrap: pretty;
+  }
+
+  /* In-page anchors (the hero's "How Sevi thinks") should travel, so the
+     reader keeps their bearings — unless they've asked the OS for less
+     motion, in which case travelling a whole page is precisely the thing
+     they asked not to happen. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   ::selection {

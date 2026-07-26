@@ -70,23 +70,39 @@ export function LandingPage() {
       />
 
       <div className="relative">
-        <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 sm:px-12 sm:py-7">
-          <div className="flex items-center gap-3">
-            <SeviAvatar className="h-10 w-10 sm:h-11 sm:w-11" title="Sevi" />
-            <div>
-              <p className="text-sm font-semibold tracking-tight text-forest-900 sm:text-base">Sevi</p>
-              <p className="text-[11px] text-ink-500 sm:text-xs">CvSU Virtual Assistant</p>
+        {/* Keyboard users shouldn't have to tab the brand, the CvSU link and
+            six topic tiles to reach the thing the page is for. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-6 focus:z-50 focus:rounded-2xl focus:bg-forest-900 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Skip to content
+        </a>
+
+        {/* Sticky, and glass only once the page has moved: at rest the header
+            sits on the hero's wash with no seam, and the hairline + blur fade
+            in as content starts passing under it. `backdrop-blur` earns its
+            keep here — unlike a bar with a solid fill, there is real page
+            behind this one. */}
+        <header className="sevi-sticky-header sticky top-0 z-30 border-b backdrop-blur-xl">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-12 sm:py-5">
+            <div className="flex items-center gap-3">
+              <SeviAvatar className="h-10 w-10 sm:h-11 sm:w-11" title="Sevi" />
+              <div>
+                <p className="text-sm font-semibold tracking-tight text-forest-900 sm:text-base">Sevi</p>
+                <p className="text-[11px] text-ink-500 sm:text-xs">CvSU Virtual Assistant</p>
+              </div>
             </div>
+            <a
+              href="https://cvsu.edu.ph"
+              className="inline-flex items-center gap-1.5 rounded-full border border-forest-900/10 bg-paper-raised px-4 py-2 text-xs font-medium text-forest-800 transition-colors hover:bg-forest-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:text-sm"
+            >
+              cvsu.edu.ph <ExternalLink className="h-3.5 w-3.5" />
+            </a>
           </div>
-          <a
-            href="https://cvsu.edu.ph"
-            className="inline-flex items-center gap-1.5 rounded-full border border-forest-900/10 bg-paper-raised px-4 py-2 text-xs font-medium text-forest-800 transition-colors hover:bg-forest-50 sm:text-sm"
-          >
-            cvsu.edu.ph <ExternalLink className="h-3.5 w-3.5" />
-          </a>
         </header>
 
-        <main className="mx-auto max-w-6xl px-6 pb-28 sm:px-12">
+        <main id="main" className="mx-auto max-w-6xl px-6 pb-28 sm:px-12">
           {/* HERO */}
           <section className="mt-8 grid items-center gap-10 sm:mt-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
             <motion.div {...rise(0)}>
@@ -119,14 +135,14 @@ export function LandingPage() {
                   href="?chat=1"
                   target="_blank"
                   rel="noopener"
-                  className="hidden items-center gap-2 rounded-2xl border border-forest-900/10 bg-paper-raised px-6 py-3.5 text-sm font-semibold text-forest-800 transition-colors hover:bg-forest-50 sm:inline-flex sm:text-base"
+                  className="hidden items-center gap-2 rounded-2xl border border-forest-900/10 bg-paper-raised px-6 py-3.5 text-sm font-semibold text-forest-800 transition-colors hover:bg-forest-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:inline-flex sm:text-base"
                 >
                   <Maximize2 className="h-4 w-4" />
                   Fullscreen
                 </a>
                 <a
                   href="#how-sevi-thinks"
-                  className="inline-flex items-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold text-ink-600 transition-colors hover:bg-paper-sunken hover:text-forest-900 sm:text-base"
+                  className="inline-flex items-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold text-ink-600 transition-colors hover:bg-paper-sunken hover:text-forest-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:text-base"
                 >
                   How Sevi thinks
                 </a>
@@ -269,7 +285,7 @@ export function LandingPage() {
           </section>
 
           {/* ARCHITECTURE */}
-          <section id="how-sevi-thinks" className="mt-24 scroll-mt-10 sm:mt-32">
+          <section id="how-sevi-thinks" className="mt-24 scroll-mt-28 sm:mt-32">
             <motion.div {...rise(0)}>
               <Eyebrow>How Sevi thinks</Eyebrow>
               <h2 className="mt-3 text-3xl text-forest-900 sm:text-4xl">
@@ -346,7 +362,10 @@ export function LandingPage() {
               </p>
             </div>
             <div className="text-left text-xs text-ink-500 sm:text-right">
-              <a href="https://cvsu.edu.ph" className="font-medium text-forest-700 hover:underline">
+              <a
+                href="https://cvsu.edu.ph"
+                className="rounded font-medium text-forest-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              >
                 cvsu.edu.ph
               </a>
               <p className="mt-1.5 inline-flex items-center gap-1.5">

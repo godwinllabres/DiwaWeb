@@ -87,6 +87,41 @@
   }
 }
 
+/* The landing page's sticky header.
+
+   At rest it is invisible: no fill, no rule, so the brand sits directly on the
+   hero's warm wash with no seam. As the page moves under it, the paper fill and
+   the hairline fade in together — the header becomes glass only once there is
+   something behind it worth separating from.
+
+   Driven by a scroll-progress timeline rather than a scroll listener: no
+   JavaScript, no layout reads on the main thread while the user is flicking a
+   phone. Browsers without scroll-driven animations (Safari, Firefox at time of
+   writing) keep the static translucent state below, which is a perfectly good
+   header — it just doesn't animate. */
+.sevi-sticky-header {
+  background-color: rgb(252 251 249 / 0.72);
+  border-bottom-color: transparent;
+}
+@supports (animation-timeline: scroll()) {
+  .sevi-sticky-header {
+    background-color: transparent;
+    animation: sevi-header-settle linear both;
+    animation-timeline: scroll();
+    animation-range: 0 120px;
+  }
+  @keyframes sevi-header-settle {
+    from {
+      background-color: rgb(252 251 249 / 0);
+      border-bottom-color: rgb(10 66 34 / 0);
+    }
+    to {
+      background-color: rgb(252 251 249 / 0.85);
+      border-bottom-color: rgb(10 66 34 / 0.1);
+    }
+  }
+}
+
 /* Tailwind has no scrollbar utility and the quick-actions strip is a
    deliberately overflowing row of chips: a native scrollbar under it reads as
    a broken layout rather than as an affordance (the chips are visibly cut off,
