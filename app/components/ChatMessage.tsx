@@ -163,13 +163,13 @@ function MapAccordion({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {showCoachmark && (
-        <div className="mb-2 flex items-start gap-2 rounded-2xl border border-green-300 bg-green-50 px-3 py-2.5 text-sm shadow-sm">
-          <MapPin className="h-4 w-4 flex-shrink-0 text-green-700 mt-0.5" />
+        <div className="mb-2 flex items-start gap-2 rounded-2xl border border-forest-900/15 bg-forest-50 px-3 py-2.5 text-sm">
+          <MapPin className="h-4 w-4 flex-shrink-0 text-forest-700 mt-0.5" />
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-green-900">
+            <p className="font-medium text-forest-900">
               This spot is on the campus map.
             </p>
-            <p className="mt-0.5 text-xs text-green-800">
+            <p className="mt-0.5 text-xs text-forest-800">
               You can open an interactive map with walking directions.
             </p>
             <div className="mt-2 flex gap-2">
@@ -179,14 +179,14 @@ function MapAccordion({
                   dismissCoachmark();
                   setOpen(true);
                 }}
-                className="rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 active:bg-green-800"
+                className="rounded-full bg-forest-600 px-3 py-1 text-xs font-medium text-white hover:bg-forest-700 active:bg-forest-800"
               >
                 View map
               </button>
               <button
                 type="button"
                 onClick={dismissCoachmark}
-                className="rounded-full border border-green-300 bg-white px-3 py-1 text-xs font-medium text-green-800 hover:bg-green-50 active:bg-green-100"
+                className="rounded-full border border-forest-900/15 bg-paper-raised px-3 py-1 text-xs font-medium text-forest-800 hover:bg-forest-50 active:bg-forest-100"
               >
                 Not now
               </button>
@@ -196,7 +196,7 @@ function MapAccordion({
             type="button"
             onClick={dismissCoachmark}
             aria-label="Dismiss map tip"
-            className="flex-shrink-0 rounded-md p-0.5 text-green-700 hover:bg-green-100"
+            className="flex-shrink-0 rounded-md p-0.5 text-forest-700 hover:bg-forest-100"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -205,14 +205,14 @@ function MapAccordion({
       <DialogTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center gap-2 rounded-2xl border border-green-200 bg-green-50/60 px-3 py-2 text-left text-sm font-medium text-green-900 shadow-sm active:bg-green-100"
+          className="flex w-full items-center gap-2 rounded-2xl border border-forest-900/10 bg-forest-50 px-3 py-2 text-left text-sm font-medium text-forest-900 active:bg-forest-100"
           aria-label={`Open campus map for ${mapData.label}`}
         >
-          <MapIcon className="h-4 w-4 flex-shrink-0 text-green-700" />
+          <MapIcon className="h-4 w-4 flex-shrink-0 text-forest-700" />
           <span className="flex-1 min-w-0 truncate">
             View campus map — {mapData.label}
           </span>
-          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-green-700" />
+          <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 text-forest-700" />
         </button>
       </DialogTrigger>
       <DialogContent
@@ -229,22 +229,22 @@ function MapAccordion({
         // to the fullscreen treatment, which is the only way the map gets room.
         className="!grid !max-w-none !translate-x-0 !translate-y-0 !top-0 !left-0 !inset-0 !rounded-none !p-0 !gap-0 !border-0 grid-rows-[auto_1fr] h-[100dvh] w-screen overflow-hidden sm:!inset-auto sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!rounded-2xl sm:!max-w-[min(900px,95vw)] sm:!h-[min(900px,90dvh)] short:!inset-0 short:!top-0 short:!left-0 short:!translate-x-0 short:!translate-y-0 short:!rounded-none short:!max-w-none short:!h-[100dvh] [&>button.absolute]:hidden"
       >
-        <DialogHeader className="flex flex-row items-center gap-3 border-b border-gray-200 bg-white px-3 py-2.5 sm:rounded-t-2xl sm:px-4 sm:py-3 short:py-1">
+        <DialogHeader className="flex flex-row items-center gap-3 border-b border-forest-900/10 bg-paper-raised px-3 py-2.5 sm:rounded-t-2xl sm:px-4 sm:py-3 short:py-1">
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Back to chat"
-            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-green-700 hover:bg-green-50 active:bg-green-100"
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-forest-700 hover:bg-forest-50 active:bg-forest-100"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Back to chat</span>
             <span className="sm:hidden">Back</span>
           </button>
           <div className="min-w-0 flex-1 text-left">
-            <DialogTitle className="text-sm font-semibold text-gray-900 sm:text-base">
+            <DialogTitle className="text-sm font-semibold text-ink-900 sm:text-base">
               Campus map
             </DialogTitle>
-            <DialogDescription className="truncate text-xs text-gray-500">
+            <DialogDescription className="truncate text-xs text-ink-500">
               Pick a From and To — the route updates instantly.
             </DialogDescription>
           </div>
@@ -337,7 +337,7 @@ function WriteActions({ dv, sessionId, ais }: WriteActionsProps) {
 
   return (
     <>
-      <div className="mt-2 border-t border-green-200 pt-2 flex flex-wrap gap-1.5">
+      <div className="mt-2 border-t border-forest-900/10 pt-2 flex flex-wrap gap-1.5">
         {available.map((opt) => (
           <button
             key={opt.action + (opt.newStatus ?? "")}
@@ -345,8 +345,8 @@ function WriteActions({ dv, sessionId, ais }: WriteActionsProps) {
             onClick={() => startAction(opt.action, opt.newStatus)}
             className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
               opt.action === "cancel_dv"
-                ? "border-red-300 bg-white text-red-700 hover:bg-red-50"
-                : "border-green-300 bg-white text-green-800 hover:bg-green-50"
+                ? "border-red-300 bg-paper-raised text-red-700 hover:bg-red-50"
+                : "border-forest-900/15 bg-paper-raised text-forest-800 hover:bg-forest-50"
             }`}
           >
             {opt.label}
@@ -354,7 +354,7 @@ function WriteActions({ dv, sessionId, ais }: WriteActionsProps) {
         ))}
       </div>
       {resultToast && (
-        <p className="mt-1.5 px-1 text-[11px] text-green-800">{resultToast}</p>
+        <p className="mt-1.5 px-1 text-[11px] text-forest-800">{resultToast}</p>
       )}
 
       {showLogin && (
@@ -398,7 +398,7 @@ interface DvDetailCardProps {
 }
 
 function DvDetailCard({ dv, writeEnabled, sessionId, ais }: DvDetailCardProps) {
-  const tint = DV_STATUS_TINT[dv.workflow_status] ?? "bg-gray-100 text-gray-700 border-gray-300";
+  const tint = DV_STATUS_TINT[dv.workflow_status] ?? "bg-paper-deep text-ink-700 border-ink-200";
   const amount = new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
@@ -406,24 +406,24 @@ function DvDetailCard({ dv, writeEnabled, sessionId, ais }: DvDetailCardProps) {
   }).format(dv.amount || 0);
 
   return (
-    <div className="w-full rounded-2xl border border-green-200 bg-green-50/60 p-3 text-sm shadow-sm">
+    <div className="w-full rounded-2xl border border-forest-900/10 bg-forest-50 p-3 text-sm">
       <div className="flex items-start gap-2">
-        <FileText className="h-4 w-4 flex-shrink-0 text-green-700 mt-0.5" />
+        <FileText className="h-4 w-4 flex-shrink-0 text-forest-700 mt-0.5" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             <a
               href={dv.desk_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-green-900 underline decoration-green-300 underline-offset-2 hover:text-green-700 break-all"
+              className="font-semibold text-forest-900 underline decoration-forest-600/40 underline-offset-2 hover:text-forest-700 break-all"
             >
               {dv.name}
             </a>
             {dv.control_number && (
-              <span className="text-xs text-gray-500 font-mono break-all">{dv.control_number}</span>
+              <span className="text-xs text-ink-500 font-mono break-all">{dv.control_number}</span>
             )}
           </div>
-          <p className="mt-0.5 text-gray-800 break-words">{dv.payee || "—"}</p>
+          <p className="mt-0.5 text-ink-800 break-words">{dv.payee || "—"}</p>
         </div>
         <span className={`text-[11px] px-2 py-0.5 rounded-full border whitespace-nowrap ${tint}`}>
           {dv.workflow_status || "Unknown"}
@@ -432,31 +432,31 @@ function DvDetailCard({ dv, writeEnabled, sessionId, ais }: DvDetailCardProps) {
 
       <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
         <div className="col-span-2 sm:col-span-1">
-          <dt className="text-gray-500">Amount</dt>
-          <dd className="font-semibold text-gray-900">{amount}</dd>
+          <dt className="text-ink-500">Amount</dt>
+          <dd className="font-semibold text-ink-900">{amount}</dd>
         </div>
         {dv.posting_date && (
           <div>
-            <dt className="text-gray-500">Posting date</dt>
-            <dd className="text-gray-800">{dv.posting_date}</dd>
+            <dt className="text-ink-500">Posting date</dt>
+            <dd className="text-ink-800">{dv.posting_date}</dd>
           </div>
         )}
         {dv.fund_cluster && (
           <div className="col-span-2 sm:col-span-1">
-            <dt className="text-gray-500">Fund cluster</dt>
-            <dd className="text-gray-800 break-words">{dv.fund_cluster}</dd>
+            <dt className="text-ink-500">Fund cluster</dt>
+            <dd className="text-ink-800 break-words">{dv.fund_cluster}</dd>
           </div>
         )}
         {dv.dv_type && (
           <div>
-            <dt className="text-gray-500">Type</dt>
-            <dd className="text-gray-800 break-words">{dv.dv_type}</dd>
+            <dt className="text-ink-500">Type</dt>
+            <dd className="text-ink-800 break-words">{dv.dv_type}</dd>
           </div>
         )}
         {dv.ors_burs_reference && (
           <div className="col-span-2">
-            <dt className="text-gray-500">ORS / BURS</dt>
-            <dd className="text-gray-800 font-mono break-all">{dv.ors_burs_reference}</dd>
+            <dt className="text-ink-500">ORS / BURS</dt>
+            <dd className="text-ink-800 font-mono break-all">{dv.ors_burs_reference}</dd>
           </div>
         )}
       </dl>
@@ -470,7 +470,7 @@ function DvDetailCard({ dv, writeEnabled, sessionId, ais }: DvDetailCardProps) {
           href={dv.desk_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900"
+          className="inline-flex items-center gap-1 text-xs text-forest-700 hover:text-forest-900"
         >
           Open in AIS Desk
           <ExternalLink className="h-3 w-3" />
@@ -494,7 +494,7 @@ function renderCell(cell: TableCell) {
         href={cell.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-green-700 underline decoration-green-300 underline-offset-2 hover:text-green-900 whitespace-nowrap"
+        className="text-forest-700 underline decoration-forest-600/40 underline-offset-2 hover:text-forest-900 whitespace-nowrap"
       >
         {cell.text}
       </a>
@@ -569,22 +569,22 @@ function TableCard({ table }: { readonly table: TableCardData }) {
     : visibleRows;
 
   return (
-    <div className="w-full rounded-2xl border border-green-200 bg-green-50/60 p-3 text-sm shadow-sm overflow-hidden">
+    <div className="w-full rounded-2xl border border-forest-900/10 bg-forest-50 p-3 text-sm overflow-hidden">
       <div className="flex flex-wrap items-center gap-2 mb-2 px-1">
         {table.title && (
-          <p className="text-xs font-semibold text-green-900 flex-1 min-w-0 truncate">
+          <p className="text-xs font-semibold text-forest-900 flex-1 min-w-0 truncate">
             {table.title}
           </p>
         )}
         {table.rows.length > 3 && (
           <div className="relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-ink-400" />
             <input
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Filter…"
-              className="text-xs pl-6 pr-2 py-1 rounded border border-green-200 bg-white/80 placeholder:text-gray-400 focus:outline-none focus:border-green-400 w-28 sm:w-36"
+              className="text-xs pl-6 pr-2 py-1 rounded border border-forest-900/10 bg-paper-raised/80 placeholder:text-ink-400 focus:outline-none focus:border-forest-600/30 w-28 sm:w-36"
             />
           </div>
         )}
@@ -592,7 +592,7 @@ function TableCard({ table }: { readonly table: TableCardData }) {
       <div className="overflow-x-auto -mx-1">
         <table className="w-full border-collapse text-xs">
           <thead>
-            <tr className="border-b border-green-200">
+            <tr className="border-b border-forest-900/10">
               {table.columns.map((c) => {
                 const isActive = sortKey === c.key;
                 let SortIcon = ArrowUpDown;
@@ -603,17 +603,17 @@ function TableCard({ table }: { readonly table: TableCardData }) {
                   <th
                     key={c.key}
                     scope="col"
-                    className={`px-2 py-1.5 font-medium text-green-900 whitespace-nowrap ${alignClass[c.align ?? "left"]}`}
+                    className={`px-2 py-1.5 font-medium text-forest-900 whitespace-nowrap ${alignClass[c.align ?? "left"]}`}
                   >
                     <button
                       type="button"
                       onClick={() => handleSort(c.key)}
-                      className={`inline-flex items-center gap-1 hover:text-green-700 ${
+                      className={`inline-flex items-center gap-1 hover:text-forest-700 ${
                         c.align === "right" ? "flex-row-reverse" : ""
                       } ${c.align === "center" ? "justify-center" : ""}`}
                     >
                       {c.label}
-                      <SortIcon className={`h-3 w-3 ${isActive ? "text-green-700" : "text-gray-400"}`} />
+                      <SortIcon className={`h-3 w-3 ${isActive ? "text-forest-700" : "text-ink-400"}`} />
                     </button>
                   </th>
                 );
@@ -625,7 +625,7 @@ function TableCard({ table }: { readonly table: TableCardData }) {
               <tr>
                 <td
                   colSpan={table.columns.length}
-                  className="px-2 py-3 text-center text-gray-500 italic"
+                  className="px-2 py-3 text-center text-ink-500 italic"
                 >
                   No rows match {`"${filter}"`}.
                 </td>
@@ -638,13 +638,13 @@ function TableCard({ table }: { readonly table: TableCardData }) {
                 const rowKey = isLinkCell(firstCell)
                   ? firstCell.text
                   : String(firstCell ?? `r${idx}`);
-                const stripe = idx % 2 === 0 ? "bg-white/40" : "bg-transparent";
+                const stripe = idx % 2 === 0 ? "bg-paper-raised/50" : "bg-transparent";
                 return (
                   <tr key={rowKey} className={stripe}>
                     {table.columns.map((c) => (
                       <td
                         key={c.key}
-                        className={`px-2 py-1 text-gray-800 align-middle ${alignClass[c.align ?? "left"]} ${wrapClass(c.align)}`}
+                        className={`px-2 py-1 text-ink-800 align-middle ${alignClass[c.align ?? "left"]} ${wrapClass(c.align)}`}
                       >
                         {renderCell(row[c.key])}
                       </td>
@@ -657,10 +657,10 @@ function TableCard({ table }: { readonly table: TableCardData }) {
         </table>
       </div>
       {table.footer && !filter && (
-        <p className="mt-2 px-1 text-[11px] text-gray-500">{table.footer}</p>
+        <p className="mt-2 px-1 text-[11px] text-ink-500">{table.footer}</p>
       )}
       {filter && (
-        <p className="mt-2 px-1 text-[11px] text-gray-500">
+        <p className="mt-2 px-1 text-[11px] text-ink-500">
           Showing {sortedRows.length} of {table.rows.length} on this list.
         </p>
       )}
@@ -670,14 +670,14 @@ function TableCard({ table }: { readonly table: TableCardData }) {
 
 function DirectoryCard({ directory }: { readonly directory: DirectoryCardData }) {
   return (
-    <div className="w-full rounded-2xl border border-green-200 bg-green-50/60 p-3 text-sm shadow-sm">
+    <div className="w-full rounded-2xl border border-forest-900/10 bg-forest-50 p-3 text-sm">
       <div className="flex items-start gap-2">
-        <Building2 className="h-4 w-4 flex-shrink-0 text-green-700 mt-0.5" />
+        <Building2 className="h-4 w-4 flex-shrink-0 text-forest-700 mt-0.5" />
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-green-900 break-words">{directory.office}</p>
+          <p className="font-semibold text-forest-900 break-words">{directory.office}</p>
           {directory.location && (
-            <p className="mt-0.5 flex items-start gap-1.5 text-xs text-gray-700">
-              <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-green-700 mt-0.5" />
+            <p className="mt-0.5 flex items-start gap-1.5 text-xs text-ink-700">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-forest-700 mt-0.5" />
               <span className="break-words">{directory.location}</span>
             </p>
           )}
@@ -687,7 +687,7 @@ function DirectoryCard({ directory }: { readonly directory: DirectoryCardData })
         {directory.email && (
           <a
             href={`mailto:${directory.email}`}
-            className="flex items-center gap-1.5 text-green-800 hover:text-green-900 break-all"
+            className="flex items-center gap-1.5 text-forest-800 hover:text-forest-900 break-all"
           >
             <Mail className="h-3.5 w-3.5 flex-shrink-0" />
             {directory.email}
@@ -696,14 +696,14 @@ function DirectoryCard({ directory }: { readonly directory: DirectoryCardData })
         {directory.phone && (
           <a
             href={`tel:${directory.phone.replace(/[^\d+]/g, "")}`}
-            className="flex items-center gap-1.5 text-green-800 hover:text-green-900"
+            className="flex items-center gap-1.5 text-forest-800 hover:text-forest-900"
           >
             <Phone className="h-3.5 w-3.5 flex-shrink-0" />
             {directory.phone}
           </a>
         )}
         {directory.hours && (
-          <p className="flex items-center gap-1.5 text-gray-600 sm:col-span-2">
+          <p className="flex items-center gap-1.5 text-ink-600 sm:col-span-2">
             <Clock className="h-3.5 w-3.5 flex-shrink-0" />
             {directory.hours}
           </p>
@@ -733,8 +733,8 @@ function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsProps) {
         aria-label="Helpful"
         className={`${base} ${
           thumb === true
-            ? "text-green-600"
-            : "text-gray-400 active:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
+            ? "text-forest-600"
+            : "text-ink-400 active:bg-paper-deep hover:text-ink-600 disabled:opacity-40"
         }`}
       >
         {submitted && thumb === true
@@ -748,7 +748,7 @@ function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsProps) {
         className={`${base} ${
           thumb === false
             ? "text-red-500"
-            : "text-gray-400 active:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
+            : "text-ink-400 active:bg-paper-deep hover:text-ink-600 disabled:opacity-40"
         }`}
       >
         <ThumbsDown className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
@@ -780,10 +780,10 @@ function FeedbackReasonPanel({
 }: FeedbackReasonPanelProps) {
   const reasons = helpful ? POSITIVE_REASONS : NEGATIVE_REASONS;
   const activeChip = helpful
-    ? "bg-green-600 text-white border-green-600"
+    ? "bg-forest-600 text-white border-forest-600"
     : "bg-red-600 text-white border-red-600";
   const submitBtn = helpful
-    ? "bg-green-600 text-white hover:bg-green-700"
+    ? "bg-forest-600 text-white hover:bg-forest-700"
     : "bg-red-600 text-white hover:bg-red-700";
 
   return (
@@ -793,16 +793,16 @@ function FeedbackReasonPanel({
       transition={{ duration: 0.2 }}
       className="w-full mt-2"
     >
-      <div className="rounded-2xl border border-gray-200 bg-white p-3 text-sm shadow-sm">
+      <div className="rounded-2xl border border-forest-900/10 bg-paper-raised p-3 text-sm">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <span className="text-xs font-medium text-gray-700">
+          <span className="text-xs font-medium text-ink-700">
             {helpful ? "What worked well?" : "What went wrong?"}{" "}
-            <span className="text-gray-400">(optional)</span>
+            <span className="text-ink-400">(optional)</span>
           </span>
           <button
             onClick={onCancel}
             aria-label="Cancel feedback"
-            className="text-gray-400 hover:text-gray-600"
+            className="text-ink-400 hover:text-ink-600"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -816,7 +816,7 @@ function FeedbackReasonPanel({
                 key={opt.code}
                 onClick={() => onReasonChange(active ? null : opt.code)}
                 className={`text-xs px-2 py-1 rounded-full border transition-colors ${
-                  active ? activeChip : "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-400"
+                  active ? activeChip : "bg-paper-sunken text-ink-700 border-forest-900/10 hover:border-ink-300"
                 }`}
               >
                 {opt.label}
@@ -835,13 +835,13 @@ function FeedbackReasonPanel({
           }
           rows={2}
           maxLength={500}
-          className="w-full text-xs rounded-md border border-gray-200 px-2 py-1.5 resize-none focus:outline-none focus:border-gray-400"
+          className="w-full text-xs rounded-md border border-forest-900/10 px-2 py-1.5 resize-none focus:outline-none focus:border-ink-300"
         />
 
         <div className="flex items-center justify-end gap-2 mt-2">
           <button
             onClick={onSkip}
-            className="text-xs px-2 py-1 rounded text-gray-500 hover:text-gray-700"
+            className="text-xs px-2 py-1 rounded text-ink-500 hover:text-ink-700"
           >
             Skip
           </button>
@@ -868,7 +868,7 @@ function BotAvatar({ grouped, mood }: { readonly grouped: boolean; readonly mood
 function UserAvatar({ grouped }: { readonly grouped: boolean }) {
   if (grouped) return <div className={AVATAR_SIZE} />;
   return (
-    <div className={`${AVATAR_SIZE} rounded-full bg-green-700 flex items-center justify-center`}>
+    <div className={`${AVATAR_SIZE} rounded-full bg-forest-900 flex items-center justify-center`}>
       <User className="h-4 w-4 text-white sm:h-5 sm:w-5" />
     </div>
   );
@@ -955,10 +955,24 @@ function ChatMessageImpl({
   const showReasonPanel = showFeedback && thumb !== null && !submitted;
   const showHint = done && isBot && confidence !== undefined && confidence < 0.5;
 
-  const bubbleColors = isBot ? "bg-gray-100 text-gray-900" : "bg-green-600 text-white";
-  let bubbleRounding = "rounded-2xl";
+  // Bot replies are a card on the page — paper-white, hairline border, no
+  // fill — rather than a grey pill. The student's own messages keep the solid
+  // institutional green so the two voices stay instantly distinguishable at a
+  // glance (white on #16803C clears AA at 5.0:1).
+  const bubbleColors = isBot
+    ? "border border-forest-900/[0.08] bg-paper-raised text-ink-900"
+    : "bg-forest-600 text-white";
+  // Asymmetric on purpose, always: the corner nearest the speaker's avatar is
+  // squarer, which points the card at whoever said it. A run of messages from
+  // the same speaker tightens that corner further instead of repeating the
+  // full radius.
+  let bubbleRounding = isBot
+    ? "rounded-[1.5rem] rounded-tl-lg"
+    : "rounded-[1.5rem] rounded-tr-lg";
   if (isGrouped) {
-    bubbleRounding = isBot ? "rounded-2xl rounded-tl-md" : "rounded-2xl rounded-tr-md";
+    bubbleRounding = isBot
+      ? "rounded-[1.5rem] rounded-tl-md"
+      : "rounded-[1.5rem] rounded-tr-md";
   }
 
   return (
@@ -985,22 +999,33 @@ function ChatMessageImpl({
           // any attached cards (directory, dvCard, map, table) share a
           // right edge. User bubbles stay narrower.
           isBot
-            ? "max-w-[96%] sm:max-w-[85%] items-start"
-            : "max-w-[88%] sm:max-w-[75%] items-end"
+            ? "max-w-[96%] sm:max-w-[88%] items-start"
+            : "max-w-[88%] sm:max-w-[76%] items-end"
         }`}
       >
         {/* When a structured table is available, render it in place of the
             text bubble — the title carries the same lead-in. Text still
             renders during the reveal so the user sees something immediately
-            while the table waits for `done`. */}
+            while the table waits for `done`.
+
+            Attached cards (table, DV, directory, map) take the column's full
+            width; the text bubble stops at its 52ch measure, so the two share
+            a LEFT edge rather than a right one. Prose gets a readable line
+            length and tabular data gets room, which is the right trade. */}
         {!(done && isBot && table) && (
-          <div className={`px-3.5 py-2.5 sm:px-4 sm:py-3 ${bubbleColors} ${bubbleRounding}`}>
+          <div className={`px-4 py-3.5 sm:px-6 sm:py-4 ${bubbleColors} ${bubbleRounding}`}>
             {/* `.sevi-reveal` scopes the word animation and carries the stagger
                 for every span MessageBody emits below it (styles/index.css).
                 It lives on this existing element rather than a wrapper inside
                 MessageBody, which renders block content a <span> cannot hold. */}
+            {/* 52ch, measured rather than guessed: Plus Jakarta Sans has a
+                wide "0", so its ch unit runs ~1.4x the average lowercase
+                advance — 52ch lands at ~70 real characters per line, inside
+                the comfortable 45–75 range. Capping here rather than on each
+                paragraph in MessageBody keeps headings, steps and bullets to
+                the same measure, and lets the bubble size itself to it. */}
             <div
-              className={`text-sm leading-relaxed break-words ${animate ? "sevi-reveal" : ""}`}
+              className={`max-w-[52ch] text-[15px] leading-[1.7] break-words ${animate ? "sevi-reveal" : ""}`}
               style={animate ? ({ "--sevi-stagger": `${staggerMs}ms` } as CSSProperties) : undefined}
             >
               <MessageBody text={message} isBot={isBot} reveal={animate} />
@@ -1009,8 +1034,8 @@ function ChatMessageImpl({
         )}
 
         {showHint && (
-          <div className="mt-1.5 px-1">
-            <span className="rounded-full px-2.5 py-0.5 text-xs border border-amber-200 bg-amber-50 text-amber-800">
+          <div className="mt-2 px-1">
+            <span className="rounded-full border border-gold-200 bg-gold-50 px-3 py-1 text-xs text-gold-700">
               This answer may not fully match your question.
             </span>
           </div>
@@ -1054,7 +1079,7 @@ function ChatMessageImpl({
                 key={s}
                 type="button"
                 onClick={() => onSuggestion?.(s)}
-                className="text-xs px-2.5 py-1 rounded-full border border-green-300 bg-white text-green-800 hover:bg-green-50 active:bg-green-100 transition-colors"
+                className="rounded-full border border-forest-900/10 bg-paper-raised px-4 py-2 text-xs font-medium text-forest-800 transition-colors hover:border-forest-900/15 hover:bg-forest-50 active:bg-forest-100"
               >
                 {s}
               </button>
@@ -1062,12 +1087,12 @@ function ChatMessageImpl({
           </div>
         )}
 
-        <div className="mt-1 flex flex-wrap items-center gap-2 px-1.5 sm:gap-2 sm:px-2">
-          <span className="text-[11px] text-gray-400 sm:text-xs">{timestamp}</span>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2 px-1.5 sm:gap-2 sm:px-2">
+          <span className="text-[11px] text-ink-500 sm:text-xs">{timestamp}</span>
           {done && isBot && source && SOURCE_LABEL[source] && (
             <span
               title="Where this answer came from"
-              className="text-[10px] text-gray-400 sm:text-[11px]"
+              className="text-[10px] text-ink-500 sm:text-[11px]"
             >
               · {SOURCE_LABEL[source]}
             </span>
@@ -1075,7 +1100,7 @@ function ChatMessageImpl({
           {done && isBot && contextChipText && (
             <span
               title="Follow-up questions like 'what's its status?' will resolve to this."
-              className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[10px] text-green-800 sm:text-[11px]"
+              className="rounded-full border border-forest-900/10 bg-forest-50 px-2.5 py-1 text-[10px] text-forest-800 sm:text-[11px]"
             >
               {contextChipText}
             </span>

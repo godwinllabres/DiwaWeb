@@ -107,11 +107,14 @@ export function TypingIndicator() {
     >
       <SeviSticker sticker="thinking" className="h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9" title="Sevi is thinking" />
       <div className="flex flex-col items-start gap-1">
-        <div className="flex items-center gap-1 rounded-2xl bg-gray-100 px-3.5 py-2.5 sm:px-4 sm:py-3">
+        {/* Same surface as a real bot bubble (paper + hairline, squarer corner
+            on the avatar side) so the reply doesn't change shape under the
+            student when it arrives. */}
+        <div className="flex items-center gap-1.5 rounded-[1.5rem] rounded-tl-lg border border-forest-900/[0.08] bg-paper-raised px-4 py-3.5 sm:px-6 sm:py-4">
           {[0, 1, 2].map((i) => (
             <motion.span
               key={i}
-              className="h-2 w-2 rounded-full bg-green-600"
+              className="h-2 w-2 rounded-full bg-forest-600"
               animate={{ y: [0, -4, 0] }}
               transition={{
                 duration: 0.8,
@@ -129,7 +132,7 @@ export function TypingIndicator() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.25 }}
-              className="px-1 text-[11px] italic leading-tight text-gray-500 sm:text-xs"
+              className="px-1.5 text-[11px] italic leading-tight text-ink-600 sm:text-xs"
             >
               {line}
             </motion.p>

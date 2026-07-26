@@ -38,15 +38,15 @@ function ModalShell({ title, onClose, busy, children }: ModalShellProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-          <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+      <div className="w-full max-w-md rounded-2xl bg-paper-raised shadow-xl">
+        <div className="flex items-center justify-between border-b border-forest-900/10 px-4 py-3">
+          <h2 className="text-sm font-semibold text-ink-900">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             disabled={busy}
             aria-label="Close"
-            className="rounded-full p-1 text-gray-500 hover:bg-gray-100 disabled:opacity-50"
+            className="rounded-full p-1 text-ink-500 hover:bg-paper-deep disabled:opacity-50"
           >
             <X className="h-4 w-4" />
           </button>
@@ -82,13 +82,13 @@ export function LoginModal({ onClose, onSuccess, login, busy, error }: LoginModa
 
   return (
     <ModalShell title="Sign in to AIS" onClose={onClose} busy={busy}>
-      <p className="mb-3 text-xs text-gray-500">
+      <p className="mb-3 text-xs text-ink-500">
         Use your CvSU AIS email and password. Your session lives in this browser
         tab only — closing the tab logs you out.
       </p>
       <form onSubmit={handleSubmit} className="space-y-3">
         <label className="block">
-          <span className="block text-xs font-medium text-gray-700">Email</span>
+          <span className="block text-xs font-medium text-ink-700">Email</span>
           <input
             ref={usernameRef}
             type="email"
@@ -97,11 +97,11 @@ export function LoginModal({ onClose, onSuccess, login, busy, error }: LoginModa
             disabled={busy}
             required
             autoComplete="username"
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none disabled:bg-gray-50"
+            className="mt-1 w-full rounded-md border border-ink-200 px-3 py-1.5 text-sm focus:border-forest-600 focus:outline-none disabled:bg-paper-sunken"
           />
         </label>
         <label className="block">
-          <span className="block text-xs font-medium text-gray-700">Password</span>
+          <span className="block text-xs font-medium text-ink-700">Password</span>
           <input
             type="password"
             value={password}
@@ -109,7 +109,7 @@ export function LoginModal({ onClose, onSuccess, login, busy, error }: LoginModa
             disabled={busy}
             required
             autoComplete="current-password"
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none disabled:bg-gray-50"
+            className="mt-1 w-full rounded-md border border-ink-200 px-3 py-1.5 text-sm focus:border-forest-600 focus:outline-none disabled:bg-paper-sunken"
           />
         </label>
         {error && (
@@ -123,14 +123,14 @@ export function LoginModal({ onClose, onSuccess, login, busy, error }: LoginModa
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="rounded-md px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+            className="rounded-md px-3 py-1.5 text-xs text-ink-700 hover:bg-paper-deep disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={busy || !username || !password}
-            className="inline-flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md bg-forest-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-forest-700 disabled:opacity-50"
           >
             {busy && <Loader2 className="h-3 w-3 animate-spin" />}
             Sign in
@@ -252,7 +252,7 @@ export function ConfirmWriteModal({
   return (
     <ModalShell title={`${label} ${dv.name}?`} onClose={onClose} busy={busy}>
       <div className="space-y-3">
-        <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-800">
+        <div className="rounded-md border border-forest-900/10 bg-paper-sunken px-3 py-2 text-xs text-ink-800">
           <div><strong>{dv.name}</strong> — {dv.payee}</div>
           <div>
             Amount: ₱{Number(dv.amount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
@@ -263,7 +263,7 @@ export function ConfirmWriteModal({
           </div>
         </div>
 
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-ink-600">
           You're {verb} this Disbursement Voucher. To confirm, type the DV name
           <strong className="font-mono"> {dv.name}</strong> below.
         </p>
@@ -275,18 +275,18 @@ export function ConfirmWriteModal({
           onChange={(e) => setTypedName(e.target.value)}
           placeholder={dv.name}
           disabled={busy}
-          className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm font-mono focus:border-green-500 focus:outline-none disabled:bg-gray-50"
+          className="w-full rounded-md border border-ink-200 px-3 py-1.5 text-sm font-mono focus:border-forest-600 focus:outline-none disabled:bg-paper-sunken"
         />
 
         {action === "cancel_dv" && (
           <label className="block">
-            <span className="block text-xs font-medium text-gray-700">Reason (required)</span>
+            <span className="block text-xs font-medium text-ink-700">Reason (required)</span>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               disabled={busy}
               rows={2}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-1.5 text-xs focus:border-green-500 focus:outline-none disabled:bg-gray-50"
+              className="mt-1 w-full rounded-md border border-ink-200 px-3 py-1.5 text-xs focus:border-forest-600 focus:outline-none disabled:bg-paper-sunken"
               placeholder="e.g. Duplicate of DV-2026-00250"
             />
           </label>
@@ -304,7 +304,7 @@ export function ConfirmWriteModal({
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="rounded-md px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+            className="rounded-md px-3 py-1.5 text-xs text-ink-700 hover:bg-paper-deep disabled:opacity-50"
           >
             Cancel
           </button>
@@ -315,7 +315,7 @@ export function ConfirmWriteModal({
             className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white ${
               action === "cancel_dv"
                 ? "bg-red-600 hover:bg-red-700"
-                : "bg-green-600 hover:bg-green-700"
+                : "bg-forest-600 hover:bg-forest-700"
             } disabled:opacity-50`}
           >
             {busy && <Loader2 className="h-3 w-3 animate-spin" />}

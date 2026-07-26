@@ -188,19 +188,19 @@ function FormattedText({
 }) {
   const segs = parseSegments(text);
   const linkCls = isBot
-    ? "underline underline-offset-2 text-green-700 font-medium break-all hover:text-green-800"
+    ? "underline underline-offset-2 decoration-forest-600/40 text-forest-700 font-medium break-all hover:decoration-forest-700 hover:text-forest-900"
     : "underline underline-offset-2 text-white/90 font-medium break-all";
   // Markdown links carry human-readable labels, so wrap at word
   // boundaries instead of mid-character like raw-URL links do.
   const mdLinkCls = isBot
-    ? "underline underline-offset-2 text-green-700 font-medium hover:text-green-800"
+    ? "underline underline-offset-2 decoration-forest-600/40 text-forest-700 font-medium hover:decoration-forest-700 hover:text-forest-900"
     : "underline underline-offset-2 text-white/90 font-medium";
   const codeCls = isBot
-    ? "bg-gray-200/80 text-gray-800 rounded px-1 py-0.5 text-[0.82em] font-mono"
-    : "bg-white/20 text-white rounded px-1 py-0.5 text-[0.82em] font-mono";
+    ? "bg-paper-deep text-ink-800 rounded px-1.5 py-0.5 text-[0.82em] font-mono"
+    : "bg-white/20 text-white rounded px-1.5 py-0.5 text-[0.82em] font-mono";
   const pathCls = isBot
-    ? "bg-gray-200/80 text-gray-700 rounded px-1 py-0.5 text-[0.82em] font-mono"
-    : "bg-white/20 text-white/90 rounded px-1 py-0.5 text-[0.82em] font-mono";
+    ? "bg-paper-deep text-ink-700 rounded px-1.5 py-0.5 text-[0.82em] font-mono"
+    : "bg-white/20 text-white/90 rounded px-1.5 py-0.5 text-[0.82em] font-mono";
 
   return (
     <>
@@ -337,11 +337,11 @@ export function MessageBody({
             return (
               <p
                 key={i}
-                className={`flex items-start gap-1.5 font-semibold ${isBot ? "text-green-800" : ""} ${i === 0 ? "mt-0" : "mt-2.5"} mb-1`}
+                className={`flex items-start gap-2 font-semibold tracking-tight ${isBot ? "text-forest-900" : ""} ${i === 0 ? "mt-0" : "mt-4"} mb-1.5`}
               >
                 <span
                   aria-hidden="true"
-                  className={`mt-1 inline-block h-3.5 w-1 flex-shrink-0 rounded-full ${isBot ? "bg-green-500" : "bg-white/60"}`}
+                  className={`mt-[0.45em] inline-block h-3.5 w-[3px] flex-shrink-0 rounded-full ${isBot ? "bg-forest-600" : "bg-white/60"}`}
                 />
                 <span className="min-w-0">
                   <FormattedText text={tx(b.text.replace(/:$/, ""))} isBot={isBot} reveal={counter} />
@@ -350,7 +350,7 @@ export function MessageBody({
             );
           case "ol":
             return (
-              <ol key={i} className="my-1.5 space-y-1.5 list-none pl-0">
+              <ol key={i} className="my-2.5 space-y-2 list-none pl-0">
                 {b.items.map((it, j) => {
                   const hasSubs = it.subs.length > 0;
                   return (
@@ -358,7 +358,7 @@ export function MessageBody({
                       <span
                         aria-hidden="true"
                         className={`absolute left-0 top-0.5 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                          isBot ? "bg-green-100 text-green-700" : "bg-white/25 text-white"
+                          isBot ? "bg-forest-50 text-forest-800 ring-1 ring-inset ring-forest-900/[0.06]" : "bg-white/25 text-white"
                         }`}
                       >
                         {b.start + j}
@@ -370,8 +370,8 @@ export function MessageBody({
                             <li key={k} className="relative pl-4">
                               <span
                                 aria-hidden="true"
-                                className={`absolute left-1 top-2 h-1.5 w-1.5 rounded-full ${
-                                  isBot ? "bg-green-500" : "bg-white/70"
+                                className={`absolute left-1 top-[0.65em] h-1.5 w-1.5 rounded-full ${
+                                  isBot ? "bg-forest-500" : "bg-white/70"
                                 }`}
                               />
                               <FormattedText text={tx(s)} isBot={isBot} reveal={counter} />
@@ -386,13 +386,13 @@ export function MessageBody({
             );
           case "ul":
             return (
-              <ul key={i} className="my-1.5 space-y-1 list-none pl-1">
+              <ul key={i} className="my-2.5 space-y-1.5 list-none pl-1">
                 {b.items.map((it, j) => (
                   <li key={j} className="relative pl-4">
                     <span
                       aria-hidden="true"
-                      className={`absolute left-1 top-2 h-1.5 w-1.5 rounded-full ${
-                        isBot ? "bg-green-500" : "bg-white/70"
+                      className={`absolute left-1 top-[0.65em] h-1.5 w-1.5 rounded-full ${
+                        isBot ? "bg-forest-500" : "bg-white/70"
                       }`}
                     />
                     <FormattedText text={tx(it)} isBot={isBot} reveal={counter} />
@@ -404,7 +404,7 @@ export function MessageBody({
             return (
               <p
                 key={i}
-                className={`${i === 0 ? "mt-0" : "mt-2"} whitespace-pre-wrap break-words`}
+                className={`${i === 0 ? "mt-0" : "mt-3"} whitespace-pre-wrap break-words`}
               >
                 <FormattedText text={tx(b.text)} isBot={isBot} reveal={counter} />
               </p>

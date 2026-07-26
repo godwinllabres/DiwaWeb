@@ -37,25 +37,25 @@ export function ChatSidebar({
   onClearHistory,
 }: ChatSidebarProps) {
   return (
-    <aside className={`w-64 flex-shrink-0 flex-col border-r border-green-100 bg-green-50/40 ${className}`}>
-      <div className="flex items-center gap-2.5 px-4 pb-3 pt-4">
+    <aside className={`w-72 flex-shrink-0 flex-col border-r border-forest-900/10 bg-paper-sunken ${className}`}>
+      <div className="flex items-center gap-2.5 px-5 pb-4 pt-5">
         <SeviAvatar className="h-8 w-8" title="Sevi" />
-        <span className="text-base font-semibold text-gray-900">Sevi</span>
+        <span className="text-base font-semibold tracking-tight text-forest-900">Sevi</span>
       </div>
 
-      <div className="px-3">
+      <div className="px-4">
         <button
           type="button"
           onClick={onStartOver}
-          className="flex w-full items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:border-green-400 hover:text-green-800"
+          className="flex w-full items-center gap-2 rounded-2xl border border-forest-900/10 bg-paper-raised px-4 py-3 text-sm font-semibold text-ink-800 transition-colors hover:border-forest-900/15 hover:bg-forest-50 hover:text-forest-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper-sunken"
         >
-          <Plus className="h-4 w-4 text-green-600" />
+          <Plus className="h-4 w-4 text-forest-600" />
           New conversation
         </button>
       </div>
 
-      <nav className="mt-4 min-h-0 flex-1 overflow-y-auto px-3">
-        <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+      <nav className="mt-6 min-h-0 flex-1 overflow-y-auto px-4">
+        <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-500">
           Popular topics
         </p>
         <div className="flex flex-col gap-0.5">
@@ -66,9 +66,9 @@ export function ChatSidebar({
                 key={topic.tag}
                 type="button"
                 onClick={() => onTopic(topic)}
-                className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-white hover:text-gray-900"
+                className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-left text-sm text-ink-700 transition-colors hover:bg-forest-50 hover:text-forest-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600"
               >
-                <Icon className="h-4 w-4 flex-shrink-0 text-green-600" />
+                <Icon className="h-4 w-4 flex-shrink-0 text-forest-600" />
                 <span className="min-w-0 truncate">{topic.title}</span>
               </button>
             );
@@ -76,7 +76,7 @@ export function ChatSidebar({
         </div>
 
         <ConversationHistory
-          className="mt-5"
+          className="mt-7"
           conversations={conversations}
           enabled={historyEnabled}
           onToggle={onToggleHistory}
@@ -86,8 +86,8 @@ export function ChatSidebar({
         />
       </nav>
 
-      <div className="mt-auto border-t border-gray-200 px-4 py-3 text-[11px] text-gray-500">
-        <p className="font-medium text-gray-600">Language · EN · FIL · Taglish</p>
+      <div className="mt-auto border-t border-forest-900/10 px-5 py-4 text-[11px] text-ink-500">
+        <p className="font-medium text-ink-600">Language · EN · FIL · Taglish</p>
         <p className="mt-1 flex items-center gap-1.5">
           <Lock className="h-3 w-3" />
           {/* Stays accurate either way: with saved chats on, the transcript is

@@ -415,7 +415,7 @@ export default function App() {
     // useVisualViewportHeight(); it collapses when the on-screen keyboard
     // opens so the composer never ends up behind the keys. Falls back to
     // 100dvh wherever visualViewport is unavailable.
-    <div className="min-h-[var(--sevi-vh,100dvh)] w-full bg-white lg:bg-green-50/40">
+    <div className="min-h-[var(--sevi-vh,100dvh)] w-full bg-paper lg:bg-paper-sunken">
       <div className="relative mx-auto flex h-[var(--sevi-vh,100dvh)] w-full">
         {/* Desktop conversation rail — hidden until lg, so the ≤420px widget
             iframe keeps the single-column phone layout. */}
@@ -434,10 +434,12 @@ export default function App() {
         {/* Main column. On tablet/desktop the conversation, quick actions, and
             composer center in a readable width instead of stretching edge-to-
             edge; on phone this is a no-op. */}
-        <div className="relative flex h-[var(--sevi-vh,100dvh)] min-w-0 flex-1 flex-col overflow-hidden bg-white">
-          <div className="hidden items-center gap-3 border-b border-gray-100 px-6 py-3 lg:flex">
-            <span className="text-sm font-semibold text-gray-900">CvSU Virtual Assistant</span>
-            <span className="rounded-full border border-gray-200 px-2.5 py-0.5 text-[11px] font-medium text-gray-500">
+        <div className="relative flex h-[var(--sevi-vh,100dvh)] min-w-0 flex-1 flex-col overflow-hidden bg-paper">
+          <div className="hidden items-center gap-3 border-b border-forest-900/10 px-8 py-4 lg:flex">
+            <span className="text-sm font-semibold tracking-tight text-forest-900">
+              CvSU Virtual Assistant
+            </span>
+            <span className="rounded-full border border-forest-900/10 bg-paper-raised px-3 py-1 text-[11px] font-medium text-ink-500">
               Indang main campus
             </span>
           </div>
@@ -450,7 +452,7 @@ export default function App() {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-start gap-2 text-xs text-amber-800 sm:px-6 sm:items-center">
+              <div className="flex items-start gap-2.5 border-b border-gold-200 bg-gold-50 px-5 py-3 text-xs text-gold-700 sm:items-center sm:px-8">
                 <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5 sm:mt-0" />
                 <span className="min-w-0 flex-1">
                   {chat.apiError ??
@@ -462,7 +464,7 @@ export default function App() {
                       chat.setApiError(null);
                       chat.retryLast();
                     }}
-                    className="flex-shrink-0 rounded-lg border border-amber-300 bg-white px-2.5 py-1 font-semibold text-amber-800 transition-colors hover:bg-amber-100"
+                    className="flex-shrink-0 rounded-lg border border-gold-300 bg-paper-raised px-4 py-2 font-semibold text-gold-700 transition-colors hover:bg-gold-100"
                   >
                     Retry
                   </button>
@@ -475,7 +477,7 @@ export default function App() {
         <div
           ref={scroll.containerRef}
           onScroll={scroll.onScroll}
-          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [-webkit-overflow-scrolling:touch] sm:px-6 short:py-2"
+          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-14 pt-6 [-webkit-overflow-scrolling:touch] sm:px-8 sm:pb-16 sm:pt-8 short:pb-12 short:pt-3"
         >
           <div className="mx-auto w-full md:max-w-2xl lg:max-w-3xl">
           <ChatMessage
@@ -492,7 +494,7 @@ export default function App() {
             <div className="mb-4 ml-10 sm:ml-11">
               <button
                 onClick={handleAcceptConsent}
-                className="inline-flex items-center gap-2 rounded-xl border border-green-600 bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:text-base"
+                className="inline-flex items-center gap-2 rounded-2xl bg-forest-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-forest-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:text-base"
               >
                 <ShieldCheck className="h-4 w-4" />
                 I Agree
@@ -540,18 +542,36 @@ export default function App() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
-                className="mt-5 space-y-3"
+                className="mt-8 space-y-4"
               >
-                <p className="text-sm text-gray-500 font-medium px-1">{categoriesHeading}</p>
-                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                  {categories.map((category) => (
-                    <CategoryCard
+                <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-forest-700">
+                  {categoriesHeading}
+                </p>
+                {/* Bento, not a matrix: the first (highest-ranked) topic runs
+                    the full width and the rest pair off beneath it, so the
+                    grid has a focal point instead of six equal choices. Cards
+                    spring in one after another — 45ms apart, which reads as a
+                    single gesture rather than six separate animations. */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {categories.map((category, i) => (
+                    <motion.div
                       key={category.tag}
-                      icon={pickIcon(category.tag)}
-                      title={category.title}
-                      description={category.description}
-                      onClick={() => handleQuickAction(category)}
-                    />
+                      className={i === 0 ? "sm:col-span-2" : ""}
+                      initial={reducedMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={
+                        reducedMotion
+                          ? { duration: 0 }
+                          : { type: "spring", stiffness: 240, damping: 26, delay: i * 0.045 }
+                      }
+                    >
+                      <CategoryCard
+                        icon={pickIcon(category.tag)}
+                        title={category.title}
+                        description={category.description}
+                        onClick={() => handleQuickAction(category)}
+                      />
+                    </motion.div>
                   ))}
                 </div>
               </motion.div>
@@ -560,6 +580,23 @@ export default function App() {
 
           <div ref={scroll.endRef} className="h-2" />
           </div>
+
+          {/* The hand-off to the dock. Sticky INSIDE the scroll area, which is
+              the only place it can be: as a child of the dock it painted over
+              the quick-action chips instead of the transcript, and as a
+              sibling it would have had to out-guess the dock's height. Here it
+              is pinned to the scrollport's bottom edge, always over the
+              conversation and never over a control.
+
+              The negative BOTTOM margin (not top) is what keeps it honest: it
+              cancels the band's own height so it adds no scroll length, while
+              still placing it after the last message. A negative top margin
+              would have dragged it back over the final bubble, washing it out
+              in exactly the short conversations that never scroll. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none sticky bottom-0 -mx-4 -mb-16 h-16 bg-gradient-to-t from-paper via-paper/85 to-transparent sm:-mx-8"
+          />
         </div>
 
         <AnimatePresence>
@@ -570,17 +607,33 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.8, y: 8 }}
               transition={{ duration: 0.15 }}
               onClick={() => scroll.scrollToBottom(true)}
-              className="absolute bottom-[140px] right-4 z-10 flex items-center gap-1.5 rounded-full bg-white pl-3 pr-3.5 py-2 shadow-lg border border-gray-200 text-sm font-medium text-gray-700 active:bg-gray-50 sm:bottom-[160px] sm:right-6 short:bottom-[104px]"
+              className="absolute bottom-[140px] right-5 z-10 flex items-center gap-1.5 rounded-full border border-forest-900/10 bg-paper-raised/85 px-4 py-2 text-sm font-medium text-ink-700 shadow-float backdrop-blur-xl transition-colors hover:bg-forest-50 sm:bottom-[160px] sm:right-8 short:bottom-[104px]"
             >
-              <ChevronDown className="h-4 w-4 text-gray-500" />
-              {scroll.hasNewMessage && <span className="text-green-600 text-xs">New message</span>}
+              <ChevronDown className="h-4 w-4 text-ink-500" />
+              {scroll.hasNewMessage && (
+                <span className="flex items-center gap-1.5 text-xs text-forest-700">
+                  {/* Gold reads as "something arrived" without competing with
+                      the green the rest of the chrome is built from. */}
+                  <span className="h-1.5 w-1.5 rounded-full bg-gold-500" aria-hidden="true" />
+                  New message
+                </span>
+              )}
             </motion.button>
           )}
         </AnimatePresence>
 
+        {/* The dock: quick actions + composer.
+
+            -mt-8 pulls it up over the scroll area's last 32px, so the
+            transcript genuinely passes behind the glass — that is what makes
+            the blur a real effect rather than a decorative class — while the
+            scroll container's matching extra bottom padding keeps the last
+            message clear of it. The fade that dissolves the conversation into
+            this dock lives inside the scroll area itself; see there for why. */}
+        <div className="relative -mt-8 flex-shrink-0">
         {!showCategories && (
-          <div className="border-t border-gray-100 bg-white px-4 py-2.5 sm:px-6 short:py-1.5">
-            <div className="mx-auto flex w-full gap-2 overflow-x-auto scrollbar-none pb-0.5 md:max-w-2xl lg:max-w-3xl">
+          <div className="relative px-5 pb-1 pt-2 sm:px-8 short:pt-1">
+            <div className="mx-auto flex w-full gap-2.5 overflow-x-auto scrollbar-none pb-1 md:max-w-2xl lg:max-w-3xl">
               <QuickActionButton icon={Home} label="Start Over" onClick={handleStartOver} />
               {/* Below lg there is no sidebar, so this is the only way to the
                   saved-chats switch. It appears once a conversation has
@@ -612,12 +665,23 @@ export default function App() {
           </div>
         )}
 
-        {/* Composer. On a short viewport (landscape phone, or any phone with
-            the keyboard up) the vertical padding is the first thing to go —
-            every row saved here is a row of conversation kept on screen. */}
-        <div className="border-t border-gray-100 bg-white px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex-shrink-0 sm:px-6 sm:pt-4 sm:pb-5 short:pt-1.5 short:pb-[calc(0.375rem+env(safe-area-inset-bottom))]">
-          <div className="mx-auto flex w-full items-center gap-2 sm:gap-3 md:max-w-2xl lg:max-w-3xl">
-            <div className="relative min-w-0 flex-1">
+        {/* Composer — a command bar the conversation runs underneath, not a
+            footer pinned under a rule. It stays in the flex flow (so the
+            scroll area's height math, the on-screen keyboard and `short:` all
+            keep working); what makes it float is the dock's negative margin
+            above, the hairline + diffused shadow, and the blur picking up
+            whatever has scrolled behind it.
+
+            On a short viewport (landscape phone, or any phone with the
+            keyboard up) the vertical padding is the first thing to go — every
+            row saved here is a row of conversation kept on screen. */}
+        <div className="relative px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 sm:px-8 sm:pb-6 sm:pt-3 short:pt-1 short:pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+          <div className="mx-auto w-full md:max-w-2xl lg:max-w-3xl">
+            {/* focus-within ring, not just a border swap: a 1px border change
+                on a hairline is ~1.5:1 against the bar, which is no focus
+                indicator at all for a keyboard user on the app's main
+                control. */}
+            <div className="flex items-center gap-2 rounded-[1.75rem] border border-forest-900/10 bg-paper-raised/80 p-2 pl-5 shadow-float backdrop-blur-xl transition-colors focus-within:border-forest-600/40 focus-within:bg-paper-raised focus-within:ring-2 focus-within:ring-forest-600/35">
               <input
                 ref={inputRef}
                 type="text"
@@ -626,33 +690,35 @@ export default function App() {
                 onKeyDown={handleKeyPress}
                 disabled={awaitingConsent}
                 placeholder={inputPlaceholder}
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-tight focus:outline-none focus:border-green-500 focus:bg-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 sm:text-base short:py-2"
+                className="min-w-0 flex-1 bg-transparent py-2 text-[15px] leading-tight text-ink-900 placeholder:text-ink-500 focus:outline-none disabled:cursor-not-allowed disabled:text-ink-400 sm:text-base short:py-1"
               />
+              <button
+                onClick={handleSend}
+                disabled={sendDisabled}
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-forest-600 transition-colors hover:bg-forest-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:bg-forest-800 disabled:bg-ink-200 short:h-9 short:w-9"
+                aria-label="Send message"
+              >
+                <Send className="h-4 w-4 text-white sm:h-5 sm:w-5" />
+              </button>
             </div>
-            <button
-              onClick={handleSend}
-              disabled={sendDisabled}
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-600 transition-colors active:bg-green-800 disabled:bg-gray-200 sm:h-12 sm:w-12 short:h-10 short:w-10"
-              aria-label="Send message"
-            >
-              <Send className="h-4 w-4 text-white sm:h-5 sm:w-5" />
-            </button>
+            {/* Always-visible accuracy disclosure — the in-reply disclaimer only
+                shows on intents most users never trigger. Low emphasis on
+                purpose: present on every turn, shouting on none. */}
+            <p className="mt-3 text-center text-[11px] leading-tight text-ink-500 short:mt-1.5 short:text-[10px]">
+              Sevi can make mistakes — verify important details with the official{" "}
+              <a
+                href="https://cvsu.edu.ph"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-ink-600"
+              >
+                CvSU website
+              </a>{" "}
+              or the office concerned.
+            </p>
           </div>
-          {/* Always-visible accuracy disclosure — the in-reply disclaimer only
-              shows on intents most users never trigger. Low emphasis on
-              purpose: present on every turn, shouting on none. */}
-          <p className="mx-auto mt-2 w-full text-center text-[11px] leading-tight text-gray-400 md:max-w-2xl lg:max-w-3xl short:mt-1 short:text-[10px]">
-            Sevi can make mistakes — verify important details with the official{" "}
-            <a
-              href="https://cvsu.edu.ph"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-gray-500"
-            >
-              CvSU website
-            </a>{" "}
-            or the office concerned.
-          </p>
+        </div>
+        {/* /dock */}
         </div>
 
         </div>
@@ -666,7 +732,7 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="absolute inset-0 z-20 flex flex-col bg-black/30 lg:hidden"
+              className="absolute inset-0 z-20 flex flex-col bg-forest-950/25 backdrop-blur-[2px] lg:hidden"
             >
               <button
                 type="button"
@@ -679,15 +745,17 @@ export default function App() {
                 animate={{ y: 0 }}
                 exit={{ y: reducedMotion ? 0 : "100%" }}
                 transition={{ duration: 0.2 }}
-                className="max-h-[70%] overflow-y-auto rounded-t-2xl bg-green-50/95 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 shadow-2xl backdrop-blur"
+                className="max-h-[70%] overflow-y-auto rounded-t-3xl border-t border-forest-900/10 bg-paper/95 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-float backdrop-blur-xl"
               >
-                <div className="mb-1 flex items-center justify-between px-2">
-                  <span className="text-sm font-semibold text-gray-900">Saved chats</span>
+                <div className="mb-2 flex items-center justify-between px-2">
+                  <span className="text-sm font-semibold tracking-tight text-forest-900">
+                    Saved chats
+                  </span>
                   <button
                     type="button"
                     onClick={() => setShowHistory(false)}
                     aria-label="Close saved chats"
-                    className="rounded-md p-1.5 text-gray-500 hover:bg-white hover:text-gray-800"
+                    className="rounded-lg p-2 text-ink-500 transition-colors hover:bg-forest-50 hover:text-forest-900"
                   >
                     <X className="h-4 w-4" />
                   </button>

@@ -46,9 +46,9 @@ export function ConversationHistory({
         role="switch"
         aria-checked={enabled}
         onClick={() => onToggle(!enabled)}
-        className="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/70 focus:outline-none focus:ring-2 focus:ring-green-400"
+        className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-forest-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600"
       >
-        <span className="text-[13px] font-medium text-gray-700">
+        <span className="text-[13px] font-medium text-ink-700">
           Save chats on this device
         </span>
         {/* Track and knob are laid out with flex + padding rather than
@@ -59,11 +59,11 @@ export function ConversationHistory({
         <span
           aria-hidden="true"
           className={`inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full p-0.5 transition-colors ${
-            enabled ? "bg-green-600" : "bg-gray-300"
+            enabled ? "bg-forest-600" : "bg-ink-300"
           }`}
         >
           <span
-            className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
+            className={`h-4 w-4 rounded-full bg-white ring-1 ring-forest-900/10 transition-transform ${
               enabled ? "translate-x-4" : "translate-x-0"
             }`}
           />
@@ -71,7 +71,7 @@ export function ConversationHistory({
       </button>
 
       {!enabled && (
-        <p className="mt-1.5 px-2 text-[11px] leading-snug text-gray-500">
+        <p className="mt-1.5 px-2 text-[11px] leading-snug text-ink-500">
           Off. Turn this on to keep your chats in this browser so you can read them
           later. Please leave it off on shared or library computers — anyone using
           this device afterwards would be able to read them.
@@ -79,7 +79,7 @@ export function ConversationHistory({
       )}
 
       {enabled && conversations.length === 0 && (
-        <p className="mt-1.5 px-2 text-[11px] leading-snug text-gray-500">
+        <p className="mt-1.5 px-2 text-[11px] leading-snug text-ink-500">
           Your chats are kept in this browser only — never on another device — and
           are removed after {RETENTION_DAYS} days.
         </p>
@@ -93,14 +93,14 @@ export function ConversationHistory({
                 <button
                   type="button"
                   onClick={() => onOpen(c.id)}
-                  className="flex w-full items-center gap-2.5 rounded-lg py-2 pl-2.5 pr-8 text-left transition-colors hover:bg-white"
+                  className="flex w-full items-center gap-2.5 rounded-xl py-2.5 pl-3 pr-9 text-left transition-colors hover:bg-forest-50"
                 >
-                  <MessageSquareText className="h-4 w-4 flex-shrink-0 text-green-600" />
+                  <MessageSquareText className="h-4 w-4 flex-shrink-0 text-forest-600" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-gray-700 group-hover:text-gray-900">
+                    <span className="block truncate text-sm text-ink-700 group-hover:text-forest-900">
                       {c.title}
                     </span>
-                    <span className="block text-[11px] text-gray-400">
+                    <span className="block text-[11px] text-ink-500">
                       {relativeDay(c.updatedAt)}
                     </span>
                   </span>
@@ -110,7 +110,7 @@ export function ConversationHistory({
                   type="button"
                   onClick={() => onDelete(c.id)}
                   aria-label={`Delete chat: ${c.title}`}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -121,7 +121,7 @@ export function ConversationHistory({
           <button
             type="button"
             onClick={onClearAll}
-            className="mt-2 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-700"
+            className="mt-2 flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] font-medium text-ink-500 transition-colors hover:bg-red-50 hover:text-red-700"
           >
             <Trash2 className="h-3.5 w-3.5 flex-shrink-0" />
             Delete all chats on this device

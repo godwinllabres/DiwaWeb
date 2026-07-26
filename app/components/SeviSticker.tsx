@@ -182,7 +182,7 @@ export function SeviMoodCycle({ className }: { readonly className?: string }) {
             onClick={() => setPaused((p) => !p)}
             aria-pressed={paused}
             aria-label={paused ? "Play Sevi's mood animation" : "Pause Sevi's mood animation"}
-            className="absolute bottom-1 right-1 z-10 rounded-full bg-white/80 px-2 py-1 text-[11px] font-semibold text-green-800 shadow-sm ring-1 ring-green-200 hover:bg-white"
+            className="absolute bottom-1 right-1 z-10 rounded-full bg-paper-raised/85 px-3 py-1 text-[11px] font-semibold text-forest-800 shadow-ambient ring-1 ring-forest-900/10 backdrop-blur hover:bg-paper-raised"
           >
             {paused ? "▶ Play" : "❚❚ Pause"}
           </button>
