@@ -72,3 +72,29 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* The lift under a card.
+
+   `.sevi-lift` marks the background layer that sits behind a topic card or
+   bento tile — the thing that scales and warms on hover while the text above
+   it stays put (scaling the element itself would resample its type). Reduced
+   motion keeps the colour change, which is the part that carries meaning, and
+   drops the movement, which is the part that doesn't. */
+@media (prefers-reduced-motion: reduce) {
+  .sevi-lift {
+    transform: none !important;
+    transition-property: background-color, border-color !important;
+  }
+}
+
+/* Tailwind has no scrollbar utility and the quick-actions strip is a
+   deliberately overflowing row of chips: a native scrollbar under it reads as
+   a broken layout rather than as an affordance (the chips are visibly cut off,
+   which is the affordance). */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
