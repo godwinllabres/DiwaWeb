@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
 import {
-  MessageCircle, Sparkles, Map, Languages, ClipboardList, Lock, ShieldCheck,
-  Zap, Network, Cpu, Phone, ExternalLink, Maximize2,
+  MessageCircle, Map, Languages, ClipboardList, ShieldCheck, GraduationCap,
+  CalendarDays, Zap, Network, Cpu, Phone, ExternalLink, Maximize2, ArrowUpRight,
 } from "lucide-react";
+import { motion, type MotionProps, type Transition } from "motion/react";
 import { SeviAvatar } from "./SeviAvatar";
 import { SeviMoodCycle } from "./SeviSticker";
+import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
@@ -14,268 +17,478 @@ import { SeviMoodCycle } from "./SeviSticker";
  *
  * The chat itself never renders here — tapping the bubble (or "Open chat")
  * opens the iframed embed (?embed=1) on top.
+ *
+ * Layout note: the "what you can ask" section is a bento grid, not a list of
+ * equal tiles. Admissions is the question students actually arrive with, so it
+ * gets a card twice everyone else's size and carries real sample questions;
+ * the rest fill in around it. Asymmetry is the point — a 3x2 grid of identical
+ * boxes reads as a form to be worked through, a bento reads as somewhere to
+ * browse.
+ *
+ * Spacing follows one rule throughout: the section's own padding is always
+ * larger than the gaps between its children (px-6 vs gap-3 on phones, px-8+
+ * vs gap-4 above), so the page never looks like it is pressing against the
+ * viewport edge.
  */
-export function LandingPage() {
-  return (
-    <div className="min-h-dvh w-full bg-gradient-to-br from-green-50 via-white to-green-100 text-gray-900">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 sm:py-7">
-        <div className="flex items-center gap-3">
-          <SeviAvatar className="h-10 w-10 sm:h-12 sm:w-12" title="Sevi" />
-          <div>
-            <p className="text-sm font-semibold text-green-900 sm:text-base">Sevi</p>
-            <p className="text-[11px] text-green-700/80 sm:text-xs">CvSU Virtual Assistant</p>
-          </div>
-        </div>
-        <a
-          href="https://cvsu.edu.ph"
-          className="inline-flex items-center gap-1.5 rounded-full border border-green-300 px-3.5 py-1.5 text-xs font-medium text-green-800 hover:bg-green-50 sm:text-sm"
-        >
-          cvsu.edu.ph <ExternalLink className="h-3.5 w-3.5" />
-        </a>
-      </header>
 
-      <main className="mx-auto max-w-6xl px-6 pb-24">
-        {/* HERO */}
-        <section className="mt-6 grid items-start gap-10 sm:mt-12 lg:grid-cols-[1.2fr_1fr]">
-          <div>
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-              <Sparkles className="h-3 w-3" />
-              Most answers in under a second — English, Filipino, or Taglish
-            </p>
-            <div className="mt-5 flex items-start gap-4 sm:gap-6">
-              <h1 className="text-3xl font-semibold leading-tight text-gray-900 sm:text-4xl lg:text-5xl">
+// Open the chat the way this page can: the widget if it loaded, otherwise
+// the fullscreen route, which is the same chat without the iframe.
+function openChat() {
+  const widget = (window as { diwa?: { open?: () => void } }).diwa;
+  if (widget?.open) {
+    widget.open();
+    return;
+  }
+  window.location.href = "?chat=1";
+}
+
+// Spring, not duration-easing — the cards should settle rather than stop.
+const SPRING: Transition = { type: "spring", stiffness: 210, damping: 26, mass: 0.9 };
+
+export function LandingPage() {
+  const reducedMotion = usePrefersReducedMotion();
+
+  // One helper for every entry animation on the page. Reduced motion collapses
+  // it to a plain fade-free render — no transform, no stagger, no delay.
+  const rise = (index = 0): MotionProps =>
+    reducedMotion
+      ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
+      : {
+          initial: { opacity: 0, y: 22 },
+          whileInView: { opacity: 1, y: 0 },
+          viewport: { once: true, margin: "-80px" },
+          transition: { ...SPRING, delay: index * 0.06 },
+        };
+
+  return (
+    <div className="relative min-h-dvh w-full bg-paper text-ink-800">
+      {/* One soft, warm wash behind the fold. Radial and paper-toned — depth
+          without a drop shadow, and nothing that reads as a "gradient hero". */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] bg-[radial-gradient(120%_90%_at_50%_-20%,rgba(22,128,60,0.09),transparent_62%)]"
+      />
+
+      <div className="relative">
+        <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 sm:px-12 sm:py-7">
+          <div className="flex items-center gap-3">
+            <SeviAvatar className="h-10 w-10 sm:h-11 sm:w-11" title="Sevi" />
+            <div>
+              <p className="text-sm font-semibold tracking-tight text-forest-900 sm:text-base">Sevi</p>
+              <p className="text-[11px] text-ink-500 sm:text-xs">CvSU Virtual Assistant</p>
+            </div>
+          </div>
+          <a
+            href="https://cvsu.edu.ph"
+            className="inline-flex items-center gap-1.5 rounded-full border border-forest-900/10 bg-paper-raised px-4 py-2 text-xs font-medium text-forest-800 transition-colors hover:bg-forest-50 sm:text-sm"
+          >
+            cvsu.edu.ph <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </header>
+
+        <main className="mx-auto max-w-6xl px-6 pb-28 sm:px-12">
+          {/* HERO */}
+          <section className="mt-8 grid items-center gap-10 sm:mt-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+            <motion.div {...rise(0)}>
+              <p className="inline-flex items-center gap-2 rounded-full border border-forest-900/10 bg-paper-raised px-4 py-2 text-xs font-medium text-ink-600">
+                {/* The one place gold appears above the fold: a live marker. */}
+                <span className="h-1.5 w-1.5 rounded-full bg-gold-500" aria-hidden="true" />
+                Answering now — in English, Filipino, or Taglish
+              </p>
+
+              <h1 className="mt-7 max-w-[16ch] text-[2.5rem] leading-[1.08] text-forest-900 sm:text-5xl lg:text-[3.5rem]">
                 Ask Sevi anything about Cavite State University.
               </h1>
-              <SeviAvatar className="h-28 w-28 flex-shrink-0 sm:h-36 sm:w-36 lg:h-44 lg:w-44" animated />
-            </div>
-            <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
-              Admissions, enrollment, courses, scholarships, fees, campus facilities,
-              walking directions on the Indang main campus — all in one chat. Available in
-              English, Filipino, or Taglish. No login, nothing personal stored.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => (window as any).diwa?.open?.()}
-                className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:text-base"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                Open chat
-              </button>
-              <a
-                href="?chat=1"
-                target="_blank"
-                rel="noopener"
-                className="hidden items-center gap-2 rounded-xl border border-green-300 bg-white px-5 py-3 text-sm font-semibold text-green-700 hover:bg-green-50 sm:inline-flex sm:text-base"
-              >
-                <Maximize2 className="h-4 w-4" />
-                Fullscreen chat
-              </a>
-              <a
-                href="#how-sevi-thinks"
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 sm:text-base"
-              >
-                How Sevi thinks
-              </a>
-            </div>
-          </div>
 
-          <div className="rounded-2xl border border-green-200 bg-white p-5 shadow-sm sm:p-6">
-            <p className="text-xs font-semibold uppercase tracking-wide text-green-700">
-              Try asking
-            </p>
-            <ul className="mt-3 space-y-2 text-sm text-gray-700">
-              {[
-                "What are admission requirements?",
-                "Is there an admission exam?",
-                "Where is the library?",
-                "Kelan magsisimula ang enrollment?",
-                "Tell me about scholarships",
-                "How can I contact the registrar?",
-              ].map((q) => (
-                <li
-                  key={q}
-                  className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 hover:border-green-300 hover:bg-green-50"
+              <p className="mt-6 max-w-[58ch] text-base leading-[1.7] text-ink-600 sm:text-lg">
+                Admissions, enrollment, courses, scholarships, fees, campus facilities and
+                walking directions on the Indang main campus — all in one conversation,
+                in the language you actually speak.
+              </p>
+
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={openChat}
+                  className="group inline-flex items-center gap-2.5 rounded-2xl bg-forest-900 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-forest-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:text-base"
                 >
-                  {q}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
+                  <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                  Open chat
+                </button>
+                <a
+                  href="?chat=1"
+                  target="_blank"
+                  rel="noopener"
+                  className="hidden items-center gap-2 rounded-2xl border border-forest-900/10 bg-paper-raised px-6 py-3.5 text-sm font-semibold text-forest-800 transition-colors hover:bg-forest-50 sm:inline-flex sm:text-base"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                  Fullscreen
+                </a>
+                <a
+                  href="#how-sevi-thinks"
+                  className="inline-flex items-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold text-ink-600 transition-colors hover:bg-paper-sunken hover:text-forest-900 sm:text-base"
+                >
+                  How Sevi thinks
+                </a>
+              </div>
+            </motion.div>
 
-        {/* STAT STRIP */}
-        <section className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-4 sm:gap-4">
-          <Stat value="3" label="ways it works out your answer" />
-          <Stat value="<1s" label="for most replies" />
-          <Stat value="EN·FIL·TL" label="English · Filipino · Taglish" />
-          <Stat value="0" label="logins · anonymous by default" />
-        </section>
+            <motion.div className="flex justify-center lg:justify-end" {...rise(1)}>
+              <SeviAvatar
+                className="h-44 w-44 sm:h-56 sm:w-56 lg:h-64 lg:w-64"
+                animated
+              />
+            </motion.div>
+          </section>
 
-        {/* SEE IT IN ACTION */}
-        <section className="mt-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">Getting started</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            New here? Watch the quick tour
-          </h2>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
-            Open the chat, ask in any language, and get a clear answer — here&rsquo;s the whole flow in four steps.
-          </p>
-          <div className="mt-7 overflow-hidden rounded-3xl border border-green-200 shadow-lg ring-1 ring-black/5">
-            <video
-              className="block w-full"
-              src="/how-to-use-sevi.webm"
-              poster="/how-to-use-sevi-poster.png"
-              autoPlay
-              loop
-              muted
-              playsInline
-              aria-label="Animated tour: how to use Sevi"
-            />
-          </div>
-        </section>
+          {/* BENTO — what you can ask */}
+          <section className="mt-24 sm:mt-32">
+            <motion.div {...rise(0)}>
+              <Eyebrow>What you can ask</Eyebrow>
+              <h2 className="mt-3 text-3xl text-forest-900 sm:text-4xl">
+                Start anywhere.
+              </h2>
+              <p className="mt-4 max-w-[56ch] text-base leading-[1.7] text-ink-600">
+                These are the questions Sevi is asked most. Open the chat and ask in your
+                own words — nothing here is a menu you have to follow.
+              </p>
+            </motion.div>
 
-        {/* ARCHITECTURE */}
-        <section id="how-sevi-thinks" className="mt-20 scroll-mt-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">How Sevi thinks</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            Three ways to answer, not one
-          </h2>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
-            Every question gets three tries. The quick ones handle what they can; only genuinely
-            open-ended questions reach the part that writes a full answer &mdash; and that runs on
-            CvSU&rsquo;s <b>own servers</b>, so nothing leaves the university.
-          </p>
-          <div className="mt-7 grid gap-4 sm:grid-cols-3">
-            <Tier
-              n="First try" icon={<Zap className="h-5 w-5" />}
-              title="Instant answers"
-              body="Recognises the questions students ask most, and replies right away."
-              tag="instant"
-            />
-            <Tier
-              n="Second try" icon={<Network className="h-5 w-5" />}
-              title="However you phrase it"
-              body="Catches the same question asked ten different ways — in English, Filipino, or Taglish."
-              tag="flexible · multilingual"
-            />
-            <Tier
-              n="If needed" icon={<Cpu className="h-5 w-5" />}
-              title="A fuller answer, kept on campus"
-              body="For anything unusual, Sevi writes a clear answer from CvSU's own pages, on CvSU's own servers."
-              tag="private · on campus"
-            />
-          </div>
-          <p className="mt-4 text-sm text-gray-500">
-            Under the hood: Na&iuml;ve Bayes pattern matching &rarr; an LSTM neural network &rarr; a
-            locally hosted large language model. Most replies land in under a second.
-          </p>
-        </section>
+            {/* 4 columns at lg; Admissions takes a 2x2 block and everything else
+                fills the space around it. The minmax row keeps every tile at a
+                comfortable height without letting a long line clip. */}
+            <div className="mt-10 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:auto-rows-[minmax(11.5rem,auto)]">
+              <BentoCard
+                index={0}
+                rise={rise}
+                icon={<GraduationCap className="h-5 w-5" />}
+                title="Admissions"
+                body="Requirements, the CvSUCAT entrance exam, deadlines, and what to bring on the day — step by step, with links to the official CvSU pages so you can check anything for yourself."
+                className="sm:col-span-2 lg:row-span-2"
+                featured
+              >
+                {/* mt-auto: the tile is twice everyone else's height, and
+                    without this the questions bunched under the body copy and
+                    left ~180px of dead card below them. Pinned to the floor
+                    they bracket the card — heading at the top, the things you
+                    can actually say at the bottom. */}
+                <span className="mt-auto flex flex-col gap-3 pt-8">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-500">
+                    People usually start with
+                  </span>
+                  <span className="flex flex-wrap gap-2">
+                  {[
+                    "What are the admission requirements?",
+                    "Is there an entrance exam?",
+                    "Kelan ang deadline ng application?",
+                    "How much is the application fee?",
+                    "When do results come out?",
+                  ].map((q) => (
+                    <span
+                      key={q}
+                      className="rounded-full border border-forest-900/10 bg-paper px-4 py-2.5 text-[13px] leading-tight text-ink-600 transition-colors group-hover:border-forest-900/15 group-hover:bg-paper-raised"
+                    >
+                      {q}
+                    </span>
+                  ))}
+                  </span>
+                </span>
+              </BentoCard>
 
-        {/* FEATURES */}
-        <section className="mt-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">What Sevi does</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            Built for the CvSU community
-          </h2>
-          <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            <Feature icon={<MessageCircle className="h-5 w-5" />} title="Fast by default"
-              body="Most questions come back in under a second. Only the unusual ones take a little longer." />
-            <Feature icon={<Map className="h-5 w-5" />} title="Interactive campus map"
-              body="Pan and zoom the Indang main campus. Pick a From and To — the walking route draws itself." />
-            <Feature icon={<Languages className="h-5 w-5" />} title="English · Filipino · Taglish"
-              body="Ask however you speak. Sevi understands and replies in the language of the question." />
-            <Feature icon={<ClipboardList className="h-5 w-5" />} title="Structured, cited answers"
-              body="Programs, requirements, deadlines and fees come back organised — with links to the official CvSU pages." />
-            <Feature icon={<Lock className="h-5 w-5" />} title="Always-on, anonymous"
-              body="No login. No personal data stored. Just point a question at it and get a clear answer." />
-            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="Safe by design"
-              body="Messages are auto-screened for safety, and Sevi never asks for passwords in chat." />
-          </div>
-        </section>
+              <BentoCard
+                index={1}
+                rise={rise}
+                icon={<CalendarDays className="h-5 w-5" />}
+                title="Enrollment"
+                body="Schedules, the enlistment flow, fees and assessment — plus what to do when a subject is already closed."
+                className="sm:col-span-2"
+              />
 
-        {/* CHARACTER */}
-        <section className="mt-20 grid items-center gap-8 rounded-3xl border border-green-200 bg-white/70 p-8 sm:grid-cols-2 sm:p-10">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-green-700">The character</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-              A face rooted in CvSU
-            </h2>
-            <p className="mt-3 text-base leading-relaxed text-gray-600">
-              Sevi wears a <b>salakot</b> bearing the real Cavite State University seal, over the
-              university green — friendly, unmistakably CvSU, and instantly recognisable at any
-              size, from a chat bubble to a banner.
+              <BentoCard
+                index={2}
+                rise={rise}
+                icon={<Map className="h-5 w-5" />}
+                title="Campus maps"
+                body="Pan and zoom Indang. Pick a From and a To — the walking route draws itself."
+              />
+
+              <BentoCard
+                index={3}
+                rise={rise}
+                icon={<Languages className="h-5 w-5" />}
+                title="EN · FIL · Taglish"
+                body="Ask however you speak. Sevi replies in the language of the question."
+              />
+
+              <BentoCard
+                index={4}
+                rise={rise}
+                icon={<ClipboardList className="h-5 w-5" />}
+                title="Scholarships & records"
+                body="Grants and requirements explained, and live lookups for the CvSU services already connected — like tracking an ORPS ticket."
+                className="sm:col-span-2"
+              />
+
+              <BentoCard
+                index={5}
+                rise={rise}
+                icon={<ShieldCheck className="h-5 w-5" />}
+                title="Anonymous by default"
+                body="No login. Chats are not kept on your device unless you switch on Saved chats yourself — and Sevi never asks for a password in chat."
+                className="sm:col-span-2"
+              />
+            </div>
+          </section>
+
+          {/* QUICK TOUR */}
+          <section className="mt-24 sm:mt-32">
+            <motion.div {...rise(0)}>
+              <Eyebrow>Getting started</Eyebrow>
+              <h2 className="mt-3 text-3xl text-forest-900 sm:text-4xl">
+                New here? The whole flow, in four steps
+              </h2>
+              <p className="mt-4 max-w-[56ch] text-base leading-[1.7] text-ink-600">
+                Open the chat, ask in any language, and get a clear answer.
+              </p>
+            </motion.div>
+            <motion.div
+              className="mt-10 overflow-hidden rounded-3xl border border-forest-900/10 bg-paper-raised p-2 sm:p-3"
+              {...rise(1)}
+            >
+              <video
+                className="block w-full rounded-2xl"
+                src="/how-to-use-sevi.webm"
+                poster="/how-to-use-sevi-poster.png"
+                autoPlay
+                loop
+                muted
+                playsInline
+                aria-label="Animated tour: how to use Sevi"
+              />
+            </motion.div>
+          </section>
+
+          {/* ARCHITECTURE */}
+          <section id="how-sevi-thinks" className="mt-24 scroll-mt-10 sm:mt-32">
+            <motion.div {...rise(0)}>
+              <Eyebrow>How Sevi thinks</Eyebrow>
+              <h2 className="mt-3 text-3xl text-forest-900 sm:text-4xl">
+                Three ways to answer, not one
+              </h2>
+              <p className="mt-4 max-w-[62ch] text-base leading-[1.7] text-ink-600">
+                Every question gets three tries. The quick ones handle what they can; only
+                genuinely open-ended questions reach the part that writes a full answer —
+                and that runs on CvSU&rsquo;s <b className="font-semibold text-ink-800">own servers</b>,
+                so nothing leaves the university.
+              </p>
+            </motion.div>
+
+            <div className="mt-10 grid gap-3 sm:gap-4 lg:grid-cols-3">
+              <Tier
+                index={0} rise={rise}
+                n="First try" icon={<Zap className="h-5 w-5" />}
+                title="Instant answers"
+                body="Recognises the questions students ask most, and replies right away."
+                tag="instant"
+              />
+              <Tier
+                index={1} rise={rise}
+                n="Second try" icon={<Network className="h-5 w-5" />}
+                title="However you phrase it"
+                body="Catches the same question asked ten different ways — in English, Filipino, or Taglish."
+                tag="flexible · multilingual"
+              />
+              <Tier
+                index={2} rise={rise}
+                n="If needed" icon={<Cpu className="h-5 w-5" />}
+                title="A fuller answer, kept on campus"
+                body="For anything unusual, Sevi writes a clear answer from CvSU's own pages, on CvSU's own servers."
+                tag="private · on campus"
+              />
+            </div>
+
+            <p className="mt-6 max-w-[62ch] text-sm leading-[1.7] text-ink-500">
+              Under the hood: Na&iuml;ve Bayes pattern matching &rarr; an LSTM neural network &rarr; a
+              locally hosted large language model. Most answers land in a moment.
             </p>
-          </div>
-          <div className="flex flex-col items-center gap-3">
-            <SeviMoodCycle className="h-52 w-52 sm:h-60 sm:w-60" />
-            <p className="text-xs text-gray-500">
-              Sevi&rsquo;s animated moods — you&rsquo;ll meet them in chat.
-            </p>
-          </div>
-        </section>
+          </section>
 
-        {/* FOOTER */}
-        <footer className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-green-200 pt-8 sm:flex-row sm:items-center">
-          <div>
-            <p className="text-sm font-semibold text-green-900">Sevi · CvSU Virtual Assistant</p>
-            <p className="mt-1 text-xs text-gray-500">Built for Cavite State University · Runs on CvSU&rsquo;s own servers</p>
-          </div>
-          <div className="text-left text-xs text-gray-500 sm:text-right">
-            <a href="https://cvsu.edu.ph" className="font-medium text-green-700 hover:underline">cvsu.edu.ph</a>
-            <p className="mt-1 inline-flex items-center gap-1.5">
-              <Phone className="h-3.5 w-3.5" /> Urgent concerns? Call CvSU trunkline: 4839250
-            </p>
-          </div>
-        </footer>
-      </main>
+          {/* CHARACTER */}
+          <motion.section
+            className="mt-24 grid items-center gap-10 rounded-3xl border border-forest-900/10 bg-paper-raised px-5 py-10 sm:mt-32 sm:grid-cols-2 sm:px-10 sm:py-14"
+            {...rise(0)}
+          >
+            <div>
+              <Eyebrow>The character</Eyebrow>
+              <h2 className="mt-3 text-3xl text-forest-900 sm:text-4xl">
+                A face rooted in CvSU
+              </h2>
+              <p className="mt-4 max-w-[52ch] text-base leading-[1.7] text-ink-600">
+                Sevi wears a <b className="font-semibold text-ink-800">salakot</b> bearing the real
+                Cavite State University seal, over the university green — friendly,
+                unmistakably CvSU, and legible at any size, from a chat bubble to a banner.
+              </p>
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              <SeviMoodCycle className="h-52 w-52 sm:h-60 sm:w-60" />
+              <p className="text-xs text-ink-500">
+                Sevi&rsquo;s animated moods — you&rsquo;ll meet them in chat.
+              </p>
+            </div>
+          </motion.section>
+
+          {/* FOOTER */}
+          <footer className="mt-20 flex flex-col items-start justify-between gap-5 border-t border-forest-900/10 pt-10 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-sm font-semibold text-forest-900">Sevi · CvSU Virtual Assistant</p>
+              <p className="mt-1.5 text-xs text-ink-500">
+                Built for Cavite State University · Runs on CvSU&rsquo;s own servers
+              </p>
+            </div>
+            <div className="text-left text-xs text-ink-500 sm:text-right">
+              <a href="https://cvsu.edu.ph" className="font-medium text-forest-700 hover:underline">
+                cvsu.edu.ph
+              </a>
+              <p className="mt-1.5 inline-flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5" /> Urgent concerns? Call CvSU trunkline: 4839250
+              </p>
+            </div>
+          </footer>
+        </main>
+      </div>
     </div>
   );
 }
 
-function Stat({ value, label }: { readonly value: string; readonly label: string }) {
+function Eyebrow({ children }: { readonly children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-green-200 bg-white p-4 shadow-sm">
-      <div className="text-2xl font-bold tabular-nums text-green-700">{value}</div>
-      <div className="mt-0.5 text-xs text-gray-500">{label}</div>
-    </div>
+    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forest-700">
+      {children}
+    </p>
+  );
+}
+
+type Rise = (index?: number) => MotionProps;
+
+/**
+ * A bento tile.
+ *
+ * The hover state moves the card's *background* — a separate absolutely
+ * positioned layer that scales up and warms toward the brand green — rather
+ * than the card itself. Scaling the element would resample the text; scaling
+ * the layer underneath it reads as the surface leaning forward, and the type
+ * stays crisp.
+ */
+function BentoCard({
+  index, rise, icon, title, body, className = "", featured = false, children,
+}: {
+  readonly index: number;
+  readonly rise: Rise;
+  readonly icon: ReactNode;
+  readonly title: string;
+  readonly body: string;
+  readonly className?: string;
+  readonly featured?: boolean;
+  readonly children?: ReactNode;
+}) {
+  return (
+    <motion.div
+      className={`group relative isolate flex flex-col rounded-3xl p-5 text-left sm:p-7 ${className}`}
+      {...rise(index)}
+    >
+      {/* No `overflow-hidden` on this card: the layer below is `inset-0` and
+          scales to 1.015 on hover, so clipping to the card's own box would
+          shave off exactly the 1px border that is doing the work — the hover
+          would read as the hairline disappearing. Nothing here bleeds past the
+          radius anyway, since the layer carries the same rounding. */}
+      <span
+        aria-hidden="true"
+        className="sevi-lift absolute inset-0 -z-10 rounded-3xl border border-forest-900/10 bg-paper-raised transition-[transform,background-color,border-color] duration-300 ease-out group-hover:scale-[1.015] group-hover:border-forest-900/15 group-hover:bg-forest-50 group-has-[:focus-visible]:border-forest-600/40 group-active:scale-[0.995]"
+      />
+
+      <span
+        className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-colors ${
+          featured
+            ? "bg-forest-900 text-white"
+            : "bg-forest-50 text-forest-700 ring-1 ring-inset ring-forest-900/[0.06] group-hover:bg-forest-100"
+        }`}
+      >
+        {icon}
+      </span>
+
+      <h3
+        className={`mt-5 font-semibold tracking-tight text-forest-900 ${
+          featured ? "text-xl sm:text-2xl" : "text-base sm:text-lg"
+        }`}
+      >
+        {title}
+      </h3>
+      <p
+        className={`mt-2.5 max-w-[46ch] text-ink-600 ${
+          featured ? "text-base leading-[1.7]" : "text-sm leading-[1.65]"
+        }`}
+      >
+        {body}
+      </p>
+
+      {children}
+
+      {/* The card is a div, not a button, so these headings stay real headings
+          — role=button makes its entire subtree presentational, which would
+          have dropped all six topic headings out of the accessibility tree and
+          given each tile a ~50-word accessible name.
+
+          The control is this one button, named for the topic; `after:inset-0`
+          stretches its hit area over the whole card, so pointer users still
+          click anywhere while a screen reader hears one clean "Ask Sevi about
+          Admissions". A phone has no hover, so on touch pointers the label
+          stays visible rather than being a state nobody can reach. */}
+      <button
+        type="button"
+        onClick={openChat}
+        aria-label={`Ask Sevi about ${title}`}
+        className={`${children ? "mt-5" : "mt-auto pt-6"} flex items-center gap-1.5 text-[13px] font-medium text-forest-700 opacity-0 transition-opacity duration-200 after:absolute after:inset-0 after:rounded-3xl after:content-[''] focus:outline-none focus-visible:opacity-100 focus-visible:after:ring-2 focus-visible:after:ring-forest-600 focus-visible:after:ring-offset-2 focus-visible:after:ring-offset-paper group-hover:opacity-100 [@media(hover:none)]:opacity-100`}
+      >
+        Ask Sevi <ArrowUpRight className="h-3.5 w-3.5" />
+      </button>
+    </motion.div>
   );
 }
 
 function Tier({
-  n, icon, title, body, tag,
+  index, rise, n, icon, title, body, tag,
 }: {
-  readonly n: string; readonly icon: React.ReactNode; readonly title: string;
-  readonly body: string; readonly tag: string;
+  readonly index: number;
+  readonly rise: Rise;
+  readonly n: string;
+  readonly icon: ReactNode;
+  readonly title: string;
+  readonly body: string;
+  readonly tag: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-green-500 to-green-700" />
-      <div className="flex items-center gap-2 text-green-700">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100">{icon}</div>
-        <span className="text-xs font-bold uppercase tracking-wider text-amber-600">{n}</span>
+    <motion.div
+      className="rounded-3xl border border-forest-900/10 bg-paper-raised p-5 sm:p-7"
+      {...rise(index)}
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-forest-50 text-forest-700 ring-1 ring-inset ring-forest-900/[0.06]">
+          {icon}
+        </div>
+        {/* Sequence label, not a live marker — so it stays on ink. Gold in
+            this system means "something is active or has arrived", and three
+            static tier labels are neither. */}
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-500">
+          {n}
+        </span>
       </div>
-      <h3 className="mt-3 text-base font-bold text-gray-900">{title}</h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{body}</p>
-      <span className="mt-3 inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-[11px] font-semibold text-green-700">
+      <h3 className="mt-5 text-base font-semibold tracking-tight text-forest-900 sm:text-lg">
+        {title}
+      </h3>
+      <p className="mt-2 max-w-[44ch] text-sm leading-[1.65] text-ink-600">{body}</p>
+      <span className="mt-5 inline-block rounded-full border border-forest-900/10 bg-paper px-4 py-2 text-[11px] font-medium text-ink-600">
         {tag}
       </span>
-    </div>
-  );
-}
-
-function Feature({
-  icon, title, body,
-}: {
-  readonly icon: React.ReactNode; readonly title: string; readonly body: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-700">
-        {icon}
-      </div>
-      <h3 className="mt-3 text-base font-semibold text-gray-900">{title}</h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{body}</p>
-    </div>
+    </motion.div>
   );
 }
