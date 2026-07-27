@@ -251,7 +251,7 @@ function MapAccordion({
         </DialogHeader>
         {/* Portrait scrolls the whole sheet; landscape hands scrolling to
             CampusMap's own rail so the map pane beside it stays put. */}
-        <div className="overflow-y-auto short:overflow-hidden">
+        <div className="overflow-y-auto short:overflow-hidden lg:overflow-hidden">
           <CampusMap place_id={mapData.place_id} label={mapData.label} editableTarget zoomable />
         </div>
       </DialogContent>
