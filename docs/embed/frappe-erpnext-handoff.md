@@ -116,9 +116,9 @@ versioned/deployable (golden rule), and it does **not** cover the Desk.
    deployments do), allow-list the Sevi host in **both** directives:
    `script-src https://<YOUR-SEVI-HOST>;` and `frame-src https://<YOUR-SEVI-HOST>;`
    Otherwise the bubble script or the chat iframe is blocked. No CSP set → nothing to do.
-3. **Turn off debug logging.** `widget.js` currently has `var DEBUG = true;` — it
-   logs `[Sevi widget] …` to the console on every page. Ask for a production build
-   with `DEBUG = false`.
+3. **Debug logging is off by default.** `widget.js` ships with `var DEBUG = false;`,
+   so it stays quiet in the console. Flip it to `true` only to trace `[Sevi widget] …`
+   during local debugging — never in the build you hand off.
 4. **Desk = logged-in only.** `app_include_js` never runs for anonymous users; use
    `web_include_js` for anything public.
 5. **z-index.** The bubble sits at `2147483600` — above the Frappe navbar (fine),

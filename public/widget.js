@@ -4,11 +4,15 @@
  *
  * Usage on any page (e.g. cvsu.edu.ph):
  *
- *   <script src="https://dev.godwincreates.net/widget.js"
- *           data-diwa-url="https://dev.godwincreates.net"
+ *   <script src="https://godwincreates.net/diwa/widget.js"
+ *           data-diwa-url="https://godwincreates.net/diwa"
  *           data-diwa-color="#16803c"
  *           data-diwa-position="bottom-right"
  *           async></script>
+ *
+ * Point src + data-diwa-url at the STABLE Sevi host — never a dev tunnel
+ * (dev.godwincreates.net dies with the dev machine and serves a stale build).
+ * Swap for the final domain (e.g. https://sevi.cvsu.edu.ph) once live.
  *
  * Drops a floating chat-bubble button bottom-right. Clicking it opens an
  * iframe overlay pointing at <data-diwa-url>?embed=1. Clicking the X (or
@@ -20,7 +24,7 @@
 (function () {
   "use strict";
 
-  var DEBUG = true; // flip to false for production
+  var DEBUG = false; // set true to trace [Sevi widget] logs during dev
   function log() {
     if (!DEBUG) return;
     try { console.log.apply(console, ["[Sevi widget]"].concat([].slice.call(arguments))); } catch (e) {}
