@@ -250,8 +250,12 @@ function MapAccordion({
           </div>
         </DialogHeader>
         {/* Portrait scrolls the whole sheet; landscape hands scrolling to
-            CampusMap's own rail so the map pane beside it stays put. */}
-        <div className="overflow-y-auto short:overflow-hidden lg:overflow-hidden">
+            CampusMap's own rail so the map pane beside it stays put. Gated on
+            `short-wide:` and not `short:` — in the 420px chat widget the map
+            stays stacked, so the rail that would have scrolled does not exist
+            and hiding the overflow here just clipped the page with no way to
+            reach the rest of it. */}
+        <div className="overflow-y-auto short-wide:overflow-hidden lg:overflow-hidden">
           <CampusMap place_id={mapData.place_id} label={mapData.label} editableTarget zoomable />
         </div>
       </DialogContent>

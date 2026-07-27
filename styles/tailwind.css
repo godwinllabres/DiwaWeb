@@ -10,3 +10,15 @@
    phone in landscape (932x430 on the largest) and stays under tablet
    landscape (768px), so tablets keep the roomy portrait treatment. */
 @custom-variant short (@media (max-height: 560px));
+
+/* `short-wide:` — short AND with the width to actually put two panes side by
+   side. Use this for anything that SPLITS a layout; keep `short:` for the
+   vertical compaction (padding, type scale) that a narrow panel still wants.
+
+   Why the split matters: `short:` was written to mean "phone in landscape",
+   but it only encodes the height half of that. The chat widget embeds the app
+   in a 420px-wide iframe that is `100dvh - 144px` tall, so on any tablet with
+   roughly 600-704px of viewport height the iframe is under 560px and `short:`
+   fires — in 420px of width. CampusMap then took its landscape layout and gave
+   its 19rem rail 304 of those 420 pixels, leaving 116px of map. */
+@custom-variant short-wide (@media (max-height: 560px) and (min-width: 640px));

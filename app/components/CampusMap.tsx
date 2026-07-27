@@ -297,9 +297,12 @@ export function CampusMap({
   // down a 390px-tall screen leaves the map a letterbox, so on a short
   // viewport the map takes the whole left column at full height and all the
   // chrome moves into a rail on the right that scrolls on its own.
+  // `short-wide:`, not `short:` — the rail needs 19rem of WIDTH to exist, and
+  // the chat widget is a 420px iframe that goes under 560px tall on a tablet.
+  // Splitting there left the map 116px wide. See styles/tailwind.css.
   const LANDSCAPE_GRID =
-    " short:mt-0 short:grid short:h-full short:grid-cols-[minmax(0,1fr)_19rem]" +
-    " short:grid-rows-[auto_minmax(0,1fr)] short:rounded-none short:border-0 short:shadow-none" +
+    " short-wide:mt-0 short-wide:grid short-wide:h-full short-wide:grid-cols-[minmax(0,1fr)_19rem]" +
+    " short-wide:grid-rows-[auto_minmax(0,1fr)] short-wide:rounded-none short-wide:border-0 short-wide:shadow-none" +
     // Desktop dialog (wide viewport): the same map-left + scrolling-rail grid,
     // so the tall map + legend fit the fixed-height modal instead of stacking
     // to ~1500px and overflowing (the map got cut off in fullscreen view).
@@ -310,19 +313,19 @@ export function CampusMap({
     (zoomable ? LANDSCAPE_GRID : "");
   // Right rail, top cell: title + coverage note + the From/To pickers.
   const controlsCls = zoomable
-    ? "short:col-start-2 short:row-start-1 short:border-l short:border-gray-200" +
+    ? "short-wide:col-start-2 short-wide:row-start-1 short-wide:border-l short-wide:border-gray-200" +
       " lg:col-start-2 lg:row-start-1 lg:border-l lg:border-gray-200"
     : "";
   // Right rail, bottom cell: walking directions + legend, scrolling on its own
   // so the map beside it never moves.
   const detailsCls = zoomable
-    ? "short:col-start-2 short:row-start-2 short:min-h-0 short:overflow-y-auto short:border-l short:border-gray-200" +
+    ? "short-wide:col-start-2 short-wide:row-start-2 short-wide:min-h-0 short-wide:overflow-y-auto short-wide:border-l short-wide:border-gray-200" +
       " lg:col-start-2 lg:row-start-2 lg:min-h-0 lg:overflow-y-auto lg:border-l lg:border-gray-200"
     : "";
   // In the rail, "From [select] → To [select]" wraps mid-sentence. Stack the
   // two pickers instead and drop the arrow that used to join them.
   const pickerStackCls = zoomable
-    ? " short:flex-col short:items-stretch short:gap-1.5 lg:flex-col lg:items-stretch lg:gap-1.5"
+    ? " short-wide:flex-col short-wide:items-stretch short-wide:gap-1.5 lg:flex-col lg:items-stretch lg:gap-1.5"
     : "";
 
   return (
@@ -362,7 +365,7 @@ export function CampusMap({
             ))}
           </select>
           <ArrowRight
-            className={`h-3.5 w-3.5 text-gray-500 flex-shrink-0${zoomable ? " short:hidden lg:hidden" : ""}`}
+            className={`h-3.5 w-3.5 text-gray-500 flex-shrink-0${zoomable ? " short-wide:hidden lg:hidden" : ""}`}
           />
           {editableTarget ? (
             <>
@@ -393,7 +396,7 @@ export function CampusMap({
       <div
         className={`relative bg-[#1f3d1f] ${
           zoomable
-            ? "h-full min-h-[60vh] overflow-hidden short:col-start-1 short:row-start-1 short:row-span-2 short:min-h-0 lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:min-h-0"
+            ? "h-full min-h-[60vh] overflow-hidden short-wide:col-start-1 short-wide:row-start-1 short-wide:row-span-2 short-wide:min-h-0 lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:min-h-0"
             : "overflow-x-auto"
         }`}
       >
@@ -551,7 +554,7 @@ export function CampusMap({
         </summary>
         {/* Three columns is right for a full-width phone; in the landscape
             rail the same grid has 19rem to work with, so drop back to two. */}
-        <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 pb-3 sm:grid-cols-3 short:grid-cols-2 lg:grid-cols-2">
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 pb-3 sm:grid-cols-3 short-wide:grid-cols-2 lg:grid-cols-2">
           {buildings.map((b) => {
             const isFromRow = target && b.id === from.id && b.id !== target.id;
             const isToRow = target && b.id === target.id;
