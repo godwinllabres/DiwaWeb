@@ -624,12 +624,15 @@ export default function App() {
 
         {/* The dock: quick actions + composer.
 
-            -mt-8 pulls it up over the scroll area's last 32px, so the
-            transcript genuinely passes behind the glass — that is what makes
-            the blur a real effect rather than a decorative class — while the
-            scroll container's matching extra bottom padding keeps the last
-            message clear of it. The fade that dissolves the conversation into
-            this dock lives inside the scroll area itself; see there for why. */}
+            -mt-8 pulls it up over the scroll area's last 32px so the dock
+            reads as sitting proud of the transcript rather than as a footer
+            welded under a rule, while the scroll container's matching extra
+            bottom padding keeps the last message clear of it. The bar itself
+            is opaque: a translucent backdrop-blur band read as a rendering
+            bug when a full card scrolled behind it on the narrow embed, so
+            the glass was dropped in favour of a solid fill. The fade that
+            dissolves the conversation into this dock lives inside the scroll
+            area itself; see there for why. */}
         <div className="relative -mt-8 flex-shrink-0">
         {!showCategories && (
           <div className="relative px-5 pb-1 pt-2 sm:px-8 short:pt-1">
@@ -665,12 +668,11 @@ export default function App() {
           </div>
         )}
 
-        {/* Composer — a command bar the conversation runs underneath, not a
-            footer pinned under a rule. It stays in the flex flow (so the
-            scroll area's height math, the on-screen keyboard and `short:` all
-            keep working); what makes it float is the dock's negative margin
-            above, the hairline + diffused shadow, and the blur picking up
-            whatever has scrolled behind it.
+        {/* Composer — a command bar, not a footer pinned under a rule. It
+            stays in the flex flow (so the scroll area's height math, the
+            on-screen keyboard and `short:` all keep working); what makes it
+            float is the dock's negative margin above, the hairline + diffused
+            shadow, and its opaque fill standing clear of the transcript.
 
             On a short viewport (landscape phone, or any phone with the
             keyboard up) the vertical padding is the first thing to go — every
@@ -681,7 +683,7 @@ export default function App() {
                 on a hairline is ~1.5:1 against the bar, which is no focus
                 indicator at all for a keyboard user on the app's main
                 control. */}
-            <div className="flex items-center gap-2 rounded-[1.75rem] border border-forest-900/10 bg-paper-raised/80 p-2 pl-5 shadow-float backdrop-blur-xl transition-colors focus-within:border-forest-600/40 focus-within:bg-paper-raised focus-within:ring-2 focus-within:ring-forest-600/35">
+            <div className="flex items-center gap-2 rounded-[1.75rem] border border-forest-900/10 bg-paper-raised p-2 pl-5 shadow-float transition-colors focus-within:border-forest-600/40 focus-within:bg-paper-raised focus-within:ring-2 focus-within:ring-forest-600/35">
               <input
                 ref={inputRef}
                 type="text"
