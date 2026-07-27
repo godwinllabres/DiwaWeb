@@ -580,23 +580,6 @@ export default function App() {
 
           <div ref={scroll.endRef} className="h-2" />
           </div>
-
-          {/* The hand-off to the dock. Sticky INSIDE the scroll area, which is
-              the only place it can be: as a child of the dock it painted over
-              the quick-action chips instead of the transcript, and as a
-              sibling it would have had to out-guess the dock's height. Here it
-              is pinned to the scrollport's bottom edge, always over the
-              conversation and never over a control.
-
-              The negative BOTTOM margin (not top) is what keeps it honest: it
-              cancels the band's own height so it adds no scroll length, while
-              still placing it after the last message. A negative top margin
-              would have dragged it back over the final bubble, washing it out
-              in exactly the short conversations that never scroll. */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none sticky bottom-0 -mx-4 -mb-16 h-16 bg-gradient-to-t from-paper via-paper/85 to-transparent sm:-mx-8"
-          />
         </div>
 
         <AnimatePresence>
@@ -630,10 +613,12 @@ export default function App() {
             bottom padding keeps the last message clear of it. The bar itself
             is opaque: a translucent backdrop-blur band read as a rendering
             bug when a full card scrolled behind it on the narrow embed, so
-            the glass was dropped in favour of a solid fill. The fade that
-            dissolves the conversation into this dock lives inside the scroll
-            area itself; see there for why. */}
-        <div className="relative -mt-8 flex-shrink-0">
+            the glass was dropped in favour of a solid fill. The dock itself
+            carries an opaque paper fill so the transcript is cleanly hidden
+            where it passes under the -mt-8 overlap — earlier a paper gradient
+            "fade" washed content here, which ghosted the map CTA/coachmark
+            when they parked at the transcript bottom, so it was removed. */}
+        <div className="relative -mt-8 flex-shrink-0 bg-paper">
         {!showCategories && (
           <div className="relative px-5 pb-1 pt-2 sm:px-8 short:pt-1">
             <div className="mx-auto flex w-full gap-2.5 overflow-x-auto scrollbar-none pb-1 md:max-w-2xl lg:max-w-3xl">
