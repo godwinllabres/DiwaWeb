@@ -1,32 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
-import {
-  X,
-  Save,
-  RotateCcw,
-  Crosshair,
-  Search,
-  Map as MapIcon,
-  Lock,
-  Unlock,
-  ChevronRight,
-  Eye,
-  Pencil,
-  Move,
-  Plus,
-  Trash2,
-  Waypoints as WaypointsIcon,
-  MapPin,
-} from "lucide-react";
+import { X, Save, RotateCcw, Crosshair, Search, Map as MapIcon, Lock, Unlock, ChevronRight, Eye, Pencil, Move, Plus, Trash2, Waypoints as WaypointsIcon, MapPin } from "lucide-react";
 import { adminApi as api, type CustomMarker } from "@/admin/api";
-import {
-  BUILDINGS,
-  CAMPUS_H,
-  CAMPUS_IMAGE_URL,
-  CAMPUS_W,
-  WAYPOINTS,
-  type Waypoint,
-} from "@/lib/campusMap";
+import { BUILDINGS, CAMPUS_H, CAMPUS_IMAGE_URL, CAMPUS_W, WAYPOINTS } from "@/lib/campusMap";
 import { loadCoords, setCoordsLocal } from "@/lib/coordsStore";
 import { loadWaypoints, setWaypointsLocal } from "@/lib/waypointsStore";
 
@@ -34,80 +10,7 @@ interface AdminMapEditorProps {
   readonly onClose: () => void;
 }
 
-interface Coord {
-  x: number;
-  y: number;
-}
-
-type Coords = Record<string, Coord>;
-type Mode = "markers" | "waypoints";
-
-const MARKER_RADIUS = 26;
-const WAYPOINT_RADIUS = 14;
-
-function buildBaselineMarkerCoords(): Coords {
-  const out: Coords = {};
-  for (const b of BUILDINGS) out[b.id] = { x: b.x, y: b.y };
-  return out;
-}
-
-function buildBaselineWaypointCoords(): Coords {
-  const out: Coords = {};
-  for (const w of Object.values(WAYPOINTS)) out[w.id] = { x: w.x, y: w.y };
-  return out;
-}
-
-const WAYPOINT_LIST: Waypoint[] = Object.values(WAYPOINTS);
-
-interface AdjacencyEdge {
-  a: string;
-  b: string;
-}
-
-function buildAdjacencyEdges(): AdjacencyEdge[] {
-  const seen = new Set<string>();
-  const out: AdjacencyEdge[] = [];
-  for (const w of WAYPOINT_LIST) {
-    for (const nId of w.neighbors) {
-      const key = w.id < nId ? `${w.id}|${nId}` : `${nId}|${w.id}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push({ a: w.id, b: nId });
-    }
-  }
-  return out;
-}
-
-const WP_EDGES = buildAdjacencyEdges();
-
-/** A custom waypoint that admin added at runtime. Lives alongside the
- *  bundled WAYPOINTS but ships its own adjacency. */
-interface CustomWaypoint {
-  id: string;
-  x: number;
-  y: number;
-  neighbors: string[];
-}
-
-function nextCustomId(prefix: string, existing: Iterable<string>): string {
-  const taken = new Set<string>(existing);
-  let n = 1;
-  while (taken.has(`${prefix}${n}`)) n += 1;
-  return `${prefix}${n}`;
-}
-
-/** Two nearest neighbors among the supplied positions. */
-function findNearest(
-  point: Coord,
-  candidates: Array<{ id: string; x: number; y: number }>,
-  k: number = 2,
-): string[] {
-  return [...candidates]
-    .map((c) => ({ id: c.id, d: Math.hypot(c.x - point.x, c.y - point.y) }))
-    .sort((a, b) => a.d - b.d)
-    .slice(0, k)
-    .map((c) => c.id);
-}
+import { MARKER_RADIUS, WAYPOINT_RADIUS, WAYPOINT_LIST, WP_EDGES, buildBaselineMarkerCoords, buildBaselineWaypointCoords, nextCustomId, findNearest, type Coord, type Coords, type Mode, type CustomWaypoint } from "./mapEditor/geometry";
 
 /**
  * Full-screen admin editor. Two modes:
