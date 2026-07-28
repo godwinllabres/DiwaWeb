@@ -40,6 +40,12 @@ import {
 } from "@/components/ui/dialog";
 import { findCard } from "@/lib/api";
 import { readLocal, writeLocal, storageAvailable } from "@/lib/storage";
+import { isLinkCell, cellToString, cellToSortKey } from "@/lib/tableCell";
+import {
+  DV_STATUS_TINT,
+  DV_STATUS_TINT_FALLBACK,
+  DV_AVAILABLE_ACTIONS,
+} from "@/lib/dvWorkflow";
 import type {
   ChatCard,
   ChatContext,
@@ -261,47 +267,6 @@ function MapAccordion({
   );
 }
 
-// Workflow-status → tint. Keep colors aligned with the Frappe Desk badges
-// so a clerk's eye-pattern transfers cleanly between Sevi and the workspace.
-const DV_STATUS_TINT: Record<string, string> = {
-  Draft:          "bg-gray-100 text-gray-700 border-gray-300",
-  Submitted:      "bg-blue-100 text-blue-800 border-blue-300",
-  Approved:       "bg-emerald-100 text-emerald-800 border-emerald-300",
-  Posted:         "bg-emerald-100 text-emerald-800 border-emerald-300",
-  Released:       "bg-emerald-100 text-emerald-800 border-emerald-300",
-  Closed:         "bg-gray-200 text-gray-800 border-gray-400",
-  "IA Audit":     "bg-amber-100 text-amber-800 border-amber-300",
-  Returned:       "bg-rose-100 text-rose-800 border-rose-300",
-  Cancelled:      "bg-rose-100 text-rose-800 border-rose-300",
-};
-
-// Which write actions are valid from a given workflow status. Mirrors the
-// transition matrix in accounting/.../ais_disbursement_voucher.py:set_workflow_status
-// — keeping the buttons honest so the user can't even attempt an illegal
-// transition. Cancel is allowed from any non-Cancelled status as a fallback;
-// the server still enforces the docstatus rules.
-const DV_AVAILABLE_ACTIONS: Record<string, ReadonlyArray<{ action: WriteAction; label: string; newStatus?: string }>> = {
-  Submitted: [
-    { action: "approve_dv",    label: "Approve" },
-    { action: "set_dv_status", label: "Send to IA Audit", newStatus: "IA Audit Required" },
-    { action: "cancel_dv",     label: "Cancel" },
-  ],
-  "IA Audit Required": [
-    { action: "approve_dv", label: "Approve" },
-    { action: "cancel_dv",  label: "Cancel" },
-  ],
-  Approved: [
-    { action: "post_dv",   label: "Post" },
-    { action: "cancel_dv", label: "Cancel" },
-  ],
-  Posted: [
-    { action: "set_dv_status", label: "Mark Released", newStatus: "Released" },
-    { action: "cancel_dv",     label: "Cancel" },
-  ],
-  Released: [
-    { action: "set_dv_status", label: "Mark Closed", newStatus: "Closed" },
-  ],
-};
 
 interface WriteActionsProps {
   readonly dv: DvCardData;
@@ -400,7 +365,7 @@ interface DvDetailCardProps {
 }
 
 function DvDetailCard({ dv, writeEnabled, sessionId, ais }: DvDetailCardProps) {
-  const tint = DV_STATUS_TINT[dv.workflow_status] ?? "bg-paper-deep text-ink-700 border-ink-200";
+  const tint = DV_STATUS_TINT[dv.workflow_status] ?? DV_STATUS_TINT_FALLBACK;
   const amount = new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
@@ -482,10 +447,6 @@ function DvDetailCard({ dv, writeEnabled, sessionId, ais }: DvDetailCardProps) {
   );
 }
 
-function isLinkCell(cell: TableCell): cell is { text: string; href?: string | null } {
-  return typeof cell === "object" && cell !== null && "text" in cell;
-}
-
 function renderCell(cell: TableCell) {
   if (isLinkCell(cell)) {
     // Identifiers (DV names, codes) — never wrap mid-string. Overflow is
@@ -505,22 +466,6 @@ function renderCell(cell: TableCell) {
     );
   }
   return <span>{String(cell ?? "")}</span>;
-}
-
-// Pull a string out of a cell for sorting/filtering purposes — link cells
-// expose `.text`, numbers stringify, currency-prefixed text strips the ₱
-// so "₱13,300,200.00" sorts numerically with the others.
-function cellToString(cell: TableCell): string {
-  if (cell === null || cell === undefined) return "";
-  if (typeof cell === "object" && "text" in cell) return cell.text;
-  return String(cell);
-}
-function cellToSortKey(cell: TableCell): string | number {
-  const s = cellToString(cell);
-  // "₱1,234.56" → 1234.56  (allow leading -, thousands separators, decimals).
-  const m = /^-?₱?\s*([\d,]+(?:\.\d+)?)$/.exec(s.trim());
-  if (m) return Number.parseFloat(m[1].replace(/,/g, ""));
-  return s.toLowerCase();
 }
 
 function TableCard({ table }: { readonly table: TableCardData }) {
