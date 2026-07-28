@@ -106,12 +106,22 @@ Three, and a change to base paths or the admin route affects all of them.
 
 ```bash
 npm run typecheck        # tsc -b
-npm test                 # vitest, 20 suites — gates the deploy
-npm run test:coverage
+npm run lint             # eslint app tests
+npm test                 # vitest, 27 suites / 229 tests
+npm run test:coverage    # same, plus the thresholds CI enforces
 npm run demo:admin-split # Playwright; needs `npx playwright install chromium` first
 ```
 
-CI runs `npm test` before building the Pages artifact. A red suite blocks publication.
+CI runs, in order: `npm run lint` → `npm run build` → `npm run test:coverage`.
+
+The build comes **before** the tests on purpose — `tests/build/adminSplit.test.ts`
+inspects `dist/assets` to prove the public bundle ships no admin code, so it needs
+an artifact to read. Nothing is published if any step fails: the upload step is in
+the same job and `deploy` declares `needs: build`. `npm run build` also runs
+`tsc -b`, so it is the typecheck gate.
+
+Coverage thresholds live in `vitest.config.ts` and are a ratchet seeded from a
+measured run — raise them as coverage improves, never lower them.
 
 ## Assets
 
