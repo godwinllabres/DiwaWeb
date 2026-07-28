@@ -27,6 +27,11 @@ jobs:
 
       - run: npm ci
 
+      # Gate the artifact on the suite. `deploy` needs: build, so a red test
+      # blocks publication without a separate job. `npm run build` already
+      # runs `tsc -b`, so typechecking is covered by the next step.
+      - run: npm test
+
       - run: npm run build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
