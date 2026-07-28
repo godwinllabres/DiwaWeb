@@ -41,8 +41,9 @@ jobs:
           VITE_BASE_PATH: /diwa/
 
       # Nothing is published until this passes: the upload step below is in the
-      # same job, and `deploy` declares `needs: build`.
-      - run: npm test
+      # same job, and `deploy` declares `needs: build`. Coverage thresholds are
+      # enforced here (vitest.config.ts), so a drop fails the deploy too.
+      - run: npm run test:coverage
 
       # Move build output into /diwa/ subdirectory
       - run: |
