@@ -19,14 +19,30 @@
  * only exists in CSS; jsdom has no layout, so a rendered tree cannot show which
  * media query won.
  */
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const read = (rel: string) => readFileSync(resolve(__dirname, "../..", rel), "utf8");
 
+/** Every .tsx under a directory, concatenated. */
+function readTree(rel: string): string {
+  const root = resolve(__dirname, "../..", rel);
+  const walk = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? walk(join(dir, e.name))
+        : e.name.endsWith(".tsx") ? [readFileSync(join(dir, e.name), "utf8")]
+        : [],
+    );
+  return walk(root).join("\n");
+}
+
 const CAMPUS_MAP = read("app/components/CampusMap.tsx");
-const CHAT_MESSAGE = read("app/components/ChatMessage.tsx");
+// The chat bubble is no longer one file: the map dialog, the cards and the
+// feedback panel were extracted to app/components/chat/. The responsive rules
+// travelled with the markup, so this guard has to look at the whole surface or
+// it silently stops guarding anything.
+const CHAT_MESSAGE = read("app/components/ChatMessage.tsx") + "\n" + readTree("app/components/chat");
 const TAILWIND = read("app/styles/tailwind.css");
 
 /** Utilities that only make sense once a layout has two columns side by side. */
