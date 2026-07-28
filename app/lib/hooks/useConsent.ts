@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { readSession, writeSession, removeSession } from "@/lib/storage";
 
 // Versioned key — bump the suffix when the privacy policy is updated so
 // every user re-consents on next visit. Stored in sessionStorage so
@@ -12,10 +13,12 @@ export interface ConsentRecord {
 }
 
 function readConsent(): ConsentRecord | null {
-  if (typeof window === "undefined") return null;
+  // storage.ts already absorbs SSR, blocked-storage and partitioned-iframe
+  // failures, returning null. The try/catch here is only for malformed JSON,
+  // which is a different failure and must stay.
+  const raw = readSession(STORAGE_KEY);
+  if (!raw) return null;
   try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
     const parsed = JSON.parse(raw) as ConsentRecord;
     if (!parsed || typeof parsed.accepted !== "boolean") return null;
     return parsed;
@@ -25,13 +28,10 @@ function readConsent(): ConsentRecord | null {
 }
 
 function writeConsent(accepted: boolean) {
-  if (typeof window === "undefined") return;
   const record: ConsentRecord = { accepted, timestamp: new Date().toISOString() };
-  try {
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
-  } catch {
-    /* sessionStorage may be full or disabled — silently ignore */
-  }
+  // Reports false when storage is unavailable; losing a consent record is
+  // survivable, so the outcome is deliberately ignored.
+  writeSession(STORAGE_KEY, JSON.stringify(record));
 }
 
 export interface UseConsentApi {
@@ -72,11 +72,7 @@ export function useConsent(): UseConsentApi {
   }, []);
 
   const reset = useCallback(() => {
-    try {
-      window.sessionStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
+    removeSession(STORAGE_KEY);
     setRecord(null);
   }, []);
 

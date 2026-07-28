@@ -39,6 +39,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { findCard } from "@/lib/api";
+import { readLocal, writeLocal, storageAvailable } from "@/lib/storage";
 import type {
   ChatCard,
   ChatContext,
@@ -130,18 +131,15 @@ function formatContextChip(ctx: ChatContext): string | null {
 // open unbidden. Persisted so it only ever shows once per browser.
 const MAP_COACHMARK_KEY = "diwa_map_coachmark_seen";
 function mapCoachmarkSeen(): boolean {
-  try {
-    return localStorage.getItem(MAP_COACHMARK_KEY) === "1";
-  } catch {
-    return true; // storage disabled → treat as seen (never nag)
-  }
+  if (readLocal(MAP_COACHMARK_KEY) === "1") return true;
+  // readLocal cannot distinguish "never set" from "storage unreachable", and
+  // the two must behave differently: a browser blocking site data has to count
+  // as seen, or the coachmark returns on every single map card. Probe only on
+  // the miss, so the common path stays a plain read.
+  return !storageAvailable("local");
 }
 function markMapCoachmarkSeen() {
-  try {
-    localStorage.setItem(MAP_COACHMARK_KEY, "1");
-  } catch {
-    /* ignore */
-  }
+  writeLocal(MAP_COACHMARK_KEY, "1");
 }
 
 function MapAccordion({

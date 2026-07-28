@@ -11,8 +11,9 @@
  */
 import { useEffect, useState } from "react";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
-import { AdminDashboard } from "../components/AdminDashboard";
+import { AdminDashboard } from "@/components/AdminDashboard";
 import { adminApi, adminUsesPinHeader } from "@/lib/adminApi";
+import { readSession, writeSession, removeSession } from "@/lib/storage";
 
 // `import.meta.env` cast the same way api.ts / useAuth.ts do — this project
 // doesn't pull in vite/client's ambient types.
@@ -20,8 +21,12 @@ const CHAT_URL =
   (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL || "/";
 
 export default function AdminApp() {
+  // Through storage.ts: this initializer runs during the first render, and a
+  // browser blocking site data throws on the sessionStorage property access
+  // itself. Unguarded, that white-screened /admin/ before anything rendered —
+  // there is no ErrorBoundary above this.
   const [authed, setAuthed] = useState(
-    () => sessionStorage.getItem("admin_authed") === "1",
+    () => readSession("admin_authed") === "1",
   );
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
@@ -39,8 +44,8 @@ export default function AdminApp() {
       .getTodayStats()
       .catch(() => {
         if (cancelled) return;
-        sessionStorage.removeItem("admin_authed");
-        sessionStorage.removeItem("admin_pin");
+        removeSession("admin_authed");
+        removeSession("admin_pin");
         setAuthed(false);
         setError("Your admin session expired. Enter the PIN again.");
       });
@@ -61,11 +66,11 @@ export default function AdminApp() {
       // "am I unlocked?" flag is stored, and it grants nothing on its own —
       // the server checks the cookie.
       await adminApi.verifyPin(value);
-      sessionStorage.setItem("admin_authed", "1");
+      writeSession("admin_authed", "1");
       // Only a cross-origin deployment (GitHub Pages -> Render) still needs the
       // PIN, because a cookie cannot cross origins there. The same-origin stack
       // stores nothing and relies on the httpOnly cookie.
-      if (adminUsesPinHeader) sessionStorage.setItem("admin_pin", value);
+      if (adminUsesPinHeader) writeSession("admin_pin", value);
       setPin("");
       setAuthed(true);
     } catch {
@@ -79,8 +84,8 @@ export default function AdminApp() {
     // Revoke server-side too — clearing local state alone would leave the
     // session token valid for anyone who still holds the cookie.
     void adminApi.logout().catch(() => {});
-    sessionStorage.removeItem("admin_authed");
-    sessionStorage.removeItem("admin_pin"); // legacy key from before the cookie
+    removeSession("admin_authed");
+    removeSession("admin_pin"); // legacy key from before the cookie
     setPin("");
     setAuthed(false);
   };

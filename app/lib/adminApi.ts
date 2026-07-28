@@ -18,6 +18,7 @@ import {
   type MapWaypointsUpdate,
   type WaypointOverride,
 } from "./api";
+import { readSession } from "./storage";
 
 export type {
   MapCoordsResponse,
@@ -111,11 +112,7 @@ const API_IS_CROSS_ORIGIN = (() => {
 
 /** Legacy PIN, only read on a cross-origin deployment (see above). */
 function legacyPin(): string {
-  try {
-    return sessionStorage.getItem("admin_pin") || "";
-  } catch {
-    return "";
-  }
+  return readSession("admin_pin") || "";
 }
 
 /** True when this deployment must fall back to the PIN header. */
