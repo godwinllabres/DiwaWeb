@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-/** Matches the `short:` Tailwind variant in styles/tailwind.css. Keep the two
+/** Matches the `short:` Tailwind variant in app/styles/tailwind.css. Keep the two
  *  in step — components use the class for styling and the hook for the few
  *  decisions CSS cannot make (a `<details open>` default, an aria-label). */
 export const SHORT_VIEWPORT_QUERY = "(max-height: 560px)";

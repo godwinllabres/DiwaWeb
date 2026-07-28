@@ -16,13 +16,21 @@
     <title>Sevi | CvSU Virtual Assistant</title>
     <meta name="description" content="Sevi is the CvSU Virtual Assistant — ask about admissions, enrollment, programs, scholarships, campus directions, and more." />
 
-    <!-- Favicons (absolute URLs so they resolve under /diwa/ base path) -->
-    <link rel="icon" type="image/svg+xml" href="https://godwincreates.net/diwa/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="https://godwincreates.net/diwa/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="https://godwincreates.net/diwa/favicon-192.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="https://godwincreates.net/diwa/apple-touch-icon.png" />
+    <!-- Root-relative: Vite rewrites these to <base> + path at build time, so
+         they resolve under /diwa/ on Pages AND under / in the Docker image.
+         They were absolute to godwincreates.net, which made every non-Pages
+         deployment fetch its favicon cross-origin from a personal domain. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- Open Graph (Facebook / Messenger / iMessage / Slack / Discord) -->
+    <!-- Open Graph (Facebook / Messenger / iMessage / Slack / Discord).
+         These stay ABSOLUTE on purpose: scrapers do not resolve relative URLs,
+         and Vite only rewrites them to root-relative, which is not enough. The
+         origin below is the unresolved production-domain question tracked under
+         Open items in README.md — change it there, in one place, when the
+         cvsu.edu.ph host lands. -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://godwincreates.net/diwa/" />
     <meta property="og:title" content="Sevi — CvSU Virtual Assistant" />
@@ -50,7 +58,7 @@
     -->
     <script
       src="/widget.js"
-      data-diwa-url="/diwa/"
+      data-diwa-url="%BASE_URL%"
       data-diwa-color="#16803c"
       data-diwa-position="bottom-right"
       data-diwa-label="Chat with Sevi"

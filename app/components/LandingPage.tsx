@@ -8,6 +8,11 @@ import { SeviAvatar } from "./SeviAvatar";
 import { SeviMoodCycle } from "./SeviSticker";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 
+// Vite rewrites root-relative URLs in HTML attributes, but NOT string literals
+// in TSX. A hardcoded "/foo.png" therefore resolves to the server root and 404s
+// under a based deploy. Same pattern as SeviAvatar/SeviSticker.
+const BASE_URL = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? "/";
+
 /**
  * LandingPage — what visitors see when they hit the SeviWeb root URL without
  * ?embed=1. The widget (loaded from index.html) drops a chat bubble in the
@@ -273,8 +278,8 @@ export function LandingPage() {
             >
               <video
                 className="block w-full rounded-2xl"
-                src="/how-to-use-sevi.webm"
-                poster="/how-to-use-sevi-poster.png"
+                src={`${BASE_URL}how-to-use-sevi.webm`}
+                poster={`${BASE_URL}how-to-use-sevi-poster.png`}
                 autoPlay
                 loop
                 muted

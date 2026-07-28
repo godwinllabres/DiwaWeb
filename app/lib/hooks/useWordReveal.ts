@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
  *
  * This hook deliberately holds no per-frame state. The reveal itself is a CSS
  * animation over spans that already exist (see `.sevi-word` in
- * styles/index.css and MessageBody); all that is needed from React is the
+ * app/styles/index.css and MessageBody); all that is needed from React is the
  * stagger to publish as a custom property, and one state flip at the end so
  * the feedback thumbs and suggestion chips know to appear.
  *
@@ -24,7 +24,7 @@ const REVEAL_BUDGET_MS = 700;
  *  reveal rather than a flash. */
 const MAX_STAGGER_MS = 45;
 
-/** Must match the animation-duration of `sevi-word-in` in styles/index.css —
+/** Must match the animation-duration of `sevi-word-in` in app/styles/index.css —
  *  it is the tail the last word still needs after its delay elapses. */
 const WORD_FADE_MS = 240;
 

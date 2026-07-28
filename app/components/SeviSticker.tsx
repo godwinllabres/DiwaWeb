@@ -81,8 +81,8 @@ export function SeviSticker({ sticker, className, title }: SeviStickerProps) {
  *    (IntersectionObserver; the landing showcase sits far below the fold).
  *  - The cycle only advances once the next GIF has finished loading, and the
  *    previous sticker stays mounted underneath the incoming fade so a slow
- *    fetch never leaves a blank hole (a real crossfade, unlike SeviHatCycle's
- *    tiny-SVG remount this pattern started from).
+ *    fetch never leaves a blank hole (a real crossfade, unlike the tiny-SVG
+ *    remount this pattern started from).
  *  - A pause button stops the auto-cycle (WCAG 2.2.2); reduced-motion users
  *    get a single static sticker instead.
  */

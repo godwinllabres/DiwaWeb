@@ -13,7 +13,7 @@ COPY . .
 
 # Blank VITE_API_URL so app/lib/api.ts falls back to same-origin "/api"
 # (proxied to the SeviAI container by nginx). Belt to .dockerignore's
-# suspenders — the tracked .env would otherwise bake the production URL.
+# suspenders — a developer's local .env must never decide the image's API host.
 ENV VITE_API_URL=
 ENV VITE_BASE_PATH=/
 

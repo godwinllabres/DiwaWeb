@@ -27,6 +27,15 @@ const http = require("http");
 const path = require("path");
 const fs = require("fs");
 
+// This script had never run on Windows. `spawn("npx", …)` is ENOENT there (npx
+// is a .cmd shim), and naming the shim instead is EINVAL on Node >= 20, which
+// refuses to exec .cmd without a shell (CVE-2024-27980). Rather than reach for
+// shell:true — which concatenates argv unescaped (DEP0190) — run Vite's own JS
+// entry with the Node binary already executing this file. No shim, no shell,
+// identical on every platform.
+const WIN = process.platform === "win32";
+const NPM = WIN ? "npm.cmd" : "npm";
+const VITE_BIN = path.join(__dirname, "..", "..", "node_modules", "vite", "bin", "vite.js");
 const PORT = Number(process.env.PORT || 4179);
 const BASE = `http://localhost:${PORT}`;
 const ROOT = path.resolve(__dirname, "..", "..");
@@ -77,12 +86,15 @@ function scanLoadedBundles(urls) {
 (async () => {
   if (!fs.existsSync(path.join(DIST, "index.html"))) {
     console.log("• dist/ missing — running `npm run build` first…");
-    const b = spawnSync("npm", ["run", "build"], { cwd: ROOT, stdio: "inherit" });
+    // Fixed argv, no interpolation, so shell:true is safe here; npm is the one
+    // caller we cannot replace with a JS entry point.
+    const b = spawnSync(NPM, ["run", "build"], { cwd: ROOT, stdio: "inherit", shell: WIN });
     if (b.status !== 0) { console.error("build failed"); process.exit(2); }
   }
 
   console.log(`• starting vite preview on :${PORT} …`);
-  const preview = spawn("npx", ["vite", "preview", "--port", String(PORT), "--strictPort"],
+  const preview = spawn(process.execPath,
+    [VITE_BIN, "preview", "--port", String(PORT), "--strictPort"],
     { cwd: ROOT, stdio: "ignore" });
   const shutdown = () => { try { preview.kill(); } catch (e) {} };
   process.on("exit", shutdown);
@@ -144,7 +156,6 @@ function scanLoadedBundles(urls) {
     await admPage.waitForSelector("#admin-pin", { timeout: 8000 });
     const lockedVisible = await admPage.isVisible("#admin-pin");
     await admPage.screenshot({ path: path.join(SHOTS, "02-admin-locked.png") });
-    const adm = scanLoadedBundles(admJs);
     const admEntry = admJs.filter((u) => /\/admin-[A-Za-z0-9_-]+\.js/.test(u));
 
     // ── PHASE C — unlock with the PIN ───────────────────────────────────

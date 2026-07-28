@@ -143,7 +143,10 @@ export function LoginModal({ onClose, onSuccess, login, busy, error }: LoginModa
 
 // ── ConfirmWriteModal ────────────────────────────────────────────────────
 
-export type WriteAction = "approve_dv" | "post_dv" | "cancel_dv" | "set_dv_status";
+// Owned by app/lib/dvWorkflow.ts (domain vocabulary, not a modal concern) and
+// re-exported here so existing importers keep working.
+export type { WriteAction } from "@/lib/dvWorkflow";
+import type { WriteAction } from "@/lib/dvWorkflow";
 
 interface ConfirmWriteModalProps {
   readonly action: WriteAction;

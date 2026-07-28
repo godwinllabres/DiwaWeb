@@ -27,7 +27,7 @@ const read = (rel: string) => readFileSync(resolve(__dirname, "../..", rel), "ut
 
 const CAMPUS_MAP = read("app/components/CampusMap.tsx");
 const CHAT_MESSAGE = read("app/components/ChatMessage.tsx");
-const TAILWIND = read("styles/tailwind.css");
+const TAILWIND = read("app/styles/tailwind.css");
 
 /** Utilities that only make sense once a layout has two columns side by side. */
 const SPLIT_UTILITIES = [
