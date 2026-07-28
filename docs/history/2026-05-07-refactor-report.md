@@ -1,5 +1,11 @@
 # SeviWeb — Refactor, Test & Regression Report
 
+> **Historical record — not current state.** This is a point-in-time report from
+> 2026-05-07, kept for the reasoning it captures. It predates the two-entry
+> public/admin split, the AIS authentication work, and the shadcn cull, and it
+> refers to modules that no longer exist. For how the repository is structured
+> today, read `README.md`.
+
 **Date:** 2026-05-07
 **Scope:** Total refactor of `app/` source, unit-test infrastructure, regression validation.
 
