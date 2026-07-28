@@ -29,12 +29,18 @@ This repo has two remotes and they are **not** interchangeable:
 app/                  Application source. The @/* path alias resolves here.
   main.tsx            Public chat entry      <- index.html
   App.tsx
-  admin/main.tsx      Admin console entry    <- admin/index.html
-  components/         Feature components; ui/ holds vendored shadcn primitives
+  components/         PUBLIC feature components only; ui/ holds the one
+                      vendored shadcn primitive still in use (dialog)
   lib/                Transport, stores, pure helpers; lib/hooks/ holds the hooks
   styles/             Tailwind layers and theme; imported by both entries
+  admin/              The ENTIRE admin surface, and nothing else imports it
+    main.tsx          Admin console entry    <- admin/index.html
+    AdminApp.tsx      PIN gate + shell
+    api.ts            Admin API client (X-Admin-Pin / admin session)
+    components/       Dashboard, map editor, intents, system panel
 public/               Copied verbatim into the build (assets, widget.js, CNAME)
-tests/                Mirrors app/. tests/e2e/ holds the Playwright demo.
+tests/                Mirrors app/. tests/build/ asserts the bundle split;
+                      tests/e2e/ holds the Playwright demo.
 docs/                 Handoff notes, mascot spec, feasibility deliverables
 scripts/              Asset generation (Python) and tunnel helpers (PowerShell)
 deploy/               nginx config for the Docker target

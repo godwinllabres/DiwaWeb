@@ -11,8 +11,8 @@
  */
 import { useEffect, useState } from "react";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
-import { AdminDashboard } from "@/components/AdminDashboard";
-import { adminApi, adminUsesPinHeader } from "@/lib/adminApi";
+import { AdminDashboard } from "./components/AdminDashboard";
+import { adminApi, adminUsesPinHeader } from "./api";
 import { readSession, writeSession, removeSession } from "@/lib/storage";
 
 // `import.meta.env` cast the same way api.ts / useAuth.ts do — this project

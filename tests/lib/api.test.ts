@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { api, BusyError } from "@/lib/api";
 // Admin-only calls moved to the admin client so they stay out of the public
 // bundle (Phase 2 admin decoupling); they share the same request() plumbing.
-import { adminApi } from "@/lib/adminApi";
+// Lives here rather than under tests/admin/: these two cases exercise URL
+// encoding in the `request` helper that app/lib/api.ts owns and app/admin/api.ts
+// reuses — they are api-client tests reached through the admin surface.
+import { adminApi } from "@/admin/api";
 
 describe("api client", () => {
   const fetchMock = vi.fn();

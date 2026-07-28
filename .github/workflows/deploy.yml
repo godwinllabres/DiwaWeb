@@ -29,17 +29,20 @@ jobs:
 
       - run: npm ci
 
-      # Gate the artifact on the suite. `deploy` needs: build, so a red test
-      # blocks publication without a separate job. `npm run build` already
-      # runs `tsc -b`, so typechecking is covered by the last step.
       - run: npm run lint
 
-      - run: npm test
-
+      # Build BEFORE test on purpose: tests/build/adminSplit.test.ts inspects
+      # dist/assets to prove the public bundle ships no admin code, so it needs
+      # an artifact to read. `npm run build` also runs `tsc -b`, so this is the
+      # typecheck gate too.
       - run: npm run build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
           VITE_BASE_PATH: /diwa/
+
+      # Nothing is published until this passes: the upload step below is in the
+      # same job, and `deploy` declares `needs: build`.
+      - run: npm test
 
       # Move build output into /diwa/ subdirectory
       - run: |

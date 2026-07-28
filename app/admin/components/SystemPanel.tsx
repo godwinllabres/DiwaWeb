@@ -6,7 +6,7 @@ import {
   type AdminStatus,
   type LlmConfig,
   type ModerationSnapshot,
-} from "@/lib/adminApi";
+} from "@/admin/api";
 
 interface SystemPanelProps {
   onClose: () => void;

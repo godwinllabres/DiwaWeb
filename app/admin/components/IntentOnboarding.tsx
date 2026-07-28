@@ -10,7 +10,7 @@ import {
   Info,
   Loader2,
 } from "lucide-react";
-import { adminApi as api } from "@/lib/adminApi";
+import { adminApi as api } from "@/admin/api";
 
 interface IntentOnboardingProps {
   readonly onClose: () => void;

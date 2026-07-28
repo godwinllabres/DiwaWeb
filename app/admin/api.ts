@@ -17,8 +17,8 @@ import {
   type MapWaypointsResponse,
   type MapWaypointsUpdate,
   type WaypointOverride,
-} from "./api";
-import { readSession } from "./storage";
+} from "@/lib/api";
+import { readSession } from "@/lib/storage";
 
 export type {
   MapCoordsResponse,

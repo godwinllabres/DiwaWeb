@@ -18,7 +18,7 @@ import {
   Waypoints as WaypointsIcon,
   MapPin,
 } from "lucide-react";
-import { adminApi as api, type CustomMarker } from "@/lib/adminApi";
+import { adminApi as api, type CustomMarker } from "@/admin/api";
 import {
   BUILDINGS,
   CAMPUS_H,

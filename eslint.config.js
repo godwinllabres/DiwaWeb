@@ -108,6 +108,38 @@ export default tseslint.config(
   },
 
   {
+    // The public bundle must contain no admin code. That is asserted as a
+    // security property in App.tsx and AdminApp.tsx and checked at the bundle
+    // level by tests/build/adminSplit.test.ts; this stops a violation at the
+    // import instead of after a build.
+    files: [
+      "app/App.tsx",
+      "app/main.tsx",
+      "app/components/**/*.{ts,tsx}",
+      "app/lib/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../*"],
+              message:
+                "Use the @/ alias for cross-directory imports; keep relative paths for siblings only.",
+            },
+            {
+              group: ["@/admin", "@/admin/*"],
+              message:
+                "Public code cannot import from app/admin/. The admin app is a separate Vite entry and the public chat bundle must ship none of it.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  {
     // The one module allowed to touch Web Storage — it is the guard.
     files: ["app/lib/storage.ts"],
     rules: {
