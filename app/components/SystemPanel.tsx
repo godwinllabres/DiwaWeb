@@ -6,7 +6,7 @@ import {
   type AdminStatus,
   type LlmConfig,
   type ModerationSnapshot,
-} from "../lib/adminApi";
+} from "@/lib/adminApi";
 
 interface SystemPanelProps {
   onClose: () => void;
@@ -24,7 +24,7 @@ interface SystemPanelProps {
 export function SystemPanel({ onClose }: SystemPanelProps) {
   // Empty by default: admin calls now authenticate with the httpOnly session
   // cookie set at unlock, so this panel no longer needs (or keeps) the PIN.
-  const [pin, setPin] = useState<string>("");
+  const [pin] = useState<string>("");
   const [authed, setAuthed] = useState(false);
   const [status, setStatus] = useState<AdminStatus | null>(null);
   const [llm, setLlm] = useState<LlmConfig | null>(null);

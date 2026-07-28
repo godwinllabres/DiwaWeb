@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X, BarChart3, MessageSquare, AlertTriangle, ThumbsUp, Map as MapIcon, Plus, Server, Smartphone } from "lucide-react";
-import { adminApi as api } from "../lib/adminApi";
+import { adminApi as api } from "@/lib/adminApi";
 import { AdminMapEditor } from "./AdminMapEditor";
 import { IntentOnboarding } from "./IntentOnboarding";
 import { SystemPanel } from "./SystemPanel";

@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Send,
-  GraduationCap,
   BookOpen,
   Users,
   FileText,
   Home,
-  BarChart3,
   AlertCircle,
   ChevronDown,
   ShieldCheck,
@@ -122,9 +120,12 @@ export default function App() {
   // so a restored conversation renders in the first frame instead of flashing
   // an empty chat. Reopening a *different* conversation later goes through
   // chat.replaceMessages, which is why this deliberately has no deps.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const restoredMessages = useMemo(
     () => (isHistoryEnabled() ? loadConversation(deviceId, conversationId) : []),
+    // The directive has to sit on the dependency array — that is the line
+    // exhaustive-deps reports. Above the useMemo it suppressed nothing, so
+    // this intentional empty-deps read was never actually exempt.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
   // Single source of truth for AIS auth state across all chat bubbles.
@@ -256,7 +257,8 @@ export default function App() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // No directive needed: this effect closes over adminUrl (module scope) and
+    // window only, so exhaustive-deps has nothing to report.
   }, []);
 
   useEffect(() => {

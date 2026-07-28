@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import {
   X,
   ChevronRight,
-  Plus,
   Save,
   ShieldCheck,
   AlertTriangle,

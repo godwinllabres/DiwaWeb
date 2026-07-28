@@ -156,7 +156,6 @@ function scanLoadedBundles(urls) {
     await admPage.waitForSelector("#admin-pin", { timeout: 8000 });
     const lockedVisible = await admPage.isVisible("#admin-pin");
     await admPage.screenshot({ path: path.join(SHOTS, "02-admin-locked.png") });
-    const adm = scanLoadedBundles(admJs);
     const admEntry = admJs.filter((u) => /\/admin-[A-Za-z0-9_-]+\.js/.test(u));
 
     // ── PHASE C — unlock with the PIN ───────────────────────────────────

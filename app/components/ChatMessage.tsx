@@ -890,7 +890,6 @@ function ChatMessageImpl({
   cards,
   context,
   suggestions,
-  displayHint,
   onSuggestion,
   intent,
   writeEnabled,

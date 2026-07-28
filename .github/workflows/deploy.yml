@@ -31,7 +31,9 @@ jobs:
 
       # Gate the artifact on the suite. `deploy` needs: build, so a red test
       # blocks publication without a separate job. `npm run build` already
-      # runs `tsc -b`, so typechecking is covered by the next step.
+      # runs `tsc -b`, so typechecking is covered by the last step.
+      - run: npm run lint
+
       - run: npm test
 
       - run: npm run build
