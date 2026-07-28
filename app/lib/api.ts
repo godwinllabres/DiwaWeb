@@ -113,6 +113,29 @@ export interface ChatContext {
   report?: string | null;
 }
 
+/**
+ * Provenance for a curated intent reply — the official document the answer is
+ * grounded in. Mirrors api/app.py SourceCitation.
+ *
+ * `url` is what makes a citation checkable rather than decorative: a "#page=N"
+ * deep link into the published Citizens' Charter PDF, or the site URL. It is
+ * null when no PDF is published (CHARTER_PDF_URL unset) — render text only in
+ * that case rather than a dead link.
+ */
+export interface SourceCitation {
+  kind: "charter" | "site";
+  /** Charter PDF page number, or the site URL. */
+  locator: string;
+  /** Document title, for site refs. */
+  label?: string | null;
+  /** Rendered one-line citation, safe to show verbatim. */
+  citation: string;
+  url?: string | null;
+  /** Charter refs only — lets a client show chips without parsing `citation`. */
+  section?: string | null;
+  office?: string | null;
+}
+
 export interface ChatResponse {
   // Identity
   message_id: number;
@@ -133,6 +156,11 @@ export interface ChatResponse {
   cards: ChatCard[];
   context?: ChatContext | null;
   suggestions: string[];
+  /**
+   * Official documents this answer is grounded in. Optional because older
+   * backends omit it; treat a missing value as an empty list.
+   */
+  sources?: SourceCitation[];
 
   // Layout hint for the renderer
   display_hint: DisplayHint;

@@ -24,7 +24,7 @@
  * it belongs in localStorage.
  */
 
-import type { ChatCard, DisplayHint, ResponseSource } from "@/lib/api";
+import type { ChatCard, DisplayHint, ResponseSource, SourceCitation } from "@/lib/api";
 import type { Message } from "@/lib/types";
 import { keysWithPrefix, readLocal, removeLocal, writeLocal } from "@/lib/storage";
 
@@ -68,6 +68,9 @@ export interface PersistedMessage {
   messageId?: number;
   followUp?: boolean;
   suggestions?: string[];
+  /** Citations persist alongside cards — otherwise a reload keeps the answer's
+      cards but silently drops the documents it was grounded in. */
+  sources?: SourceCitation[];
   displayHint?: DisplayHint;
   source?: ResponseSource;
   cards?: ChatCard[];
@@ -155,6 +158,9 @@ export function toPersisted(msg: Message): PersistedMessage {
   if (msg.messageId !== undefined) out.messageId = msg.messageId;
   if (msg.followUp) out.followUp = true;
   if (msg.suggestions?.length) out.suggestions = msg.suggestions;
+  // Citations point at public CvSU documents (charter pages, official-site
+  // URLs), so unlike cards they carry nothing to scrub.
+  if (msg.sources?.length) out.sources = msg.sources;
   if (msg.displayHint) out.displayHint = msg.displayHint;
   if (msg.source) out.source = msg.source;
 
@@ -178,6 +184,7 @@ function fromPersisted(p: PersistedMessage, id: number): Message {
     messageId: p.messageId,
     followUp: p.followUp,
     suggestions: p.suggestions,
+    sources: p.sources,
     displayHint: p.displayHint,
     source: p.source,
     cards: p.cards,

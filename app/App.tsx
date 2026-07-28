@@ -522,6 +522,7 @@ export default function App() {
                 cards={message.cards}
                 context={message.context}
                 suggestions={message.suggestions}
+                sources={message.sources}
                 displayHint={message.displayHint}
                 source={message.source}
                 refusalReason={message.refusalReason}

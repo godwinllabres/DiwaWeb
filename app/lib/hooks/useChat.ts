@@ -120,6 +120,7 @@ export function useChat({
           cards: res.cards,
           context: res.context ?? undefined,
           suggestions: res.suggestions,
+          sources: res.sources,
           source: res.source,
           refusalReason: res.refusal_reason ?? undefined,
           displayHint: res.display_hint,

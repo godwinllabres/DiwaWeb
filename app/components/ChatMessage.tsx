@@ -38,7 +38,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { findCard } from "@/lib/api";
+import { findCard, type SourceCitation } from "@/lib/api";
 import { readLocal, writeLocal, storageAvailable } from "@/lib/storage";
 import { isLinkCell, cellToString, cellToSortKey } from "@/lib/tableCell";
 import {
@@ -108,6 +108,10 @@ interface ChatMessageProps {
   readonly cards?: ChatCard[];
   readonly context?: ChatContext | null;
   readonly suggestions?: string[];
+  /** Official documents the answer is grounded in. The API has emitted these
+      since the charter-citation work; the UI ignored them until 2026-07-28, so
+      "p. 948" reached the reader as a number they could not check. */
+  readonly sources?: SourceCitation[];
   readonly source?: ResponseSource;
   readonly refusalReason?: RefusalReason | null;
   readonly displayHint?: DisplayHint;
@@ -835,6 +839,7 @@ function ChatMessageImpl({
   cards,
   context,
   suggestions,
+  sources,
   onSuggestion,
   intent,
   writeEnabled,
@@ -859,6 +864,7 @@ function ChatMessageImpl({
   const [comment, setComment] = useState("");
   const { done, staggerMs, animate } = useWordReveal(message, typing, onTypingDone);
   const hasSuggestions = done && isBot && !!suggestions?.length && !!onSuggestion;
+  const hasSources = done && isBot && !!sources?.length;
 
   const handleThumb = (helpful: boolean) => {
     if (submitted || thumb !== null) return;
@@ -1015,6 +1021,47 @@ function ChatMessageImpl({
         {done && isBot && mapCard && (
           <div className="w-full mt-2">
             <MapAccordion mapData={mapCard} />
+          </div>
+        )}
+
+        {hasSources && (
+          <div className="w-full mt-2 flex flex-col gap-1">
+            {sources?.map((s, i) => {
+              // `url` is what makes the citation checkable — a "#page=N" deep
+              // link into the published charter PDF, or the site URL. It is
+              // null when no PDF is published, and a dead link is worse than
+              // plain text, so fall back to the rendered citation string.
+              const chips = [s.section, s.office].filter(Boolean) as string[];
+              const body = (
+                <>
+                  <FileText className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span className="min-w-0 break-words">{s.citation}</span>
+                  {s.url && <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />}
+                </>
+              );
+              return (
+                <div key={`${s.kind}-${s.locator}-${i}`} className="flex flex-col gap-0.5">
+                  {s.url ? (
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open the source document at this page"
+                      className="inline-flex items-start gap-1.5 rounded-md px-1.5 py-1 text-[10px] text-forest-800 underline decoration-forest-900/25 underline-offset-2 transition-colors hover:bg-forest-50 hover:decoration-forest-900/50 sm:text-[11px]"
+                    >
+                      {body}
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-start gap-1.5 px-1.5 py-1 text-[10px] text-ink-500 sm:text-[11px]">
+                      {body}
+                    </span>
+                  )}
+                  {chips.length > 0 && (
+                    <span className="px-1.5 text-[10px] text-ink-500">{chips.join(" · ")}</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
