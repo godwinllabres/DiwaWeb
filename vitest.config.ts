@@ -19,9 +19,11 @@ export default defineConfig({
       reporter: ["text", "json-summary", "html"],
       include: ["app/**/*.{ts,tsx}"],
       exclude: [
+        // Vendored shadcn source — not authored here.
         "app/components/ui/**",
-        "app/components/figma/**",
-        "app/main.tsx",
+        // Both entries: app/main.tsx and app/admin/main.tsx. The admin one was
+        // previously counted and permanently 0%, which dragged the totals.
+        "app/**/main.tsx",
         "**/*.d.ts",
       ],
     },

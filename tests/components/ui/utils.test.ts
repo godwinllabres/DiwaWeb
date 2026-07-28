@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { cn } from "@/lib/cn";
+import { cn } from "@/components/ui/utils";
 
+// cn() was duplicated byte-for-byte in app/lib/cn.ts and app/components/ui/utils.ts.
+// The lib/ copy had no production importer and was deleted; this suite follows the
+// surviving one, whose consumer is app/components/ui/dialog.tsx.
 describe("cn", () => {
   it("joins class names", () => {
     expect(cn("foo", "bar")).toBe("foo bar");

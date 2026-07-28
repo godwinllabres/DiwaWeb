@@ -36,9 +36,10 @@
   50% { transform: rotate(5deg); }
 }
 
-/* Hat-cycle crossfade (SeviHatCycle): the incoming hat fades/pops in over the
+/* Sticker crossfade (SeviSticker): the incoming image fades/pops in over the
    previous one. Utility class rather than a Tailwind config entry so it stays
-   next to the other sevi-* animation rules. */
+   next to the other sevi-* animation rules. Named for the deleted SeviHatCycle
+   this pattern started in; the class itself is live. */
 .animate-sevi-hat-in {
   animation-name: sevi-hat-in;
   animation-timing-function: ease-out;
