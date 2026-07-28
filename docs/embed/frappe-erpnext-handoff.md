@@ -47,29 +47,26 @@ helper → `app_include_js`. For both → list it in both.
 
 ### Step 1 — the injector asset
 
-Create `cvsu_web/cvsu_web/public/js/sevi_widget.js`:
+**Copy the file, do not retype it from this document.**
 
-```js
-/* Injects the Sevi chat widget once per page load. */
-(function () {
-  if (window.__seviInjected) return;      // guard against double-mount
-  window.__seviInjected = true;
-
-  // Don't mount inside Sevi's own iframe if this ever loads there.
-  try { if (new URLSearchParams(location.search).get("embed") === "1") return; } catch (e) {}
-
-  var s = document.createElement("script");
-  s.src = "https://<YOUR-SEVI-HOST>/widget.js";          // <-- set stable host
-  s.async = true;
-  s.setAttribute("data-diwa-url", "https://<YOUR-SEVI-HOST>");
-  s.setAttribute("data-diwa-color", "#0C6B45");          // CvSU green
-  s.setAttribute("data-diwa-position", "bottom-right");
-  (document.body || document.documentElement).appendChild(s);
-})();
+```
+integrations/frappe/cvsu_web/public/js/sevi_widget.js
+   →  cvsu_web/cvsu_web/public/js/sevi_widget.js
 ```
 
-The widget reads its `data-*` from `document.currentScript`, which resolves to
-this injected element during execution — so the config above is honoured.
+This page used to inline its own copy of that script, and the two had already
+drifted apart — one carried a `<YOUR-SEVI-HOST>` placeholder while the real
+file carried a localhost default. There is now exactly one copy, under
+`integrations/`, because it is deployable code rather than documentation.
+
+Set `SEVI_HOST` at the top of it before deploying. It ships as
+`https://REPLACE_ME.cvsu.edu.ph` on purpose: an unedited value fails loudly
+with a DNS error instead of silently, which is what a leftover `http://…` host
+does when a browser blocks it as mixed content on an HTTPS Desk.
+
+The widget reads its `data-*` attributes from `document.currentScript`, which
+resolves to the injected element during execution — so the config in that file
+is honoured.
 
 ### Step 2 — register it in `hooks.py`
 

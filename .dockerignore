@@ -17,6 +17,7 @@ tsconfig.tsbuildinfo
 docs
 tests
 scripts
+integrations
 sevi-asset
 sevi gif final
 *.md

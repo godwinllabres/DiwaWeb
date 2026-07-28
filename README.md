@@ -39,6 +39,8 @@ app/                  Application source. The @/* path alias resolves here.
     api.ts            Admin API client (X-Admin-Pin / admin session)
     components/       Dashboard, map editor, intents, system panel
 public/               Copied verbatim into the build (assets, widget.js, CNAME)
+integrations/         Deployable code for OTHER systems — the Frappe/ERPNext
+                      Desk widget. Not built here; copied into that app.
 tests/                Mirrors app/. tests/build/ asserts the bundle split;
                       tests/e2e/ holds the Playwright demo.
 docs/                 Handoff notes, mascot spec, feasibility deliverables

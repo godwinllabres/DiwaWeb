@@ -1,8 +1,13 @@
 # Sevi widget — `cvsu_web` drop-in files
 
 Ready-to-drop files for embedding Sevi into the **internal Desk** of your
-`cvsu_web` Frappe/ERPNext app. See `../frappe-erpnext-handoff.md` for the full
-rationale and caveats.
+`cvsu_web` Frappe/ERPNext app. See
+[`docs/embed/frappe-erpnext-handoff.md`](../../../docs/embed/frappe-erpnext-handoff.md)
+for the full rationale and caveats.
+
+These live under `integrations/`, not `docs/`, because they are code that gets
+deployed — a documentation folder is the wrong home for something a `bench
+build` consumes.
 
 ## Where each file goes
 
@@ -15,6 +20,10 @@ rationale and caveats.
 
 1. Edit `sevi_widget.js` → set `SEVI_HOST` to your **stable** Sevi URL
    (e.g. `https://sevi.cvsu.edu.ph`). **Do not** ship the dev tunnel URL.
+   It ships as `https://REPLACE_ME.cvsu.edu.ph`, which fails visibly with a DNS
+   error if you forget. That is deliberate — a leftover `http://…` host would
+   instead be blocked as mixed content on an HTTPS Desk, and the widget would
+   just never appear with nothing on screen explaining why.
 2. Confirm the app module name is `cvsu_web` (underscore) — `bench list-apps`.
 
 ## Deploy

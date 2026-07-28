@@ -29,7 +29,12 @@
   //   • dev.godwincreates.net has NO connectors — do NOT use it for internal.
   //   • Staging/prod: the fenced Sevi host — the Desk must also mint + send a
   //     JWT (see docs/phase0-auth-fencing.md), or the fence blocks AIS/HR.
-  var SEVI_HOST = "http://localhost:8091";
+  //
+  // The default is a deliberately invalid HTTPS host so that forgetting to set
+  // it fails LOUDLY with a DNS error. A leftover "http://localhost:8091" on an
+  // HTTPS Desk is blocked as mixed content instead — the widget simply never
+  // appears, with nothing on screen to say why.
+  var SEVI_HOST = "https://REPLACE_ME.cvsu.edu.ph";
 
   var s = document.createElement("script");
   s.src = SEVI_HOST + "/widget.js";
