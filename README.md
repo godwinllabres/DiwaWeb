@@ -136,6 +136,12 @@ These are known, tracked, and need a decision from CvSU — not from a developer
   The real authorisation gate is server-side in `sevi-api`; the client gate is a
   convenience, not a boundary. Pages cannot provide edge auth — the Docker/nginx target
   can (`deploy/nginx.conf`, the `/admin/` location block).
+- **Two product names.** The app titles itself **Sevi** (`index.html`), while the
+  GitHub Pages deployment presents it as **DIWA** — 21 strings in `deploy.yml`
+  drive the page title, OG tags and social previews at `/diwa/`. The remotes carry
+  the same split (`sevi-web` institutional, `DiwaWeb` personal). This is a branding
+  decision, not a cleanup: changing it rewrites live link previews. Pick one name
+  and apply it in a dedicated change.
 - **Security headers.** `deploy/nginx.conf` sets none. Adding
   `Content-Security-Policy: frame-ancestors` requires the Frappe Desk origin, which is a
   deployment fact and is not knowable from this repository.

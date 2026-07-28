@@ -1,6 +1,8 @@
-# .env is tracked in git and points VITE_API_URL at the production API.
-# Exclude it so the Docker build falls back to same-origin /api (nginx proxy).
-.env
+# A developer's local .env must never enter the build context. No .env file is
+# tracked (the last one was removed in 2e94985); .env.development is, and holds
+# only dev defaults. Dockerfile also sets ENV VITE_API_URL= explicitly, so the
+# image falls back to same-origin /api (proxied by nginx) either way.
+.env*
 
 node_modules
 dist
@@ -9,3 +11,16 @@ coverage
 .github
 .cloudflared
 tsconfig.tsbuildinfo
+
+# Not needed to build the site, and they invalidate the layer cache on every
+# edit because `COPY . .` runs after `npm ci`.
+docs
+tests
+scripts
+sevi-asset
+sevi gif final
+*.md
+LICENSE
+
+# NOTE: do not turn this into an allowlist without re-including deploy/ —
+# stage 2 does `COPY deploy/nginx.conf` from the build context.

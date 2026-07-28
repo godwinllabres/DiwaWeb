@@ -85,7 +85,7 @@ const WELCOME_TEXT =
   "Hi! I'm Sevi, the official chatbot of Cavite State University. I'm here to help you with admissions, enrollment, courses, scholarships, campus facilities, and more. What can I help you with today?";
 
 // Consent disclosure — the specific processing this assistant does, per the
-// Data Privacy Act (RA 10173) and docs/privacy_compliance.md §3.2. Copy is
+// Data Privacy Act (RA 10173) and sevi-api/docs/privacy_compliance.md §3.2. Copy is
 // pending final CvSU Data Protection Officer sign-off; the linked notice is
 // authoritative.
 const CONSENT_PROMPT_TEXT =

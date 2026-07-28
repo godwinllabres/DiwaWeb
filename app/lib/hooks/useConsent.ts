@@ -30,7 +30,7 @@ function writeConsent(accepted: boolean) {
   try {
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
   } catch {
-    /* localStorage may be full or disabled — silently ignore */
+    /* sessionStorage may be full or disabled — silently ignore */
   }
 }
 

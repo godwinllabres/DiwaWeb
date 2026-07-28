@@ -61,7 +61,7 @@ import {
 import { MessageBody } from "./MessageBody";
 
 // Human-readable provenance for the tier that produced an answer — an
-// AI-transparency cue (see docs/privacy_compliance.md §3.11). Knowledge-base
+// AI-transparency cue (see sevi-api/docs/privacy_compliance.md §3.11). Knowledge-base
 // tiers (naive_bayes/neural_network) and fallback/refusal show nothing; only
 // answers that came from an AI model, live data, or the charter are labeled.
 const SOURCE_LABEL: Partial<Record<ResponseSource, string>> = {
