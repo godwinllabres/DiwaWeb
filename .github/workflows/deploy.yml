@@ -22,7 +22,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Single source of truth — .nvmrc also drives `nvm use` locally and
+          # is the version Dockerfile pins. Do not hardcode it here again.
+          node-version-file: .nvmrc
           cache: npm
 
       - run: npm ci
