@@ -299,7 +299,7 @@ export function CampusMap({
   // chrome moves into a rail on the right that scrolls on its own.
   // `short-wide:`, not `short:` — the rail needs 19rem of WIDTH to exist, and
   // the chat widget is a 420px iframe that goes under 560px tall on a tablet.
-  // Splitting there left the map 116px wide. See styles/tailwind.css.
+  // Splitting there left the map 116px wide. See app/styles/tailwind.css.
   const LANDSCAPE_GRID =
     " short-wide:mt-0 short-wide:grid short-wide:h-full short-wide:grid-cols-[minmax(0,1fr)_19rem]" +
     " short-wide:grid-rows-[auto_minmax(0,1fr)] short-wide:rounded-none short-wide:border-0 short-wide:shadow-none" +

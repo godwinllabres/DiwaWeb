@@ -32,7 +32,7 @@ app/                  Application source. The @/* path alias resolves here.
   admin/main.tsx      Admin console entry    <- admin/index.html
   components/         Feature components; ui/ holds vendored shadcn primitives
   lib/                Transport, stores, pure helpers; lib/hooks/ holds the hooks
-styles/               Tailwind layers and theme; imported by both entries
+  styles/             Tailwind layers and theme; imported by both entries
 public/               Copied verbatim into the build (assets, widget.js, CNAME)
 tests/                Mirrors app/. tests/e2e/ holds the Playwright demo.
 docs/                 Handoff notes, mascot spec, feasibility deliverables

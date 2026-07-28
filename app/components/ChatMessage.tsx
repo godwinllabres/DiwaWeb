@@ -1019,7 +1019,7 @@ function ChatMessageImpl({
         {!(done && isBot && table) && (
           <div className={`px-4 py-3.5 sm:px-6 sm:py-4 ${bubbleColors} ${bubbleRounding}`}>
             {/* `.sevi-reveal` scopes the word animation and carries the stagger
-                for every span MessageBody emits below it (styles/index.css).
+                for every span MessageBody emits below it (app/styles/index.css).
                 It lives on this existing element rather than a wrapper inside
                 MessageBody, which renders block content a <span> cannot hold. */}
             {/* 52ch, measured rather than guessed: Plus Jakarta Sans has a
