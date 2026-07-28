@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { adminApi, adminUsesPinHeader } from "./api";
+import { ApiError } from "@/lib/api";
 import { readSession, writeSession, removeSession } from "@/lib/storage";
 
 // `import.meta.env` cast the same way api.ts / useAuth.ts do — this project
@@ -73,8 +74,23 @@ export default function AdminApp() {
       if (adminUsesPinHeader) writeSession("admin_pin", value);
       setPin("");
       setAuthed(true);
-    } catch {
-      setError("That PIN didn't work. Check it and try again.");
+    } catch (e) {
+      // Distinguish a rejected PIN from a server that cannot check one at all.
+      // The API answers 503 "Admin access not configured" when no admin
+      // credential is provisioned; reporting that as a bad PIN sends the
+      // operator into retrying a correct one indefinitely.
+      const status = e instanceof ApiError ? e.status : 0;
+      if (status === 503) {
+        setError("Admin access isn't configured on the server. This is not your PIN — contact whoever runs the API.");
+      } else if (status >= 500) {
+        setError(`The server couldn't handle the request (HTTP ${status}). Try again shortly.`);
+      } else if (status === 429) {
+        setError("Too many attempts. Wait a moment before trying again.");
+      } else if (status === 0) {
+        setError("Couldn't reach the server. Check your connection.");
+      } else {
+        setError("That PIN didn't work. Check it and try again.");
+      }
     } finally {
       setLoading(false);
     }

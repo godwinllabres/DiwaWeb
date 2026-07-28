@@ -270,6 +270,23 @@ export class BusyError extends Error {
   }
 }
 
+/**
+ * A non-OK HTTP response, carrying the status so callers can tell a rejected
+ * credential from a server that is simply unavailable.
+ *
+ * The status used to be interpolated into the message string only, so callers
+ * discarded it — which is how a 503 "Admin access not configured" reached the
+ * operator as "That PIN didn't work".
+ */
+export class ApiError extends Error {
+  readonly status: number;
+  constructor(status: number, path: string) {
+    super(`API ${path} failed: ${status}`);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 function busyRetryDelayMs(res: Response): number {
   const header = Number(res.headers.get("Retry-After"));
   const base = Number.isFinite(header) && header > 0 ? header * 1000 : 1_000;
@@ -320,7 +337,7 @@ export async function request<T>(
           }
           throw new BusyError(res.status);
         }
-        throw new Error(`API ${path} failed: ${res.status}`);
+        throw new ApiError(res.status, path);
       }
       return (await res.json()) as T;
     } catch (err) {
