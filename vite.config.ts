@@ -10,8 +10,18 @@ export default defineConfig(({ mode }) => {
   const apiProxyTarget = env.VITE_API_PROXY_TARGET || "http://127.0.0.1:8009";
 
   // GitHub Pages deploys to /<repo-name>/; local dev stays at /
-  // Use process.env to avoid loadEnv path-mangling on Windows/Git Bash
+  // Use process.env to avoid loadEnv path-mangling on Windows/Git Bash.
+  //
+  // Because this reads process.env and NOT loadEnv, VITE_BASE_PATH cannot be
+  // set in any .env file — putting it there is silently ignored. The only two
+  // setters are .github/workflows/deploy.yml (/diwa/) and Dockerfile (/).
+  //
+  // index.html consumes this as %BASE_URL% for the widget's data-diwa-url, and
+  // Vite rewrites root-relative hrefs (favicons, /widget.js) against it.
   const base = process.env.VITE_BASE_PATH || "/";
+  // Printed so a wrong base is visible in the build log instead of showing up
+  // as 404s after deploy.
+  console.log(`[vite] base = ${base}`);
 
   // Dev/preview parity with production nginx, which serves /admin/ from
   // admin.html (deploy/nginx.conf). Without this the dev server's SPA fallback
