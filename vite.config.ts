@@ -78,6 +78,14 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/api/, ""),
         },
+        // Charter citations deep-link /sources/citizens-charter.pdf#page=N on
+        // whatever origin served the chat request — here that is the dev
+        // server. No rewrite: the API serves this path as-is.
+        // Mirrors deploy/nginx.conf.
+        "/sources": {
+          target: apiProxyTarget,
+          changeOrigin: true,
+        },
       },
     },
   };
