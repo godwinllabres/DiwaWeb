@@ -85,16 +85,17 @@ const WELCOME_TEXT =
 // Consent disclosure — the specific processing this assistant does, per the
 // Data Privacy Act (RA 10173) and sevi-api/docs/privacy_compliance.md §3.2. Copy is
 // pending final CvSU Data Protection Officer sign-off; the linked notice is
-// authoritative.
+// authoritative. Kept to a phone-screen length on purpose — every §3.2
+// disclosure point is still here, just compressed: logging/screening/
+// improvement, own-access live lookups, no password requests, opt-in local
+// storage with deletion, and the authoritative notice link.
 const CONSENT_PROMPT_TEXT =
-  `Hello and welcome to Cavite State University! I'm Sevi — the CvSU Virtual Assistant. ` +
-  `Before we begin: your messages are logged to improve this service, automatically screened for safety, ` +
-  `and may be used to make Sevi's answers better. For live records (documents, tickets, accounts) I look ` +
-  `them up from the relevant CvSU system under your own access — I never ask for passwords in chat. ` +
-  `Our chats are not kept on this device unless you switch on **Saved chats** yourself; if you do, ` +
-  `they stay in this browser only and you can delete them at any time. ` +
-  `Full details are in our [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
-  `If you agree, kindly click the **I Agree** button below.`;
+  `Hi! I'm Sevi — the CvSU Virtual Assistant. Before we begin: your messages are logged, ` +
+  `screened for safety, and may be used to improve Sevi's answers. Live records (documents, ` +
+  `tickets, accounts) are looked up from CvSU systems under your own access — I never ask for ` +
+  `passwords. Chats are kept on this device only if you switch on **Saved chats**, and you can ` +
+  `delete them anytime. Full details: [Data Privacy Notice](${PRIVACY_POLICY_URL}). ` +
+  `If you agree, tap **I Agree** below.`;
 
 const FOLLOWUP_LOW_CONFIDENCE =
   "I may have missed your question. Try one of these related topics, or rephrase your question with a little more detail.";
