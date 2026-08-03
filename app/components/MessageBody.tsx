@@ -71,6 +71,41 @@ interface Seg { id: number; k: SegKind; v: string; href?: string }
 const SEG_RE =
   /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(\*\*(.+?)\*\*)|(`([^`]+)`)|(https?:\/\/[^\s<>"]+)|([A-Za-z]:\\[^\s<>"]+)/g;
 
+// A bare URL is matched up to the next whitespace, so it also eats the
+// punctuation that ends the sentence AROUND it: "verify at https://cvsu.edu.ph.)"
+// linkified "https://cvsu.edu.ph.)" and the browser tried to resolve a host that
+// doesn't exist. Only a bare URL has this problem — a [md](link) is delimited by
+// its own parens, so the reader's punctuation can never leak in.
+//
+// Give the tail back to the surrounding prose. Closing brackets are trimmed only
+// when they are unmatched, because a URL may legitimately end in one
+// (…/wiki/Cavite_(province)); a sentence's "." "," ";" "!" "?" never can.
+const TRAILING_PUNCT = ".,;:!?'\"";
+const CLOSERS: Record<string, string> = { ")": "(", "]": "[", "}": "{" };
+
+function trimUrlTail(url: string): string {
+  let end = url.length;
+  while (end > 0) {
+    const c = url[end - 1];
+    if (TRAILING_PUNCT.includes(c)) {
+      end--;
+      continue;
+    }
+    const open = CLOSERS[c];
+    if (open) {
+      const head = url.slice(0, end);
+      const opened = head.split(open).length - 1;
+      const closed = head.split(c).length - 1;
+      if (closed > opened) {
+        end--;
+        continue;
+      }
+    }
+    break;
+  }
+  return url.slice(0, end);
+}
+
 function parseSegments(text: string): Seg[] {
   const out: Seg[] = [];
   let last = 0;
@@ -80,14 +115,27 @@ function parseSegments(text: string): Seg[] {
 
   while ((m = SEG_RE.exec(text)) !== null) {
     if (m.index > last) out.push({ id: n++, k: "text", v: text.slice(last, m.index) });
+    // How much of the match this segment claims. Only the bare-URL branch gives
+    // any of it back (see trimUrlTail); for every other branch m[0] is consumed
+    // whole and this stays put.
+    let consumed = m[0].length;
 
     if (m[1])      out.push({ id: n++, k: "mdlink", v: m[1], href: m[2] });
     else if (m[3]) out.push({ id: n++, k: "bold", v: m[4] });
     else if (m[5]) out.push({ id: n++, k: "code", v: m[6] });
-    else if (m[7]) out.push({ id: n++, k: "url",  v: m[7] });
+    else if (m[7]) {
+      // m[0] === m[7] here: this alternative IS the whole match.
+      const url = trimUrlTail(m[7]);
+      out.push({ id: n++, k: "url", v: url });
+      consumed = url.length;
+    }
     else if (m[8]) out.push({ id: n++, k: "path", v: m[8] });
 
-    last = m.index + m[0].length;
+    last = m.index + consumed;
+    // Rewind the scanner to match, so anything handed back is re-examined rather
+    // than silently skipped. Always > m.index (a URL keeps its scheme at
+    // minimum), so the loop still advances.
+    SEG_RE.lastIndex = last;
   }
 
   if (last < text.length) out.push({ id: n++, k: "text", v: text.slice(last) });
