@@ -346,7 +346,7 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "cvmbs", num: 40,
-    name: "College of Veterinary Medicine and Biological Sciences (CVMBS)",
+    name: "College of Veterinary Medicine and Biomedical Sciences (CVMBS)",
     abbr: "CVMBS",
     x: 1124, y: 703,
     steps: [
@@ -393,11 +393,11 @@ export const BUILDINGS: readonly Building[] = [
   },
   {
     id: "gender_dev", num: 46,
-    name: "Gender and Development Research Center", abbr: "GAD",
+    name: "Gender and Development Resource Center", abbr: "GAD",
     x: 1174, y: 1190,
     steps: [
       "Walk north past Admin and the library.",
-      "The Gender and Development Research Center is in the central area, near CAS.",
+      "The Gender and Development Resource Center is in the central area, near CAS.",
     ],
   },
   {
