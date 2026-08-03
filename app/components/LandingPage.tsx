@@ -123,7 +123,7 @@ export function LandingPage() {
 
               <p className="mt-6 max-w-[58ch] text-base leading-[1.7] text-ink-600 sm:text-lg">
                 Admissions, enrollment, courses, scholarships, fees, campus facilities and
-                walking directions on the Indang main campus — all in one conversation,
+                walking directions on the main campus — all in one conversation,
                 in the language you actually speak.
               </p>
 
