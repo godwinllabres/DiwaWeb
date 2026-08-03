@@ -155,10 +155,22 @@ export function LandingPage() {
             </motion.div>
 
             <motion.div className="flex justify-center lg:justify-end" {...rise(1)}>
-              <SeviAvatar
-                className="h-44 w-44 sm:h-56 sm:w-56 lg:h-64 lg:w-64"
-                animated
-              />
+              {/* The avatar artwork is a bust crop — it ends in a straight
+                  horizontal cut across the sweater. Floating bare on the page
+                  that cut reads as a broken asset (most visibly on phones), so
+                  the mascot sits in a portrait medallion and the circle clips
+                  the crop line.
+
+                  The idle float lives on the medallion, not the image: with
+                  the image static inside the circle, the crop line can sit
+                  just past the bottom arc (-mb-2) and the figure fills the
+                  frame — no oversized margin reserved for bob travel, which
+                  read as the mascot slumping to the bottom of an empty
+                  circle. Width-only sizing keeps the image at the artwork's
+                  own aspect, so there is no letterbox gap to compensate for. */}
+              <div className="sevi-animated flex h-48 w-48 items-end justify-center overflow-hidden rounded-full border border-forest-900/10 bg-paper-raised sm:h-60 sm:w-60 lg:h-72 lg:w-72">
+                <SeviAvatar className="-mb-2 w-48 sm:w-60 lg:w-72" />
+              </div>
             </motion.div>
           </section>
 
