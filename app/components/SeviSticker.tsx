@@ -119,6 +119,16 @@ export function SeviMoodCycle({ className }: { readonly className?: string }) {
     return () => io.disconnect();
   }, [reduced]);
 
+  // Drop the outgoing sticker once the crossfade has finished. Leaving it
+  // mounted composites two moods permanently: the GIFs share a 694px canvas
+  // but frame the character at different scales, so the previous pose pokes
+  // out from behind the new one through its transparent background.
+  useEffect(() => {
+    if (cycle.prevIndex === null) return;
+    const t = setTimeout(() => setCycle((c) => ({ ...c, prevIndex: null })), FADE_MS);
+    return () => clearTimeout(t);
+  }, [cycle.prevIndex]);
+
   // Advance only when the preloaded next GIF is ready — a slow fetch just
   // holds the current sticker instead of swapping to an empty slot.
   useEffect(() => {
