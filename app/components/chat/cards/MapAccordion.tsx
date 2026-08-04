@@ -1,7 +1,7 @@
 // Campus-map card. Extracted from ChatMessage.tsx.
 import { useState } from "react";
 
-import { X, MapPin, Map as MapIcon, ExternalLink, ArrowLeft } from "lucide-react";
+import { MapPin, Map as MapIcon, ExternalLink, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CampusMap } from "@/components/CampusMap";
 import { readLocal, writeLocal, storageAvailable } from "@/lib/storage";
@@ -59,27 +59,22 @@ export function MapAccordion({
                   dismissCoachmark();
                   setOpen(true);
                 }}
-                className="rounded-full bg-forest-600 px-3 py-1 text-xs font-medium text-white hover:bg-forest-700 active:bg-forest-800"
+                className="rounded-full bg-forest-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-forest-700 active:bg-forest-800"
               >
                 View map
               </button>
               <button
                 type="button"
                 onClick={dismissCoachmark}
-                className="rounded-full border border-forest-900/15 bg-paper-raised px-3 py-1 text-xs font-medium text-forest-800 hover:bg-forest-50 active:bg-forest-100"
+                className="rounded-full border border-forest-900/15 bg-paper-raised px-3.5 py-2 text-xs font-medium text-forest-800 hover:bg-forest-50 active:bg-forest-100"
               >
                 Not now
               </button>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={dismissCoachmark}
-            aria-label="Dismiss map tip"
-            className="flex-shrink-0 rounded-md p-0.5 text-forest-700 hover:bg-forest-100"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
+          {/* No corner X. It measured 18x18 — under the 24x24 floor, passing
+              2.5.8 only because nothing sat within 24px of it — and it did
+              exactly what "Not now" 250px to its left already does. */}
         </div>
       )}
       <DialogTrigger asChild>

@@ -480,7 +480,7 @@ export default function App() {
         <div
           ref={scroll.containerRef}
           onScroll={scroll.onScroll}
-          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-14 pt-6 [-webkit-overflow-scrolling:touch] sm:px-8 sm:pb-16 sm:pt-8 short:pb-12 short:pt-3"
+          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-14 pt-6 [-webkit-overflow-scrolling:touch] sm:px-8 sm:pb-16 sm:pt-8 short:pb-12 short:pt-3"
         >
           <div className="mx-auto w-full md:max-w-2xl lg:max-w-3xl">
           <ChatMessage
@@ -594,7 +594,13 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.8, y: 8 }}
               transition={{ duration: 0.15 }}
               onClick={() => scroll.scrollToBottom(true)}
-              className="absolute bottom-[140px] right-5 z-10 flex items-center gap-1.5 rounded-full border border-forest-900/10 bg-paper-raised/85 px-4 py-2 text-sm font-medium text-ink-700 shadow-float backdrop-blur-xl transition-colors hover:bg-forest-50 sm:bottom-[160px] sm:right-8 short:bottom-[104px]"
+              // The dock (quick-action pills + composer + disclaimer) measures
+              // ~179px tall at every viewport, so bottom-[140px] put this chip
+              // on top of the pills: at 360 and 390 it landed across "Saved
+              // chats" and "Admissions", at 820 across "Support", and being
+              // bg-paper-raised/85 it let their labels bleed through it. Clear
+              // the dock instead of floating inside it.
+              className="absolute bottom-[188px] right-5 z-10 flex items-center gap-1.5 rounded-full border border-forest-900/10 bg-paper-raised/85 px-4 py-2 text-sm font-medium text-ink-700 shadow-float backdrop-blur-xl transition-colors hover:bg-forest-50 sm:bottom-[192px] sm:right-8 short:bottom-[104px]"
             >
               <ChevronDown className="h-4 w-4 text-ink-500" />
               {scroll.hasNewMessage && (

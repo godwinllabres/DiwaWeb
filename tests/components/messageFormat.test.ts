@@ -80,4 +80,47 @@ describe("parseBlocks", () => {
     expect(ol.items.map((i) => i.text)).toEqual(["First step", "Second step", "Third step"]);
     expect(ol.start).toBe(1);
   });
+
+  // Heading detection used to test for SHOUTING, so two labels of identical
+  // rank in one answer rendered differently purely because of how the
+  // knowledge base happened to type them.
+  it("detects a mixed-case label line as a heading", () => {
+    const blocks = parseBlocks("CvSU Tuition fees & Free education:\n\nSome text.");
+    expect(blocks[0].kind).toBe("heading");
+    expect(blocks[1].kind).toBe("p");
+  });
+
+  it("does not mistake a sentence or a link line for a heading", () => {
+    expect(parseBlocks("Bring these. Then pay at the cashier:")[0].kind).toBe("p");
+    expect(parseBlocks("See https://cvsu.edu.ph:")[0].kind).toBe("p");
+    expect(
+      parseBlocks("CvSU offers several scholarship and financial-assistance programmes, including the following named awards:")[0].kind,
+    ).toBe("p");
+  });
+});
+
+// Institutional acronyms the de-shout pass used to lowercase into words no
+// student would recognise, while the directory card beside them spelled the
+// same acronym correctly.
+describe("deshout — institutional acronyms", () => {
+  it("preserves college and programme acronyms", () => {
+    expect(deshout("the CEIT dean")).toBe("the CEIT dean");
+    expect(deshout("Government scholarships (e.g., DOST-SEI, CHED)")).toBe(
+      "Government scholarships (e.g., DOST-SEI, CHED)",
+    );
+    expect(deshout("ranked in WURI 2026")).toBe("ranked in WURI 2026");
+  });
+
+  it("keeps Roman numerals out of the shouting run beside an acronym", () => {
+    expect(deshout("AACCUP Level III accreditation")).toBe("AACCUP Level III accreditation");
+    expect(deshout("Level IV status")).toBe("Level IV status");
+  });
+
+  it("still calms genuinely shouted English words", () => {
+    expect(deshout("REGISTRAR")).toBe("Registrar");
+    expect(deshout("CONTACT the office")).toBe("Contact the office");
+    // Each maximal calmed span opens with a capital, so "FEES" after the
+    // uncalmed "of" starts a new span.
+    expect(deshout("PAYMENT of FEES")).toBe("Payment of Fees");
+  });
 });

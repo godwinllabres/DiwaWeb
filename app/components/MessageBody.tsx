@@ -67,9 +67,39 @@ type SegKind = "text" | "url" | "bold" | "code" | "path" | "mdlink";
 interface Seg { id: number; k: SegKind; v: string; href?: string }
 
 // Markdown link is matched first so a bare-URL inside [text](url) doesn't
-// get captured by the standalone URL alternative.
+// get captured by the standalone URL alternative. The `www.` alternative comes
+// last of the link forms: the knowledge base writes both "https://cvsu.edu.ph"
+// and a bare "www.cvsu.edu.ph" (9 occurrences), and the second used to render
+// as dead prose while the first became a link.
 const SEG_RE =
-  /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(\*\*(.+?)\*\*)|(`([^`]+)`)|(https?:\/\/[^\s<>"]+)|([A-Za-z]:\\[^\s<>"]+)/g;
+  /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(\*\*(.+?)\*\*)|(`([^`]+)`)|(https?:\/\/[^\s<>"]+)|(\bwww\.[a-z0-9.-]*[a-z0-9](?:\/[^\s<>"]*)?)|([a-z]:\\[^\s<>"]+)/gi;
+
+/**
+ * Peel sentence punctuation back off a greedily-matched URL.
+ *
+ * The URL alternative runs to the next space, so "see https://cvsu.edu.ph/x/."
+ * captured the full stop into the href and produced a 404 the student could
+ * click. Parentheses are only surrendered when they are unbalanced, so a URL
+ * that legitimately ends in ")" survives.
+ */
+const CLOSERS: Record<string, string> = { ")": "(", "]": "[", "}": "{" };
+
+function splitTrailingPunct(url: string): [string, string] {
+  let end = url.length;
+  while (end > 0) {
+    const c = url[end - 1];
+    if (".,;:!?'\"".includes(c)) { end--; continue; }
+    const open = CLOSERS[c];
+    if (open) {
+      const head = url.slice(0, end);
+      const closes = head.split(c).length - 1;
+      const opens = head.split(open).length - 1;
+      if (closes > opens) { end--; continue; }
+    }
+    break;
+  }
+  return [url.slice(0, end), url.slice(end)];
+}
 
 function parseSegments(text: string): Seg[] {
   const out: Seg[] = [];
@@ -78,20 +108,35 @@ function parseSegments(text: string): Seg[] {
   let m: RegExpExecArray | null;
   SEG_RE.lastIndex = 0;
 
+  const pushUrl = (raw: string, scheme: string) => {
+    const [url, trail] = splitTrailingPunct(raw);
+    if (!url) { out.push({ id: n++, k: "text", v: raw }); return; }
+    out.push({ id: n++, k: "url", v: url, href: `${scheme}${url}` });
+    if (trail) out.push({ id: n++, k: "text", v: trail });
+  };
+
   while ((m = SEG_RE.exec(text)) !== null) {
     if (m.index > last) out.push({ id: n++, k: "text", v: text.slice(last, m.index) });
 
     if (m[1])      out.push({ id: n++, k: "mdlink", v: m[1], href: m[2] });
     else if (m[3]) out.push({ id: n++, k: "bold", v: m[4] });
     else if (m[5]) out.push({ id: n++, k: "code", v: m[6] });
-    else if (m[7]) out.push({ id: n++, k: "url",  v: m[7] });
-    else if (m[8]) out.push({ id: n++, k: "path", v: m[8] });
+    else if (m[7]) pushUrl(m[7], "");
+    else if (m[8]) pushUrl(m[8], "https://");
+    else if (m[9]) out.push({ id: n++, k: "path", v: m[9] });
 
     last = m.index + m[0].length;
   }
 
   if (last < text.length) out.push({ id: n++, k: "text", v: text.slice(last) });
   return out;
+}
+
+/** Label for a bare URL: drop the scheme and any trailing slash. Nine characters
+ *  of "https://" bought the reader nothing and cost a line break on a phone —
+ *  the full URL stays in href and title. */
+function urlLabel(url: string): string {
+  return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
 }
 
 // ── de-shout ALL-CAPS pseudo-formatting ───────────────────────────────────────
@@ -105,11 +150,23 @@ function parseSegments(text: string): Seg[] {
 // token bearing a digit or lowercase letter (CvSU, RA 10931) pass through
 // untouched. Inline spans matched by SEG_RE — URLs, `code`, **bold**, C:\paths,
 // [md](links) — are skipped entirely, so their casing is preserved.
+// The second block was derived by scanning data/cavsu_intents.json for lone
+// ALL-CAPS tokens of 4+ letters — the ones the `lone` rule below would rewrite.
+// Every entry there is an institutional name, so leaving them out mangled
+// "DOST-SEI" into "Dost-sei" and "CEIT" into "Ceit" in the same answer whose
+// directory card spelled it "CEIT". Genuinely shouted English words from that
+// same scan (DEAN, REGISTRAR, FEES, SECRETARY, PROCESS, CONTACT, CASHIER,
+// LIBRARY) are deliberately absent so they still get calmed.
 const KEEP_ACRONYMS = new Set([
   "CVSU", "NOA", "COR", "RA", "SUC", "SUCS", "TES", "CHED", "DOST", "SEI",
   "LGU", "OSAS", "GPA", "GWA", "STEM", "CS", "IT", "SHS", "BS", "NCAE",
   "UACS", "PWD", "ID", "OJT", "NBC", "NSTP", "CWTS", "ROTC", "COA", "CSC",
   "PRC", "TESDA", "GSIS", "DV", "HRIS", "AIS", "OSA", "URS", "TOR",
+  // Colleges, campuses, programmes, bodies and named plans in the corpus.
+  "AACCUP", "ICTMIS", "ICTO", "CEIT", "CEMDS", "CCAT", "CAFENR", "CAS", "CON",
+  "CVM", "CVMBS", "CTHM", "CSPEAR", "CACOF", "DSAC", "DIWA", "OGSOLC", "HRDO",
+  "ETEEAP", "LEPT", "WURI", "WELA", "SCUAA", "NCMH", "IPOPHL", "PACO", "AWOL",
+  "ASCEND", "IDEAL", "CAPS", "HUMSS", "BSBA", "BSBM", "BSIT", "BSCS", "DOSTSEI",
 ]);
 
 const lettersOf = (w: string) => w.replace(/[^A-Za-z]/g, "");
@@ -117,8 +174,16 @@ const isAllCapsWord = (w: string) => {
   const L = lettersOf(w);
   return L.length >= 2 && !/[a-z]/.test(w) && L === L.toUpperCase();
 };
+// Roman numerals are numbers wearing capitals. "Level III" sits next to an
+// acronym often enough in this corpus ("AACCUP Level III") that the pair reads
+// as a shouting RUN and the numeral came out as "Iii".
+const ROMAN_RE = /^(?:I{1,3}|IV|VI{0,3}|IX|XI{0,3}|XI?V|XVI{1,3}|XI?X)$/;
+const isRoman = (w: string) => ROMAN_RE.test(lettersOf(w).toUpperCase());
 const shouldCalm = (w: string) =>
-  isAllCapsWord(w) && !/\d/.test(w) && !KEEP_ACRONYMS.has(lettersOf(w).toUpperCase());
+  isAllCapsWord(w) &&
+  !/\d/.test(w) &&
+  !isRoman(w) &&
+  !KEEP_ACRONYMS.has(lettersOf(w).toUpperCase());
 // A caps word for RUN detection excludes digit-bearing tokens, so a time range
 // like "AM–6 PM" isn't read as a shouting run (which would calm the lone "PM").
 const isRunCaps = (w: string) => isAllCapsWord(w) && !/\d/.test(w);
@@ -187,13 +252,18 @@ function FormattedText({
   readonly reveal?: Reveal;
 }) {
   const segs = parseSegments(text);
+  // `[overflow-wrap:anywhere]`, never `break-all`. break-all splits a URL at
+  // whatever character happens to sit at the line end even when the whole token
+  // would fit on the next line, which is how a 254px phone column produced
+  // "see http" / "s://admission.cvsu.edu.ph/". `anywhere` moves the token down
+  // first and only breaks it if it still does not fit.
   const linkCls = isBot
-    ? "underline underline-offset-2 decoration-forest-600/40 text-forest-700 font-medium break-all hover:decoration-forest-700 hover:text-forest-900"
-    : "underline underline-offset-2 text-white/90 font-medium break-all";
+    ? "underline underline-offset-2 decoration-forest-700/70 text-forest-700 font-medium [overflow-wrap:anywhere] hover:decoration-forest-800 hover:text-forest-900"
+    : "underline underline-offset-2 text-white/90 font-medium [overflow-wrap:anywhere]";
   // Markdown links carry human-readable labels, so wrap at word
   // boundaries instead of mid-character like raw-URL links do.
   const mdLinkCls = isBot
-    ? "underline underline-offset-2 decoration-forest-600/40 text-forest-700 font-medium hover:decoration-forest-700 hover:text-forest-900"
+    ? "underline underline-offset-2 decoration-forest-700/70 text-forest-700 font-medium hover:decoration-forest-800 hover:text-forest-900"
     : "underline underline-offset-2 text-white/90 font-medium";
   const codeCls = isBot
     ? "bg-paper-deep text-ink-800 rounded px-1.5 py-0.5 text-[0.82em] font-mono"
@@ -208,8 +278,15 @@ function FormattedText({
         switch (seg.k) {
           case "url":
             return (
-              <a key={seg.id} href={seg.v} target="_blank" rel="noopener noreferrer" {...unit(reveal, linkCls)}>
-                {seg.v}
+              <a
+                key={seg.id}
+                href={seg.href ?? seg.v}
+                title={seg.href ?? seg.v}
+                target="_blank"
+                rel="noopener noreferrer"
+                {...unit(reveal, linkCls)}
+              >
+                {urlLabel(seg.v)}
               </a>
             );
           case "mdlink":
@@ -250,9 +327,26 @@ type Block =
   | { kind: "ul"; items: string[] }
   | { kind: "p"; text: string };
 
+/** Numbered steps shown before the tail folds away. Four keeps the 8-step
+ *  admission answer inside one phone screen while still showing enough of the
+ *  procedure to judge whether it is the right one. */
+const OL_INLINE_MAX = 4;
+
 const OL_LINE_RE = /^\s*(\d+)\.\s+(.*)$/;
 const UL_LINE_RE = /^\s*[-*•]\s+(.*)$/;
 const HEADING_RE = /^[A-Z0-9][A-Z0-9 ,()\/&'’.-]{2,}:?$/;
+// A label is a heading whatever case the knowledge base happened to type it in.
+// HEADING_RE alone tested for SHOUTING, so "GENERAL ELIGIBILITY" became a green
+// heading with an accent bar while "CvSU Tuition fees & Free education:" — the
+// same rank, three lines above it in the same answer — stayed plain body text.
+// A short line that ends in a colon and is not itself a sentence is a label.
+const LABEL_HEADING_RE = /^[^\n]{2,60}:$/;
+const isLabelHeading = (text: string) =>
+  LABEL_HEADING_RE.test(text) &&
+  !/[.!?]\s/.test(text) &&           // not "Bring these. Then pay:"
+  !/https?:\/\/|www\./i.test(text) && // not a bare URL line ending in a colon
+  !UL_LINE_RE.test(text) &&
+  !OL_LINE_RE.test(text);
 
 export function parseBlocks(raw: string): Block[] {
   const lines = raw.split("\n");
@@ -265,8 +359,13 @@ export function parseBlocks(raw: string): Block[] {
     const text = paraBuf.join("\n").trim();
     paraBuf = [];
     if (!text) return;
-    // Treat a single short ALL-CAPS line as a heading.
-    if (!text.includes("\n") && text.length < 80 && HEADING_RE.test(text.replace(/:$/, ""))) {
+    // Treat a single short ALL-CAPS line, or any short label line ending in a
+    // colon, as a heading.
+    if (
+      !text.includes("\n") &&
+      text.length < 80 &&
+      (HEADING_RE.test(text.replace(/:$/, "")) || isLabelHeading(text))
+    ) {
       blocks.push({ kind: "heading", text });
     } else {
       blocks.push({ kind: "p", text });
@@ -337,7 +436,10 @@ export function MessageBody({
             return (
               <p
                 key={i}
-                className={`flex items-start gap-2 font-semibold tracking-tight ${isBot ? "text-forest-900" : ""} ${i === 0 ? "mt-0" : "mt-4"} mb-1.5`}
+                // text-[1.05em]: weight, colour and the accent bar all said
+                // "heading" while size said "body". A scanning reader reads
+                // size first.
+                className={`flex items-start gap-2 text-[1.05em] font-semibold tracking-tight ${isBot ? "text-forest-900" : ""} ${i === 0 ? "mt-0" : "mt-4"} mb-1.5`}
               >
                 <span
                   aria-hidden="true"
@@ -348,42 +450,67 @@ export function MessageBody({
                 </span>
               </p>
             );
-          case "ol":
+          case "ol": {
+            // A procedure longer than OL_INLINE_MAX is the single biggest cost
+            // on a phone: the 8-step admission answer measured 61 lines at
+            // 360px, over two and a half screenfuls before its contact card
+            // even started. Show the opening steps, fold the tail behind a
+            // native <details> — no JS, keyboard-operable, and findable by the
+            // browser's own in-page search, which a JS accordion is not.
+            const fold = b.items.length > OL_INLINE_MAX + 1;
+            const head = fold ? b.items.slice(0, OL_INLINE_MAX) : b.items;
+            const tail = fold ? b.items.slice(OL_INLINE_MAX) : [];
+            const renderItems = (items: OlItem[], offset: number) =>
+              items.map((it, j) => (
+                <li key={`${offset}:${j}`} className="relative pl-7">
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-0 top-0.5 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
+                      isBot ? "bg-forest-50 text-forest-800 ring-1 ring-inset ring-forest-900/[0.06]" : "bg-white/25 text-white"
+                    }`}
+                  >
+                    {b.start + offset + j}
+                  </span>
+                  <FormattedText text={tx(it.text)} isBot={isBot} reveal={counter} />
+                  {it.subs.length > 0 && (
+                    <ul className="mt-1 space-y-1 list-none pl-1">
+                      {it.subs.map((s, k) => (
+                        <li key={k} className="relative pl-4">
+                          <span
+                            aria-hidden="true"
+                            className={`absolute left-1 top-[0.65em] h-1.5 w-1.5 rounded-full ${
+                              isBot ? "bg-forest-500" : "bg-white/70"
+                            }`}
+                          />
+                          <FormattedText text={tx(s)} isBot={isBot} reveal={counter} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ));
             return (
-              <ol key={i} className="my-2.5 space-y-2 list-none pl-0">
-                {b.items.map((it, j) => {
-                  const hasSubs = it.subs.length > 0;
-                  return (
-                    <li key={j} className="relative pl-7">
-                      <span
-                        aria-hidden="true"
-                        className={`absolute left-0 top-0.5 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                          isBot ? "bg-forest-50 text-forest-800 ring-1 ring-inset ring-forest-900/[0.06]" : "bg-white/25 text-white"
-                        }`}
-                      >
-                        {b.start + j}
-                      </span>
-                      <FormattedText text={tx(it.text)} isBot={isBot} reveal={counter} />
-                      {hasSubs && (
-                        <ul className="mt-1 space-y-1 list-none pl-1">
-                          {it.subs.map((s, k) => (
-                            <li key={k} className="relative pl-4">
-                              <span
-                                aria-hidden="true"
-                                className={`absolute left-1 top-[0.65em] h-1.5 w-1.5 rounded-full ${
-                                  isBot ? "bg-forest-500" : "bg-white/70"
-                                }`}
-                              />
-                              <FormattedText text={tx(s)} isBot={isBot} reveal={counter} />
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  );
-                })}
-              </ol>
+              <div key={i}>
+                <ol className="my-2.5 space-y-2 list-none pl-0">{renderItems(head, 0)}</ol>
+                {fold && (
+                  <details className="group -mt-1 mb-2.5">
+                    <summary
+                      className={`inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium [&::-webkit-details-marker]:hidden ${
+                        isBot
+                          ? "bg-forest-50 text-forest-800 hover:bg-forest-100"
+                          : "bg-white/20 text-white hover:bg-white/30"
+                      }`}
+                    >
+                      <span aria-hidden="true" className="transition-transform group-open:rotate-90">›</span>
+                      <span className="group-open:hidden">Show the remaining {tail.length} steps</span>
+                      <span className="hidden group-open:inline">Hide steps {b.start + OL_INLINE_MAX}–{b.start + b.items.length - 1}</span>
+                    </summary>
+                    <ol className="mt-2 space-y-2 list-none pl-0">{renderItems(tail, OL_INLINE_MAX)}</ol>
+                  </details>
+                )}
+              </div>
             );
+          }
           case "ul":
             return (
               <ul key={i} className="my-2.5 space-y-1.5 list-none pl-1">

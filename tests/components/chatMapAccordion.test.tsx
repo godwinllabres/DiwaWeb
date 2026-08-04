@@ -100,7 +100,6 @@ describe("ChatMessage map accordion — first-run coachmark", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "View map" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Not now" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Dismiss map tip")).toBeInTheDocument();
   });
 
   it("hides the coachmark when the seen key is already \"1\"", () => {
@@ -134,13 +133,14 @@ describe("ChatMessage map accordion — first-run coachmark", () => {
     expect(localStorage.getItem(COACHMARK_KEY)).toBe("1");
   });
 
-  it("the X (\"Dismiss map tip\") hides the coachmark and persists the key", () => {
+  // The corner X was removed deliberately: it measured 18x18 — under the 24x24
+  // floor of WCAG 2.5.8, passing only because nothing sat within 24px of it —
+  // and it duplicated "Not now", which is larger and adjacent. If it comes
+  // back, it needs to come back at a hittable size.
+  it("offers no undersized corner X — \"Not now\" is the dismiss affordance", () => {
     renderWithMap();
-    fireEvent.click(screen.getByLabelText("Dismiss map tip"));
-    expect(
-      screen.queryByText("This spot is on the campus map."),
-    ).not.toBeInTheDocument();
-    expect(localStorage.getItem(COACHMARK_KEY)).toBe("1");
+    expect(screen.queryByLabelText("Dismiss map tip")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Not now" })).toBeInTheDocument();
   });
 
   it("dismissing does not open the dialog", () => {

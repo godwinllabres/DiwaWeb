@@ -93,7 +93,11 @@ function formatContextChip(ctx: ChatContext): string | null {
   return null;
 }
 
-const AVATAR_SIZE = "h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9";
+// 28px below sm, not 32. On a 360px phone the avatar gutter plus its gap cost
+// 40px — 11% of the screen — before a glyph of the answer was drawn, and the
+// type step below needs that width back to avoid buying legibility with an even
+// shorter line.
+const AVATAR_SIZE = "h-7 w-7 flex-shrink-0 sm:h-9 sm:w-9";
 
 function BotAvatar({ grouped, mood }: { readonly grouped: boolean; readonly mood?: SeviStickerKey }) {
   if (grouped) return <div className={AVATAR_SIZE} />;
@@ -149,7 +153,14 @@ function ChatMessageImpl({
   const [comment, setComment] = useState("");
   const { done, staggerMs, animate } = useWordReveal(message, typing, onTypingDone);
   const hasSuggestions = done && isBot && !!suggestions?.length && !!onSuggestion;
-  const hasSources = done && isBot && !!sources?.length;
+  // Not gated on `done`. The reveal takes up to ~940ms, and everything the
+  // student can actually ACT on — the office phone number, the map, the
+  // citation — used to appear only after it. Reading "contact the Office of
+  // Admissions" with nothing yet on screen to contact it with, then having the
+  // card inject under your thumb, is worse than seeing it arrive with the text.
+  // These all render BELOW the bubble, and the reveal is opacity-only and
+  // scoped to `.sevi-reveal` inside it, so nothing here can disturb it.
+  const hasSources = isBot && !!sources?.length;
 
   const handleThumb = (helpful: boolean) => {
     if (submitted || thumb !== null) return;
@@ -217,7 +228,7 @@ function ChatMessageImpl({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className={`flex gap-2 sm:gap-3 ${isBot ? "justify-start" : "justify-end"} ${
+      className={`flex gap-1.5 sm:gap-3 ${isBot ? "justify-start" : "justify-end"} ${
         isGrouped ? "mb-0.5 mt-0.5" : "mb-3"
       }`}
     >
@@ -250,19 +261,27 @@ function ChatMessageImpl({
             a LEFT edge rather than a right one. Prose gets a readable line
             length and tabular data gets room, which is the right trade. */}
         {!(done && isBot && table) && (
-          <div className={`px-4 py-3.5 sm:px-6 sm:py-4 ${bubbleColors} ${bubbleRounding}`}>
+          <div className={`px-3.5 py-3.5 sm:px-6 sm:py-4 ${bubbleColors} ${bubbleRounding}`}>
             {/* `.sevi-reveal` scopes the word animation and carries the stagger
                 for every span MessageBody emits below it (app/styles/index.css).
                 It lives on this existing element rather than a wrapper inside
                 MessageBody, which renders block content a <span> cannot hold. */}
-            {/* 52ch, measured rather than guessed: Plus Jakarta Sans has a
-                wide "0", so its ch unit runs ~1.4x the average lowercase
-                advance — 52ch lands at ~70 real characters per line, inside
-                the comfortable 45–75 range. Capping here rather than on each
-                paragraph in MessageBody keeps headings, steps and bullets to
-                the same measure, and lets the bubble size itself to it. */}
+            {/* Measure in rem, not ch. A ch cap is a moving target: it is a
+                function of the font size, so the moment the type below became
+                responsive the "52ch" promise would mean a different measure at
+                every breakpoint. Measured over 32 captures, 52ch also only ever
+                bound at desktop — at 360, 390 and 820 the column cap bound
+                first — and where it did bind it ran to 87 characters on the
+                longest line, not the ~70 its old comment claimed. 37rem at
+                17px is ~60 characters, inside the comfortable band by
+                construction.
+
+                The type steps with the device rather than sitting at one size
+                from a 360px phone to a 1440px monitor. The width reclaimed
+                above (avatar, gap, bubble padding) pays for the phone step, so
+                15px→16px does not cost a single character per line. */}
             <div
-              className={`max-w-[52ch] text-[15px] leading-[1.7] break-words ${animate ? "sevi-reveal" : ""}`}
+              className={`max-w-[37rem] text-[15px] leading-[1.7] break-words sm:text-[16px] lg:text-[17px] ${animate ? "sevi-reveal" : ""}`}
               style={animate ? ({ "--sevi-stagger": `${staggerMs}ms` } as CSSProperties) : undefined}
             >
               <MessageBody text={message} isBot={isBot} reveal={animate} />
@@ -284,7 +303,7 @@ function ChatMessageImpl({
           </div>
         )}
 
-        {done && isBot && dvCard && (
+        {isBot && dvCard && (
           <div className="w-full mt-2">
             <DvDetailCard
               dv={dvCard}
@@ -295,7 +314,7 @@ function ChatMessageImpl({
           </div>
         )}
 
-        {done && isBot && directories.length > 0 && (
+        {isBot && directories.length > 0 && (
           <div className="w-full mt-2 flex flex-col gap-2">
             {directories.map((d, i) => (
               <DirectoryCard key={`${d.office}-${i}`} directory={d} />
@@ -303,7 +322,7 @@ function ChatMessageImpl({
           </div>
         )}
 
-        {done && isBot && mapCard && (
+        {isBot && mapCard && (
           <div className="w-full mt-2">
             <MapAccordion mapData={mapCard} />
           </div>
@@ -316,7 +335,12 @@ function ChatMessageImpl({
               // link into the published charter PDF, or the site URL. It is
               // null when no PDF is published, and a dead link is worse than
               // plain text, so fall back to the rendered citation string.
-              const chips = [s.section, s.office].filter(Boolean) as string[];
+              // Only what the citation line does not already say. The charter
+              // citation string spells out the section and office in full, so
+              // showing both unconditionally printed them twice, one line apart.
+              const chips = [s.section, s.office].filter(
+                (c): c is string => !!c && !s.citation.includes(c),
+              );
               const body = (
                 <>
                   <FileText className="h-3 w-3 shrink-0" aria-hidden="true" />
@@ -332,17 +356,21 @@ function ChatMessageImpl({
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Open the source document at this page"
-                      className="inline-flex items-start gap-1.5 rounded-md px-1.5 py-1 text-[10px] text-forest-800 underline decoration-forest-900/25 underline-offset-2 transition-colors hover:bg-forest-50 hover:decoration-forest-900/50 sm:text-[11px]"
+                      className="inline-flex items-start gap-1.5 rounded-md px-1.5 py-1 text-[12px] text-forest-800 underline decoration-forest-900/25 underline-offset-2 transition-colors hover:bg-forest-50 hover:decoration-forest-900/50 sm:text-[13px]"
                     >
                       {body}
                     </a>
                   ) : (
-                    <span className="inline-flex items-start gap-1.5 px-1.5 py-1 text-[10px] text-ink-500 sm:text-[11px]">
+                    <span className="inline-flex items-start gap-1.5 px-1.5 py-1 text-[12px] text-ink-600 sm:text-[13px]">
                       {body}
                     </span>
                   )}
                   {chips.length > 0 && (
-                    <span className="px-1.5 text-[10px] text-ink-500">{chips.join(" · ")}</span>
+                    // The one line that names WHICH section of the charter the
+                    // answer came from had no breakpoint step at all: 10px at
+                    // 4.91:1 on a 1440px monitor, the weakest text in the app,
+                    // carrying the only claim a student can go and check.
+                    <span className="px-1.5 text-[11px] text-ink-700 sm:text-xs">{chips.join(" · ")}</span>
                   )}
                 </div>
               );
@@ -367,7 +395,7 @@ function ChatMessageImpl({
 
         <div className="mt-1.5 flex flex-wrap items-center gap-2 px-1.5 sm:gap-2 sm:px-2">
           <span className="text-[11px] text-ink-500 sm:text-xs">{timestamp}</span>
-          {done && isBot && source && SOURCE_LABEL[source] && (
+          {isBot && source && SOURCE_LABEL[source] && (
             <span
               title="Where this answer came from"
               className="text-[10px] text-ink-500 sm:text-[11px]"

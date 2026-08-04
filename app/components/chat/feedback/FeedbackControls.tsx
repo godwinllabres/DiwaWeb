@@ -34,10 +34,14 @@ interface FeedbackButtonsProps {
 }
 
 export function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsProps) {
-  // Keep tap targets 36 px wide on mobile (still WCAG-compliant when paired
-  // with the gap), but drop the bordered-circle treatment that doubled the
-  // visual weight against the small timestamp.
-  const base = "rounded-full p-1 transition-colors";
+  // 28x28. Measured, not asserted: the previous comment claimed 36px while the
+  // buttons actually rendered 24x24 on phones and — because the icons carried
+  // `sm:h-3.5` — shrank to 22x22 on tablet and desktop, so the touch device with
+  // the most room got the smallest control and 2.5.8 passed only because the
+  // two circles were exactly tangent. p-1.5 around a 16px icon clears 24x24 at
+  // every viewport with margin to spare, without the bordered-circle treatment
+  // that used to double their visual weight against the timestamp.
+  const base = "rounded-full p-1.5 transition-colors";
   const disabled = thumb !== null;
   return (
     <div className="flex items-center gap-0.5">
@@ -52,8 +56,8 @@ export function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsPr
         }`}
       >
         {submitted && thumb === true
-          ? <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-          : <ThumbsUp className="h-4 w-4 sm:h-3.5 sm:w-3.5" />}
+          ? <Check className="h-4 w-4" />
+          : <ThumbsUp className="h-4 w-4" />}
       </button>
       <button
         onClick={() => onThumb(false)}
@@ -65,7 +69,7 @@ export function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsPr
             : "text-ink-400 active:bg-paper-deep hover:text-ink-600 disabled:opacity-40"
         }`}
       >
-        <ThumbsDown className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+        <ThumbsDown className="h-4 w-4" />
       </button>
     </div>
   );
@@ -113,10 +117,13 @@ export function FeedbackReasonPanel({
             {helpful ? "What worked well?" : "What went wrong?"}{" "}
             <span className="text-ink-400">(optional)</span>
           </span>
+          {/* The only way to undo a mis-tapped thumb — handleThumb returns
+              early once `thumb !== null` — and it was a 14x14 bare icon, the
+              smallest control in the reply. */}
           <button
             onClick={onCancel}
             aria-label="Cancel feedback"
-            className="text-ink-400 hover:text-ink-600"
+            className="-m-1.5 rounded-full p-1.5 text-ink-400 hover:text-ink-600"
           >
             <X className="h-3.5 w-3.5" />
           </button>
