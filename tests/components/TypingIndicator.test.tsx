@@ -8,8 +8,9 @@ describe("TypingIndicator", () => {
     expect(container.querySelectorAll("span").length).toBeGreaterThanOrEqual(3);
   });
 
-  it("includes a Bot icon avatar", () => {
-    const { container } = render(<TypingIndicator />);
-    expect(container.querySelector("svg")).toBeTruthy();
+  it("shows the Sevi thinking sticker as the avatar", () => {
+    render(<TypingIndicator />);
+    const img = screen.getByAltText("Sevi is thinking") as HTMLImageElement;
+    expect(img.src).toContain("sevi-stickers/sevi-thinking.gif");
   });
 });

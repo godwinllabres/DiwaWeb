@@ -22,15 +22,28 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Single source of truth — .nvmrc also drives `nvm use` locally and
+          # is the version Dockerfile pins. Do not hardcode it here again.
+          node-version-file: .nvmrc
           cache: npm
 
       - run: npm ci
 
+      - run: npm run lint
+
+      # Build BEFORE test on purpose: tests/build/adminSplit.test.ts inspects
+      # dist/assets to prove the public bundle ships no admin code, so it needs
+      # an artifact to read. `npm run build` also runs `tsc -b`, so this is the
+      # typecheck gate too.
       - run: npm run build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
           VITE_BASE_PATH: /diwa/
+
+      # Nothing is published until this passes: the upload step below is in the
+      # same job, and `deploy` declares `needs: build`. Coverage thresholds are
+      # enforced here (vitest.config.ts), so a drop fails the deploy too.
+      - run: npm run test:coverage
 
       # Move build output into /diwa/ subdirectory
       - run: |

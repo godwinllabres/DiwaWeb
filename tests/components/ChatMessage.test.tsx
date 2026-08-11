@@ -79,6 +79,7 @@ describe("ChatMessage", () => {
         isBot={true}
         timestamp="12:00"
         messageId={1}
+        intent="admissions_requirements"
         onFeedback={onFeedback}
       />
     );
@@ -90,11 +91,13 @@ describe("ChatMessage", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /send feedback/i }));
 
-    expect(onFeedback).toHaveBeenCalledWith({
-      helpful: true,
-      reason: "accurate",
-      comment: "thanks!",
-    });
+    // The bubble hands back its own intent and id, so App can pass one stable
+    // callback for every message instead of a per-message closure.
+    expect(onFeedback).toHaveBeenCalledWith(
+      { helpful: true, reason: "accurate", comment: "thanks!" },
+      "admissions_requirements",
+      1,
+    );
   });
 
   it("submits with helpful=false and reason when Send is clicked on a negative thumb", () => {
@@ -113,11 +116,11 @@ describe("ChatMessage", () => {
     fireEvent.click(screen.getByRole("button", { name: /contains incorrect info/i }));
     fireEvent.click(screen.getByRole("button", { name: /send feedback/i }));
 
-    expect(onFeedback).toHaveBeenCalledWith({
-      helpful: false,
-      reason: "wrong_info",
-      comment: undefined,
-    });
+    expect(onFeedback).toHaveBeenCalledWith(
+      { helpful: false, reason: "wrong_info", comment: undefined },
+      undefined,
+      1,
+    );
   });
 
   it("Skip sends only the bare thumb signal without reason/comment", () => {
@@ -135,7 +138,7 @@ describe("ChatMessage", () => {
     fireEvent.click(screen.getByLabelText(/^helpful$/i));
     fireEvent.click(screen.getByRole("button", { name: /^skip$/i }));
 
-    expect(onFeedback).toHaveBeenCalledWith({ helpful: true });
+    expect(onFeedback).toHaveBeenCalledWith({ helpful: true }, undefined, 1);
   });
 
   it("disables both feedback buttons after one is clicked", () => {

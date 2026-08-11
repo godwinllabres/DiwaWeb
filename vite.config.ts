@@ -10,15 +10,58 @@ export default defineConfig(({ mode }) => {
   const apiProxyTarget = env.VITE_API_PROXY_TARGET || "http://127.0.0.1:8009";
 
   // GitHub Pages deploys to /<repo-name>/; local dev stays at /
-  // Use process.env to avoid loadEnv path-mangling on Windows/Git Bash
+  // Use process.env to avoid loadEnv path-mangling on Windows/Git Bash.
+  //
+  // Because this reads process.env and NOT loadEnv, VITE_BASE_PATH cannot be
+  // set in any .env file — putting it there is silently ignored. The only two
+  // setters are .github/workflows/deploy.yml (/diwa/) and Dockerfile (/).
+  //
+  // index.html consumes this as %BASE_URL% for the widget's data-diwa-url, and
+  // Vite rewrites root-relative hrefs (favicons, /widget.js) against it.
   const base = process.env.VITE_BASE_PATH || "/";
+  // Printed so a wrong base is visible in the build log instead of showing up
+  // as 404s after deploy.
+  console.log(`[vite] base = ${base}`);
+
+  // Dev/preview parity with production nginx, which serves /admin/ from
+  // admin.html (deploy/nginx.conf). Without this the dev server's SPA fallback
+  // answers /admin/ with index.html — i.e. the public chat app — which looks
+  // like the admin entry is broken locally when it isn't.
+  const rewriteAdmin = (req: any, _res: any, next: any) => {
+    // Match on the pathname so a query string (?foo=1) still resolves.
+    const [pathname] = String(req.url || "").split("?");
+    if (pathname === "/admin" || pathname === "/admin/") req.url = "/admin/index.html";
+    next();
+  };
+  const adminPathParity = {
+    name: "admin-path-parity",
+    configureServer(server: any) { server.middlewares.use(rewriteAdmin); },
+    configurePreviewServer(server: any) { server.middlewares.use(rewriteAdmin); },
+  };
 
   return {
     base,
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), adminPathParity],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./app"),
+      },
+    },
+    build: {
+      rollupOptions: {
+        // Two independent entries. The admin app is NOT a chunk of the chat
+        // app — it has its own HTML entry and its own bundle, so the public
+        // chat bundle ships zero admin code. See app/admin/main.tsx.
+        // The admin entry lives at admin/index.html, NOT admin.html, so the
+        // build emits dist/admin/index.html. A static host (GitHub Pages)
+        // resolves /admin/ to that directory index on its own; emitting
+        // admin.html at the root instead meant /admin/ 404'd there — and since
+        // the Pages workflow serves index.html as its 404 page, the operator
+        // silently landed back on the public chat app.
+        input: {
+          main: path.resolve(__dirname, "index.html"),
+          admin: path.resolve(__dirname, "admin/index.html"),
+        },
       },
     },
     server: {
@@ -34,6 +77,14 @@ export default defineConfig(({ mode }) => {
           target: apiProxyTarget,
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/api/, ""),
+        },
+        // Charter citations deep-link /sources/citizens-charter.pdf#page=N on
+        // whatever origin served the chat request — here that is the dev
+        // server. No rewrite: the API serves this path as-is.
+        // Mirrors deploy/nginx.conf.
+        "/sources": {
+          target: apiProxyTarget,
+          changeOrigin: true,
         },
       },
     },

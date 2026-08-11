@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapPin, Navigation, ArrowRight, Info, Plus, Minus, Maximize2 } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
@@ -11,6 +11,7 @@ import {
   routeBetween,
 } from "@/lib/campusMap";
 import { useCoordsOverrides, useWaypointOverrides } from "@/lib/hooks/useCoords";
+import { useIsShortViewport } from "@/lib/hooks/useViewport";
 import type { MapData } from "@/lib/types";
 
 const HIGHLIGHT_RADIUS = 100;    // outer pulsing ring on the target
@@ -36,6 +37,13 @@ export function CampusMap({
 }: Readonly<CampusMapProps>) {
   const overrides = useCoordsOverrides();
   const wpOverrides = useWaypointOverrides();
+  // Landscape phone (or any viewport under 560px tall). The stacked layout
+  // below turns into two columns there — see `paneCls` — and the legend, the
+  // longest block on the page, starts collapsed so the directions are what
+  // the rail actually shows.
+  const isShort = useIsShortViewport();
+  const [legendOpen, setLegendOpen] = useState(true);
+  useEffect(() => setLegendOpen(!isShort), [isShort]);
   const buildings = useMemo(() => applyCoordOverrides(overrides), [overrides]);
   const waypointGraph = useMemo(
     () => applyWaypointOverrides(wpOverrides),
@@ -283,8 +291,46 @@ export function CampusMap({
     </>
   );
 
+  // Landscape layout (fullscreen dialog only — the inline chat preview stays
+  // stacked, it lives inside a scrolling bubble). Stacking a header, a
+  // disclaimer, two pickers, the map, three directions and a 48-row legend
+  // down a 390px-tall screen leaves the map a letterbox, so on a short
+  // viewport the map takes the whole left column at full height and all the
+  // chrome moves into a rail on the right that scrolls on its own.
+  // `short-wide:`, not `short:` — the rail needs 19rem of WIDTH to exist, and
+  // the chat widget is a 420px iframe that goes under 560px tall on a tablet.
+  // Splitting there left the map 116px wide. See app/styles/tailwind.css.
+  const LANDSCAPE_GRID =
+    " short-wide:mt-0 short-wide:grid short-wide:h-full short-wide:grid-cols-[minmax(0,1fr)_19rem]" +
+    " short-wide:grid-rows-[auto_minmax(0,1fr)] short-wide:rounded-none short-wide:border-0 short-wide:shadow-none" +
+    // Desktop dialog (wide viewport): the same map-left + scrolling-rail grid,
+    // so the tall map + legend fit the fixed-height modal instead of stacking
+    // to ~1500px and overflowing (the map got cut off in fullscreen view).
+    " lg:mt-0 lg:grid lg:h-full lg:grid-cols-[minmax(0,1fr)_19rem]" +
+    " lg:grid-rows-[auto_minmax(0,1fr)] lg:rounded-none lg:border-0 lg:shadow-none";
+  const rootCls =
+    "mt-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white" +
+    (zoomable ? LANDSCAPE_GRID : "");
+  // Right rail, top cell: title + coverage note + the From/To pickers.
+  const controlsCls = zoomable
+    ? "short-wide:col-start-2 short-wide:row-start-1 short-wide:border-l short-wide:border-gray-200" +
+      " lg:col-start-2 lg:row-start-1 lg:border-l lg:border-gray-200"
+    : "";
+  // Right rail, bottom cell: walking directions + legend, scrolling on its own
+  // so the map beside it never moves.
+  const detailsCls = zoomable
+    ? "short-wide:col-start-2 short-wide:row-start-2 short-wide:min-h-0 short-wide:overflow-y-auto short-wide:border-l short-wide:border-gray-200" +
+      " lg:col-start-2 lg:row-start-2 lg:min-h-0 lg:overflow-y-auto lg:border-l lg:border-gray-200"
+    : "";
+  // In the rail, "From [select] → To [select]" wraps mid-sentence. Stack the
+  // two pickers instead and drop the arrow that used to join them.
+  const pickerStackCls = zoomable
+    ? " short-wide:flex-col short-wide:items-stretch short-wide:gap-1.5 lg:flex-col lg:items-stretch lg:gap-1.5"
+    : "";
+
   return (
-    <div className="mt-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+    <div className={rootCls}>
+      <div className={controlsCls}>
       <div className="flex items-start gap-1.5 px-3 py-2 bg-gray-50 border-b border-gray-200 sm:items-center">
         <MapPin className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5 sm:mt-0" />
         <span className="text-xs font-medium text-gray-700 leading-snug sm:truncate">
@@ -306,7 +352,7 @@ export function CampusMap({
           we render the target as a read-only label so the inline preview stays
           compact. */}
       {target && (
-        <div className="px-3 py-2.5 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+        <div className={`px-3 py-2.5 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-2 text-xs sm:text-sm${pickerStackCls}`}>
           <span className="text-gray-600 font-medium">From</span>
           <select
             value={fromId}
@@ -318,7 +364,9 @@ export function CampusMap({
               <option key={b.id} value={b.id}>{b.num}. {b.abbr}</option>
             ))}
           </select>
-          <ArrowRight className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+          <ArrowRight
+            className={`h-3.5 w-3.5 text-gray-500 flex-shrink-0${zoomable ? " short-wide:hidden lg:hidden" : ""}`}
+          />
           {editableTarget ? (
             <>
               <span className="text-gray-600 font-medium">To</span>
@@ -340,13 +388,16 @@ export function CampusMap({
           )}
         </div>
       )}
+      </div>
 
       {/* Illustrated campus map. When `zoomable`, wrap the SVG in
           TransformWrapper so pinch / wheel / drag pan the canvas. Floating
           +/-/fit buttons sit in the top-right for non-touch users. */}
       <div
         className={`relative bg-[#1f3d1f] ${
-          zoomable ? "h-full min-h-[60vh] overflow-hidden" : "overflow-x-auto"
+          zoomable
+            ? "h-full min-h-[60vh] overflow-hidden short-wide:col-start-1 short-wide:row-start-1 short-wide:row-span-2 short-wide:min-h-0 lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:min-h-0"
+            : "overflow-x-auto"
         }`}
       >
         {zoomable ? (
@@ -401,8 +452,12 @@ export function CampusMap({
                     <Maximize2 className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-2.5 py-0.5 text-[10px] font-medium text-white">
-                  Pinch / scroll to zoom · drag to pan · double-tap to toggle
+                {/* The full hint wraps to two lines over the map once the pane
+                    is only a landscape phone wide — say less there. */}
+                <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/55 px-2.5 py-0.5 text-[10px] font-medium text-white">
+                  {isShort
+                    ? "Pinch to zoom · drag to pan"
+                    : "Pinch / scroll to zoom · drag to pan · double-tap to toggle"}
                 </div>
               </>
             )}
@@ -420,6 +475,7 @@ export function CampusMap({
         )}
       </div>
 
+      <div className={detailsCls}>
       {/* Walking directions panel */}
       {target && (
         <div className="px-3 py-3 border-t border-gray-100 bg-white sm:px-3 sm:py-2.5">
@@ -487,12 +543,18 @@ export function CampusMap({
       {/* Legend — the map's numbered key, matching the side list on the
           official campus schematic. FROM and TO rows get color highlights so
           you can quickly find them in the list. */}
-      <details className="border-t border-gray-100 bg-white" open>
+      <details
+        className="border-t border-gray-100 bg-white"
+        open={legendOpen}
+        onToggle={(e) => setLegendOpen(e.currentTarget.open)}
+      >
         <summary className="px-3 py-2 text-[11px] font-semibold text-gray-600 cursor-pointer select-none flex items-center justify-between">
           <span>Legend ({buildings.length} locations)</span>
           <span className="text-gray-400 font-normal">tap to toggle</span>
         </summary>
-        <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 pb-3 sm:grid-cols-3">
+        {/* Three columns is right for a full-width phone; in the landscape
+            rail the same grid has 19rem to work with, so drop back to two. */}
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5 px-3 pb-3 sm:grid-cols-3 short-wide:grid-cols-2 lg:grid-cols-2">
           {buildings.map((b) => {
             const isFromRow = target && b.id === from.id && b.id !== target.id;
             const isToRow = target && b.id === target.id;
@@ -515,6 +577,7 @@ export function CampusMap({
           })}
         </ul>
       </details>
+      </div>
     </div>
   );
 }

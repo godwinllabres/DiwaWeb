@@ -1,0 +1,319 @@
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Sevi design language — "Academic Modernism"
+   ─────────────────────────────────────────────────────────────────────────────
+   Two ideas, held together:
+
+   1. INSTITUTIONAL. Cavite State University is 120 years old. The surface it
+      answers from should read like good stationery, not like a SaaS dashboard:
+      warm paper instead of #FFFFFF, a deep chartered green instead of the
+      stock Tailwind `green-600`, and gold used the way a seal uses it —
+      sparingly, and only where something is live or active.
+
+   2. SPATIAL. Depth comes from air, not from drop shadows. Hairlines
+      (1px at ~8–10% of the brand green) separate surfaces; the only real
+      shadow in the system is the diffused ambient one under genuinely
+      floating things (the composer, the scroll-to-bottom pill).
+
+   The token names are deliberately semantic rather than Tailwind-ish:
+   `bg-paper`, `text-ink-700`, `border-forest-900/10`. The stock `gray-*` and
+   `green-*` scales stay available so screens not yet migrated (admin, campus
+   map, components/ui) keep rendering exactly as before.
+   ────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* — Institutional green ————————————————————————————————————————————————
+     600 is the interaction colour (#16803C — white text clears AA at 5.0:1).
+     900 is the headline/heritage colour. 950 is for text on gold. */
+  --color-forest-50: #f1f7f3;
+  --color-forest-100: #dcece2;
+  --color-forest-200: #bcdac7;
+  --color-forest-300: #8ebfa1;
+  --color-forest-400: #559d75;
+  --color-forest-500: #2b8c51;
+  --color-forest-600: #16803c;
+  --color-forest-700: #116335;
+  --color-forest-800: #0d4f2a;
+  --color-forest-900: #0a4222;
+  --color-forest-950: #062b16;
+
+  /* — Warm paper neutrals ————————————————————————————————————————————————
+     `paper` is the page. `raised` is a card sitting on it. `sunken` is a rail
+     or well recessed into it. Pure white is a highlight now, not a default. */
+  --color-paper: #fcfbf9;
+  --color-paper-raised: #fffefb;
+  --color-paper-sunken: #f6f4ef;
+  --color-paper-deep: #efece5;
+
+  /* — Ink ————————————————————————————————————————————————————————————————
+     Warm-tinted greys. Cool `gray-500` on warm paper reads as a mismatch;
+     these carry the same hue family as the background. */
+  --color-ink-900: #1b1d19;
+  --color-ink-800: #2c2f2a;
+  --color-ink-700: #4a4e46;
+  --color-ink-600: #63685e;
+  --color-ink-500: #6b7067;
+  --color-ink-400: #7c8177;
+  --color-ink-300: #c3c5bd;
+  --color-ink-200: #dfded7;
+
+  /* — CvSU gold ——————————————————————————————————————————————————————————
+     Reserved for things that are live or need noticing: active states, "live"
+     markers, notification dots, and the one system-warning surface (the
+     can't-reach-CvSU banner). It is never decoration and never a call to
+     action — if gold is on screen, something is happening. */
+  --color-gold-50: #fbf7ec;
+  --color-gold-100: #f6ead0;
+  --color-gold-200: #ecd6a4;
+  --color-gold-300: #ddba69;
+  --color-gold-500: #c39528;
+  --color-gold-600: #a3781b;
+  --color-gold-700: #7c5a14;
+
+  /* — Display face ———————————————————————————————————————————————————————
+     Serif, and only at headline sizes. Body and UI stay on Plus Jakarta Sans
+     (defined in fonts.css, which owns the @import). */
+  --font-display:
+    "Playfair Display", "Iowan Old Style", "Palatino Linotype", Palatino,
+    Georgia, "Times New Roman", serif;
+
+  /* — Elevation ——————————————————————————————————————————————————————————
+     Two shadows, both tinted with the brand green so they read as shade on
+     paper rather than as grey haze. `ambient` for resting cards that need
+     the faintest lift; `float` only for things that genuinely hover. */
+  --shadow-ambient: 0 1px 2px rgb(10 66 34 / 0.04), 0 10px 30px -14px rgb(10 66 34 / 0.12);
+  --shadow-float: 0 1px 2px rgb(10 66 34 / 0.05), 0 16px 40px -18px rgb(10 66 34 / 0.22);
+}
+
+:root {
+  --font-size: 16px;
+  --background: #fcfbf9;
+  --foreground: #1b1d19;
+  --card: #fffefb;
+  --card-foreground: #1b1d19;
+  --popover: #fffefb;
+  --popover-foreground: #1b1d19;
+  --primary: #16803c;
+  --primary-foreground: #ffffff;
+  --secondary: #f6f4ef;
+  --secondary-foreground: #0a4222;
+  --muted: #f1eee7;
+  --muted-foreground: #63685e;
+  --accent: #f1f7f3;
+  --accent-foreground: #0a4222;
+  --destructive: #b4213c;
+  --destructive-foreground: #ffffff;
+  /* Every divider in the app is this: the brand green at 10%, which reads as a
+     hairline rather than as a grey rule. */
+  --border: rgb(10 66 34 / 0.1);
+  --input: transparent;
+  --input-background: #f6f4ef;
+  --switch-background: #d8d5cc;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #16803c;
+  --chart-1: #16803c;
+  --chart-2: #c39528;
+  --chart-3: #0a4222;
+  --chart-4: #8ebfa1;
+  --chart-5: #7c8177;
+  --radius: 0.75rem;
+  --sidebar: #f6f4ef;
+  --sidebar-foreground: #1b1d19;
+  --sidebar-primary: #0a4222;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f7f3;
+  --sidebar-accent-foreground: #0a4222;
+  --sidebar-border: rgb(10 66 34 / 0.08);
+  --sidebar-ring: #16803c;
+}
+
+.dark {
+  --background: #141613;
+  --foreground: #f2f1ec;
+  --card: #1b1d19;
+  --card-foreground: #f2f1ec;
+  --popover: #1b1d19;
+  --popover-foreground: #f2f1ec;
+  --primary: #2b8c51;
+  --primary-foreground: #f2f1ec;
+  --secondary: #262924;
+  --secondary-foreground: #f2f1ec;
+  --muted: #262924;
+  --muted-foreground: #9a9e94;
+  --accent: #21291f;
+  --accent-foreground: #dcece2;
+  --destructive: #7f1d2e;
+  --destructive-foreground: #f2f1ec;
+  --border: rgb(220 236 226 / 0.12);
+  --input: rgb(220 236 226 / 0.12);
+  --ring: #2b8c51;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: #2b8c51;
+  --chart-2: #c39528;
+  --chart-3: #8ebfa1;
+  --chart-4: #dcece2;
+  --chart-5: #9a9e94;
+  --sidebar: #1b1d19;
+  --sidebar-foreground: #f2f1ec;
+  --sidebar-primary: #2b8c51;
+  --sidebar-primary-foreground: #f2f1ec;
+  --sidebar-accent: #262924;
+  --sidebar-accent-foreground: #f2f1ec;
+  --sidebar-border: rgb(220 236 226 / 0.12);
+  --sidebar-ring: #2b8c51;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: 0.875rem;
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+    min-height: 100%;
+  }
+
+  /* h1/h2 carry the display serif: these are the "welcome" sizes, where the
+     institutional voice belongs. h3/h4 stay on the sans — a serif at 16–18px
+     inside a card reads as decoration, not as prestige. Optical tightening
+     only kicks in at display sizes, which is exactly where these are used. */
+  /* `text-wrap: balance` is what stops a display serif from breaking one word
+     onto its own last line — the browser evens the ragged edge across the
+     whole heading instead. It is capped at a few lines by spec, which is
+     exactly the range headings live in. Where it isn't supported the heading
+     just wraps normally. */
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.4;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+
+  body,
+  #root {
+    min-height: 100dvh;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+    /* Prose leading floor for the whole app. Tailwind's leading-* utilities
+       still override it wherever a component needs tighter setting. */
+    line-height: 1.6;
+  }
+
+  /* `pretty` only polices the last line — no orphaned single word at the end
+     of a paragraph — so unlike `balance` it stays cheap on long copy and is
+     safe to apply to every paragraph in the app, chat replies included. */
+  p {
+    text-wrap: pretty;
+  }
+
+  /* In-page anchors (the hero's "How Sevi thinks") should travel, so the
+     reader keeps their bearings — unless they've asked the OS for less
+     motion, in which case travelling a whole page is precisely the thing
+     they asked not to happen. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  ::selection {
+    background-color: var(--color-forest-100);
+    color: var(--color-forest-950);
+  }
+}
