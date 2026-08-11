@@ -1,6 +1,6 @@
 import { memo, useState, type CSSProperties } from "react";
 import { motion } from "motion/react";
-import { User, FileText, ExternalLink } from "lucide-react";
+import { User } from "lucide-react";
 import { SeviAvatar } from "./SeviAvatar";
 import { SeviSticker, type SeviStickerKey } from "./SeviSticker";
 
@@ -10,6 +10,7 @@ import { MapAccordion } from "./chat/cards/MapAccordion";
 import { DvDetailCard } from "./chat/cards/DvDetailCard";
 import { TableCard } from "./chat/cards/TableCard";
 import { DirectoryCard } from "./chat/cards/DirectoryCard";
+import { SourcesCard } from "./chat/cards/SourcesCard";
 import { FeedbackButtons, FeedbackReasonPanel, type FeedbackSubmission } from "./chat/feedback/FeedbackControls";
 
 // Re-exported so App.tsx and the tests keep importing it from here — this is
@@ -329,52 +330,8 @@ function ChatMessageImpl({
         )}
 
         {hasSources && (
-          <div className="w-full mt-2 flex flex-col gap-1">
-            {sources?.map((s, i) => {
-              // `url` is what makes the citation checkable — a "#page=N" deep
-              // link into the published charter PDF, or the site URL. It is
-              // null when no PDF is published, and a dead link is worse than
-              // plain text, so fall back to the rendered citation string.
-              // Only what the citation line does not already say. The charter
-              // citation string spells out the section and office in full, so
-              // showing both unconditionally printed them twice, one line apart.
-              const chips = [s.section, s.office].filter(
-                (c): c is string => !!c && !s.citation.includes(c),
-              );
-              const body = (
-                <>
-                  <FileText className="h-3 w-3 shrink-0" aria-hidden="true" />
-                  <span className="min-w-0 break-words">{s.citation}</span>
-                  {s.url && <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />}
-                </>
-              );
-              return (
-                <div key={`${s.kind}-${s.locator}-${i}`} className="flex flex-col gap-0.5">
-                  {s.url ? (
-                    <a
-                      href={s.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Open the source document at this page"
-                      className="inline-flex items-start gap-1.5 rounded-md px-1.5 py-1 text-[12px] text-forest-800 underline decoration-forest-900/25 underline-offset-2 transition-colors hover:bg-forest-50 hover:decoration-forest-900/50 sm:text-[13px]"
-                    >
-                      {body}
-                    </a>
-                  ) : (
-                    <span className="inline-flex items-start gap-1.5 px-1.5 py-1 text-[12px] text-ink-600 sm:text-[13px]">
-                      {body}
-                    </span>
-                  )}
-                  {chips.length > 0 && (
-                    // The one line that names WHICH section of the charter the
-                    // answer came from had no breakpoint step at all: 10px at
-                    // 4.91:1 on a 1440px monitor, the weakest text in the app,
-                    // carrying the only claim a student can go and check.
-                    <span className="px-1.5 text-[11px] text-ink-700 sm:text-xs">{chips.join(" · ")}</span>
-                  )}
-                </div>
-              );
-            })}
+          <div className="w-full mt-2">
+            <SourcesCard sources={sources} />
           </div>
         )}
 
