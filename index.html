@@ -2,12 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- interactive-widget=resizes-content: when the on-screen keyboard opens,
-         shrink the LAYOUT viewport rather than just scrolling the visual one,
-         so `h-dvh` gives back the keyboard's space and the composer stays on
-         screen. Chromium honours this; Safari is handled by the visual-viewport
-         fallback in app/lib/hooks/useViewport.ts. -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
+    <!-- Pinch zoom stays ON: no maximum-scale, no user-scalable=no. Blocking
+         zoom fails WCAG 1.4.4/1.4.10 outright — a student with low vision has
+         no other way to enlarge an answer. The clamp was there for the
+         on-screen keyboard, and that job is already covered without it:
+         interactive-widget=resizes-content shrinks the LAYOUT viewport when
+         the keyboard opens (Chromium), so `h-dvh` gives back the keyboard's
+         space and the composer stays on screen; Safari is handled by the
+         visual-viewport fallback in app/lib/hooks/useViewport.ts. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Paints the phone's status bar and address bar the same warm paper the
