@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 import { ChatMessage, type FeedbackSubmission } from "./components/ChatMessage";
+import { LanguageToggle } from "./components/chat/LanguageToggle";
 import { QuickActionButton } from "./components/QuickActionButton";
 import { CategoryCard } from "./components/CategoryCard";
 import { TypingIndicator } from "./components/TypingIndicator";
@@ -26,6 +27,7 @@ import { api, type ChatResponse } from "@/lib/api";
 import { loadCoords } from "@/lib/coordsStore";
 import { loadWaypoints } from "@/lib/waypointsStore";
 import { useConsent } from "@/lib/hooks/useConsent";
+import { useReplyLanguage } from "@/lib/hooks/useReplyLanguage";
 import {
   getUserId,
   getSessionId,
@@ -185,10 +187,13 @@ export default function App() {
     [availableIntentTags],
   );
 
+  const { language, setLanguage } = useReplyLanguage();
+
   const chat = useChat({
     userId,
     sessionId,
     deviceId,
+    language,
     initialMessages: restoredMessages,
     onBotResponse: handleBotResponse,
   });
@@ -518,6 +523,7 @@ export default function App() {
                 messageId={message.messageId}
                 onFeedback={handleFeedback}
                 followUp={message.followUp}
+                isLatest={index === chat.messages.length - 1}
                 typing={message.id === chat.typingMessageId}
                 onTypingDone={chat.clearTypingMessageId}
                 cards={message.cards}
@@ -548,6 +554,14 @@ export default function App() {
                 transition={{ duration: 0.2 }}
                 className="mt-8 space-y-4"
               >
+                {/* Before the first question, which is where UAT asked for it
+                    ("select their preferred language ... before initiating the
+                    conversation"). It repeats in the quick-actions strip once
+                    the conversation starts, because that strip replaces this
+                    whole block and the setting has to stay reachable. */}
+                <div className="px-1">
+                  <LanguageToggle value={language} onChange={setLanguage} />
+                </div>
                 <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-forest-700">
                   {categoriesHeading}
                 </p>
@@ -659,6 +673,11 @@ export default function App() {
                 label="Support"
                 onClick={() => handleQuickAction(getTopicCard("contact_info"))}
               />
+              {/* Last in the strip: it is a setting, not a topic, so it should
+                  not compete with the four things students actually came to
+                  tap. The strip scrolls horizontally, so trailing position
+                  costs it nothing on a phone. */}
+              <LanguageToggle value={language} onChange={setLanguage} />
             </div>
           </div>
         )}

@@ -9,6 +9,11 @@
 const API_BASE_URL =
   (import.meta as any).env?.VITE_API_URL || "/api";
 
+/** Reply-language preference. "auto" = mirror the question, which is what the
+ *  backend did before the selector existed and what it still does when this is
+ *  omitted. Mirrors REPLY_LANGUAGES in api/hybrid_chatbot.py. */
+export type ReplyLanguage = "auto" | "en" | "fil";
+
 export interface ChatRequest {
   message: string;
   user_id?: string;
@@ -19,6 +24,10 @@ export interface ChatRequest {
   /** Form factor + orientation at send time, e.g. "phone/landscape". The API
    *  allowlists the values in lib/ids.ts DeviceClass. */
   device_class?: string;
+  /** Which language to ANSWER in, regardless of the question's language. The
+   *  API allowlists this and drops anything else, so an unknown value costs
+   *  the turn its preference, not its answer. */
+  language?: ReplyLanguage;
 }
 
 // ─── ChatResponse v2 ─────────────────────────────────────────────────────────

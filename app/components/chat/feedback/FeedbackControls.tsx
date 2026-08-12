@@ -31,9 +31,24 @@ interface FeedbackButtonsProps {
   readonly thumb: boolean | null;
   readonly submitted: boolean;
   readonly onThumb: (helpful: boolean) => void;
+  /**
+   * Show the "Was this helpful?" label and give the buttons a real border.
+   *
+   * 7 of 13 UAT testers never rated a single reply, and 6 of those picked
+   * "didn't notice them" over "didn't bother" — so this is a discoverability
+   * problem, not an unwillingness one. The icons sit in a metadata row beside
+   * the timestamp and the source label, all of it deliberately quiet, and at
+   * `text-ink-400` they read as part of that furniture rather than as the one
+   * thing in the row you can act on.
+   *
+   * Prompted only on the newest unrated reply. Labelling all thirty would put
+   * "Was this helpful?" down the entire transcript, which is how a prompt
+   * becomes furniture too — the exact failure being fixed.
+   */
+  readonly prompt?: boolean;
 }
 
-export function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsProps) {
+export function FeedbackButtons({ thumb, submitted, onThumb, prompt = false }: FeedbackButtonsProps) {
   // 28x28. Measured, not asserted: the previous comment claimed 36px while the
   // buttons actually rendered 24x24 on phones and — because the icons carried
   // `sm:h-3.5` — shrank to 22x22 on tablet and desktop, so the touch device with
@@ -43,17 +58,22 @@ export function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsPr
   // that used to double their visual weight against the timestamp.
   const base = "rounded-full p-1.5 transition-colors";
   const disabled = thumb !== null;
+  // The bordered treatment is back, but only while prompting and only until the
+  // reply is rated — it buys attention for the one control that needs it
+  // without permanently outweighing the timestamp on every bubble.
+  const resting = prompt
+    ? "border border-forest-900/15 bg-paper-raised text-ink-600 hover:border-forest-900/25 hover:text-forest-900 active:bg-forest-100"
+    : "text-ink-400 active:bg-paper-deep hover:text-ink-600 disabled:opacity-40";
   return (
     <div className="flex items-center gap-0.5">
+      {prompt && (
+        <span className="mr-1 text-[11px] text-ink-500 sm:text-xs">Was this helpful?</span>
+      )}
       <button
         onClick={() => onThumb(true)}
         disabled={disabled}
         aria-label="Helpful"
-        className={`${base} ${
-          thumb === true
-            ? "text-forest-600"
-            : "text-ink-400 active:bg-paper-deep hover:text-ink-600 disabled:opacity-40"
-        }`}
+        className={`${base} ${thumb === true ? "text-forest-600" : resting}`}
       >
         {submitted && thumb === true
           ? <Check className="h-4 w-4" />
@@ -63,11 +83,7 @@ export function FeedbackButtons({ thumb, submitted, onThumb }: FeedbackButtonsPr
         onClick={() => onThumb(false)}
         disabled={disabled}
         aria-label="Not helpful"
-        className={`${base} ${
-          thumb === false
-            ? "text-red-500"
-            : "text-ink-400 active:bg-paper-deep hover:text-ink-600 disabled:opacity-40"
-        }`}
+        className={`${base} ${thumb === false ? "text-red-500" : resting}`}
       >
         <ThumbsDown className="h-4 w-4" />
       </button>

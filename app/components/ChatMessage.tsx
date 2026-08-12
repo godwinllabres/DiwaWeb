@@ -60,6 +60,11 @@ interface ChatMessageProps {
   ) => void;
   /** Follow-up bubbles ("I may have missed your question") carry no thumbs. */
   readonly followUp?: boolean;
+  /** Newest bubble in the transcript. Only this one prompts for a rating —
+   *  see FeedbackButtons' `prompt`. A boolean, so the previously-last bubble
+   *  re-renders once per turn rather than once per keystroke, which is what
+   *  the memo below is actually defending against. */
+  readonly isLatest?: boolean;
   readonly typing?: boolean;
   readonly onTypingDone?: () => void;
   // v2 envelope
@@ -124,6 +129,7 @@ function ChatMessageImpl({
   isGrouped = false,
   onFeedback,
   followUp = false,
+  isLatest = false,
   typing = false,
   onTypingDone,
   cards,
@@ -369,7 +375,12 @@ function ChatMessageImpl({
             </span>
           )}
           {showFeedback && (
-            <FeedbackButtons thumb={thumb} submitted={submitted} onThumb={handleThumb} />
+            <FeedbackButtons
+              thumb={thumb}
+              submitted={submitted}
+              onThumb={handleThumb}
+              prompt={isLatest && thumb === null}
+            />
           )}
         </div>
 

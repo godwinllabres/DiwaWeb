@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { api, BusyError, type ChatResponse } from "@/lib/api";
+import { api, BusyError, type ChatResponse, type ReplyLanguage } from "@/lib/api";
 import type { Message } from "@/lib/types";
 import { timeNow } from "@/lib/time";
 import { getDeviceClass } from "@/lib/ids";
@@ -10,6 +10,8 @@ export interface UseChatOptions {
   /** Stable per-browser id (getDeviceId()). Sent with every turn so usage can
    *  be counted per device, not just per session. */
   deviceId?: string;
+  /** Reply-language preference, sent with every turn. Omit for "auto". */
+  language?: ReplyLanguage;
   initialMessages: Message[];
   onBotResponse?: (response: ChatResponse, userInput: string) => void;
   onError?: (error: unknown) => void;
@@ -68,10 +70,20 @@ export function useChat({
   userId,
   sessionId,
   deviceId,
+  language,
   initialMessages,
   onBotResponse,
   onError,
 }: UseChatOptions): UseChatApi {
+  // Held in a ref, not a dependency. sendMessage is handed to every bubble as
+  // `onSuggestion`, and the memo on ChatMessage only holds while that identity
+  // stays stable — listing `language` in the deps below would remint the
+  // callback and re-render the whole transcript each time the toggle moves.
+  // Assigned during render rather than in an effect so a turn sent immediately
+  // after the switch carries the new value, not the previous commit's.
+  const languageRef = useRef(language);
+  languageRef.current = language;
+
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isTyping, setIsTyping] = useState(false);
   const [typingMessageId, setTypingMessageId] = useState<number | null>(null);
@@ -108,6 +120,7 @@ export function useChat({
           // mid-conversation, and which orientation they were actually in is
           // the thing we want to be able to count.
           device_class: getDeviceClass(),
+          language: languageRef.current,
         });
 
         const botId = pushMessage({
