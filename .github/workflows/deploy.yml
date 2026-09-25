@@ -38,52 +38,20 @@ jobs:
       - run: npm run build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
-          VITE_BASE_PATH: /diwa/
+          VITE_BASE_PATH: /
 
       # Nothing is published until this passes: the upload step below is in the
       # same job, and `deploy` declares `needs: build`. Coverage thresholds are
       # enforced here (vitest.config.ts), so a drop fails the deploy too.
       - run: npm run test:coverage
 
-      # Move build output into /diwa/ subdirectory
+      # The chatbot has its own host: diwa.godwincreates.net.
+      # Publish the application at / and keep the SPA fallback.
       - run: |
-          mkdir -p staging/diwa
-          cp -r dist/* staging/diwa/
-          cp dist/index.html staging/diwa/404.html
+          mkdir -p staging
+          cp -r dist/* staging/
+          cp dist/index.html staging/404.html
           cp public/CNAME staging/CNAME
-          # Root redirect: godwincreates.net → godwincreates.net/diwa/
-          # Includes OG tags so previews work even when the apex URL is pasted
-          # (most chat-app scrapers don't follow meta-refresh, so the preview
-          # has to live on this page too — not just /diwa/).
-          cat > staging/index.html << 'REDIRECT'
-          <!DOCTYPE html>
-          <html lang="en"><head>
-            <meta charset="UTF-8" />
-            <title>DIWA | CvSU Digital Intelligent Web Assistant</title>
-            <meta name="description" content="DIWA is the CvSU Digital Intelligent Web Assistant — ask about admissions, enrollment, programs, scholarships, and campus directions." />
-            <link rel="icon" type="image/png" sizes="32x32" href="/diwa/favicon-32.png" />
-            <link rel="apple-touch-icon" sizes="180x180" href="/diwa/apple-touch-icon.png" />
-            <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://godwincreates.net/diwa/" />
-            <meta property="og:title" content="DIWA — CvSU Digital Intelligent Web Assistant" />
-            <meta property="og:description" content="Ask about CvSU admissions, enrollment, programs, scholarships, and campus directions. English, Filipino, and Taglish supported." />
-            <meta property="og:image" content="https://godwincreates.net/diwa/og-image.jpg" />
-            <meta property="og:image:width" content="1200" />
-            <meta property="og:image:height" content="630" />
-            <meta property="og:site_name" content="Cavite State University" />
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content="DIWA — CvSU Digital Intelligent Web Assistant" />
-            <meta name="twitter:description" content="Ask about CvSU admissions, enrollment, programs, scholarships, and campus directions." />
-            <meta name="twitter:image" content="https://godwincreates.net/diwa/og-image.jpg" />
-            <link rel="canonical" href="/diwa/" />
-            <script>location.replace('/diwa/' + location.search + location.hash)</script>
-            <noscript><meta http-equiv="refresh" content="0;url=/diwa/" /></noscript>
-          </head><body>
-            <p>Redirecting to <a href="/diwa/">DIWA</a>...</p>
-          </body></html>
-          REDIRECT
-          # SPA fallback at root level
-          cp staging/diwa/404.html staging/404.html
 
       - uses: actions/upload-pages-artifact@v3
         with:

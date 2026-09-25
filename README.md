@@ -19,7 +19,7 @@ This repo has two remotes and they are **not** interchangeable:
 | `cvsu` | `Cavite-State-University-Official/sevi-web` | Institutional mirror. The repository of record. |
 | `origin` | `godwinllabres/DiwaWeb` | Personal. **This is the one that deploys** — `.github/workflows/deploy.yml` publishes its GitHub Pages site. |
 
-> **Open item.** `public/CNAME` is `godwincreates.net`, a personally-owned apex domain.
+> **Open item.** `public/CNAME` is `diwa.godwincreates.net`, a personally-owned subdomain.
 > The production target should be a `cvsu.edu.ph` host. Until that migration happens the
 > live service runs on personal infrastructure — see [Open items](#open-items).
 
@@ -77,7 +77,7 @@ production.
 |---|---|---|
 | `VITE_API_URL` | `app/lib/api.ts`. Empty/unset → same-origin `/api`. | CI (`vars.VITE_API_URL`); blanked in `Dockerfile` so nginx proxies instead |
 | `VITE_API_PROXY_TARGET` | `vite.config.ts` dev proxy only. Default `http://127.0.0.1:8009`. | your local `.env.development.local` |
-| `VITE_BASE_PATH` | `vite.config.ts` → Vite `base`. Default `/`. | `deploy.yml` (`/diwa/`) and `Dockerfile` (`/`) — **nowhere else** |
+| `VITE_BASE_PATH` | `vite.config.ts` → Vite `base`. Default `/`. | `deploy.yml` (`/`) and `Dockerfile` (`/`) — **nowhere else** |
 
 `.env.development` is committed **on purpose**: `VITE_*` values are compiled into the
 client bundle and are public by definition, so it holds dev defaults, not secrets.
@@ -94,8 +94,8 @@ any `.env` file. Pass it on the command line or via the two setters named above.
 Three, and a change to base paths or the admin route affects all of them.
 
 1. **GitHub Pages** — `.github/workflows/deploy.yml`, on push to `main`. Builds with
-   `VITE_BASE_PATH=/diwa/`, stages to `/diwa/`, serves `index.html` as `404.html` for
-   SPA fallback, and puts a redirect at the apex.
+   `VITE_BASE_PATH=/`, serves the application at `diwa.godwincreates.net`, and copies
+   `index.html` to `404.html` for SPA fallback. The apex domain hosts a separate portfolio.
 2. **Docker + nginx** — `Dockerfile` (two-stage, `nginx-unprivileged` on :8080) with
    `deploy/nginx.conf`. Blanks `VITE_API_URL` so nginx reverse-proxies `/api/` to the
    `api` service. That service is owned by an **external** compose stack; do not add a
@@ -146,7 +146,7 @@ Officer, `dpo@cvsu.edu.ph` (per `docs/alpha-testing-gform.md`).
 
 These are known, tracked, and need a decision from CvSU — not from a developer.
 
-- **Production domain.** `public/CNAME` points at a personally-owned apex domain.
+- **Production domain.** `public/CNAME` points at the personally-owned `diwa.godwincreates.net` subdomain.
   Migrate to a `cvsu.edu.ph` host and record the cutover date.
 - **Privacy notice sign-off.** `app/App.tsx` notes the in-app notice is *pending final
   CvSU Data Protection Officer sign-off*. It ships to real users in the meantime.

@@ -4,8 +4,8 @@
  *
  * Usage on any page (e.g. cvsu.edu.ph):
  *
- *   <script src="https://godwincreates.net/diwa/widget.js"
- *           data-diwa-url="https://godwincreates.net/diwa"
+ *   <script src="https://diwa.godwincreates.net/widget.js"
+ *           data-diwa-url="https://diwa.godwincreates.net"
  *           data-diwa-color="#16803c"
  *           data-diwa-position="bottom-right"
  *           async></script>
@@ -64,7 +64,7 @@
   // app). Swap for the final domain (e.g. https://sevi.cvsu.edu.ph) once live.
   var BASE_URL =
     (self && self.getAttribute("data-diwa-url")) ||
-    "https://godwincreates.net/diwa";
+    "https://diwa.godwincreates.net";
   var ACCENT =
     (self && self.getAttribute("data-diwa-color")) || "#16803c";
   var POSITION =
